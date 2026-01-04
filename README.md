@@ -1,4 +1,4 @@
-<img width="288" height="104" alt="image" src="https://github.com/user-attachments/assets/fc3dc3a3-4acc-47f3-88ab-fbdc4770c31b" />Hello, This is the official RDE GITHUB Repo. ALL USERS MUST FOLLOW THE NAMING CONVENTION SPECIFIED BELOW. 
+Hello, This is the official RDE GITHUB Repo. ALL USERS MUST FOLLOW THE NAMING CONVENTION SPECIFIED BELOW. 
 
 NOTE: THIS CONVENTION IS SUBJECT TO CHANGE
 
