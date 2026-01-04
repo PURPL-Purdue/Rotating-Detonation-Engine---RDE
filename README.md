@@ -1,4 +1,4 @@
-Hello, This is the official RDE GITHUB Repo. ALL USERS MUST FOLLOW THE NAMING CONVENTION SPECIFIED BELOW. 
+<img width="288" height="104" alt="image" src="https://github.com/user-attachments/assets/fc3dc3a3-4acc-47f3-88ab-fbdc4770c31b" />Hello, This is the official RDE GITHUB Repo. ALL USERS MUST FOLLOW THE NAMING CONVENTION SPECIFIED BELOW. 
 
 NOTE: THIS CONVENTION IS SUBJECT TO CHANGE
 
@@ -27,6 +27,8 @@ EXAMPLES
 5. HADES_pd_flow_ignition_delay_v1.m
 6. HADES_test_val_hotfire_tc_v2.m
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
 FOR DEVIL - The following Subteams are given as 
 DEVIL_subteam_category_descripton_versionnumber.
 
@@ -54,6 +56,7 @@ EXAMPLES
 8. DEVIL_mfg_util_tolerance_stackup_v1.m
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
 FOR GENERAL BOOKEEPING DO NOT NAME VERSIONS as FINAL until the code is used in CDR. 
 for the <category> tag, please make sure to be consistent and appropriate. HERE are some general catagory tags that you can use: 
 | Category     | Code      |
