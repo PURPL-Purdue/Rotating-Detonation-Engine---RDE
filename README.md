@@ -18,12 +18,12 @@ HADES_<subteam>_<category>_<descriptor>_v<number>.
 | Media                     | `media` |
 
 EXAMPLES
-HADES_size_thermal_heat_flux_v1.m
-HADES_size_thermal_heat_flux_v2.m
-HADES_cfd_solver_axial_v3.m
-HADES_fea_struct_wall_stress_v1.m
-HADES_pd_flow_ignition_delay_v1.m
-HADES_test_val_hotfire_tc_v2.m
+1. HADES_size_thermal_heat_flux_v1.m
+2. HADES_size_thermal_heat_flux_v2.m
+3. HADES_cfd_solver_axial_v3.m
+4. HADES_fea_struct_wall_stress_v1.m
+5. HADES_pd_flow_ignition_delay_v1.m
+6. HADES_test_val_hotfire_tc_v2.m
 
 FOR DEVIL - The following Subteams are given as 
 DEVIL_<subteam>_<category>_<descriptor>_v<number>.m
@@ -41,14 +41,15 @@ DEVIL_<subteam>_<category>_<descriptor>_v<number>.m
 | Manufacturing       | `mfg`   |
 | Media               | `media` |
 
-DEVIL_size_thermal_heat_flux_v1.m
-DEVIL_size_thermal_heat_flux_v2.m
-DEVIL_cfd_solver_axial_v3.m
-DEVIL_fea_struct_wall_stress_v1.m
-DEVIL_pd_flow_ignition_delay_v1.m
-DEVIL_test_val_hotfire_tc_v2.m
-DEVIL_int_perf_mass_budget_v1.m
-DEVIL_mfg_util_tolerance_stackup_v1.m
+EXAMPLES
+1. DEVIL_size_thermal_heat_flux_v1.m
+2. DEVIL_size_thermal_heat_flux_v2.m
+3. DEVIL_cfd_solver_axial_v3.m
+4. DEVIL_fea_struct_wall_stress_v1.m
+5. DEVIL_pd_flow_ignition_delay_v1.m
+6. DEVIL_test_val_hotfire_tc_v2.m
+7. DEVIL_int_perf_mass_budget_v1.m
+8. DEVIL_mfg_util_tolerance_stackup_v1.m
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 FOR GENERAL BOOKEEPING DO NOT NAME VERSIONS as FINAL until the code is used in CDR. 
