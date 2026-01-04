@@ -2,7 +2,7 @@ Hello, This is the official RDE GITHUB Repo. ALL USERS MUST FOLLOW THE NAMING CO
 
 
 FOR HADES - The following Subteams are given as 
-HADES_<subteam>_<category>_<descriptor>_v<number>.
+HADES_subteam_category_descripton_versionnumber.
 
 | Subteam                   | Code    |
 | ------------------------- | ------- |
@@ -26,7 +26,7 @@ EXAMPLES
 6. HADES_test_val_hotfire_tc_v2.m
 
 FOR DEVIL - The following Subteams are given as 
-DEVIL_<subteam>_<category>_<descriptor>_v<number>.m
+DEVIL_subteam_category_descripton_versionnumber.
 
 | Subteam             | Code    |
 | ------------------- | ------- |
