@@ -57,7 +57,7 @@ EXAMPLES
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-FOR GENERAL BOOKEEPING DO NOT NAME VERSIONS as FINAL until the code is used in CDR. 
+**FOR GENERAL BOOKEEPING DO NOT NAME VERSIONS as FINAL until the code is used in CDR. **
 for the <category> tag, please make sure to be consistent and appropriate. HERE are some general catagory tags that you can use: 
 | Category     | Code      |
 | ------------ | --------- |
