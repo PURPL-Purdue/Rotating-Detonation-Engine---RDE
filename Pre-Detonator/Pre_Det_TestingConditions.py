@@ -54,7 +54,7 @@ print("O2 Mass Flow Rate:", str(o2_m_dot*1000), "g/s")
 print("O/F Ratio:", str(o2_m_dot/h2_m_dot))
 # print("Total Volume:", str(total_volume), "m^3")
 print("Total Fill Time:", str(fill_time*1000), "ms")
-print("Total Chamber Pressure:", str(min([o2_press, h2_press])/psi_to_Pa/14.7), "bar")
+print("Pre-Det Chamber Pressure:", str(min([o2_press, h2_press])/psi_to_Pa/14.7), "bar")
 
 # Shchelkin Spiral Calculations
 OD = 0.3 # inches
