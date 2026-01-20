@@ -1,0 +1,129 @@
+
+ *******************************************************************************
+
+         NASA-GLENN CHEMICAL EQUILIBRIUM PROGRAM CEA2, MAY 21, 2004
+                   BY  BONNIE MCBRIDE AND SANFORD GORDON
+      REFS: NASA RP-1311, PART I, 1994 AND NASA RP-1311, PART II, 1996
+
+ *******************************************************************************
+
+
+
+ !     COMBUSTION OF HYDROGEN IN OXYGEN
+ !     (a)  Combustion or assigned-enthalpy-and-pressure problem (hp).
+ !     (b)  Fuels is  H2  at 298.15 K. The oxidant is O2 at 298K.
+ !     (c)  Oxidant-to-fuel weight ratio is specified interms of phi=1
+ !     (d)  Mixture enthalpy is calculated from reactant values given in
+ !          thermo.lib. This is because data for these species are given in
+ !          thermo.lib and the species names match exactly.
+ !     (e)  product species considered is  H2O  ('only' dataset).
+ !          Note:  these species names must match those used in thermo.lib.
+ !     (f)  Assigned pressure is 1atm.
+ !     (g)  Mixture properties are to be printed in SI units (siunits).
+ !     (h)  Mole fractions > 1.e-15 are to be in e-format (trace=1.e-15).
+ !
+ reac
+      oxid O2 moles=1 t(K)=298.15
+      fuel H2 moles=1 t(K)=298.15
+ prob
+      case=Hydrogen_Oxygen   hp  p(atm)=1, phi=1
+ only
+      H2O
+ output
+      siunits  trace=1.e-15
+ end  End all input for Hydrogen_Oxygen
+
+ OPTIONS: TP=F  HP=T  SP=F  TV=F  UV=F  SV=F  DETN=F  SHOCK=F  REFL=F  INCD=F
+ RKT=F  FROZ=F  EQL=F  IONS=F  SIUNIT=T  DEBUGF=F  SHKDBG=F  DETDBG=F  TRNSPT=F
+
+ TRACE= 1.00E-15  S/R= 0.000000E+00  H/R= 0.000000E+00  U/R= 0.000000E+00
+
+ P,BAR =     1.013250
+
+    REACTANT           MOLES    (ENERGY/R),K   TEMP,K  DENSITY
+        EXPLODED FORMULA
+ O: O2               1.000000  -0.154035E-05   298.15  0.0000
+          O  2.00000
+ F: H2               1.000000  -0.326752E-06   298.15  0.0000
+          H  2.00000
+
+  SPECIES BEING CONSIDERED IN THIS SYSTEM
+ (CONDENSED PHASE MAY HAVE NAME LISTED SEVERAL TIMES)
+  LAST thermo.inp UPDATE:    9/09/04
+
+  g 8/89  H2O            
+
+ O/F =   7.936683
+
+                       EFFECTIVE FUEL     EFFECTIVE OXIDANT        MIXTURE
+ ENTHALPY                  h(2)/R              h(1)/R               h0/R
+ (KG-MOL)(K)/KG       -0.16208918E-06     -0.48137850E-07     -0.60888815E-07
+
+ KG-FORM.WT./KG             bi(2)               bi(1)               b0i
+  O                    0.00000000E+00      0.62502344E-01      0.55508435E-01
+  H                    0.99212255E+00      0.00000000E+00      0.11101687E+00
+
+ POINT ITN      T            O           H 
+
+ SINGULAR MATRIX, ITERATION  1  VARIABLE  2(EQLBRM)
+
+ SINGULAR MATRIX, ITERATION  2  VARIABLE  2(EQLBRM)
+
+ SINGULAR MATRIX, ITERATION  3  VARIABLE  2(EQLBRM)
+
+ SINGULAR MATRIX, ITERATION  4  VARIABLE  2(EQLBRM)
+
+ WARNING!! POINT  1 USES A REDUCED SET OF COMPONENTS
+ SPECIES CONTAINING THE ELIMINATED COMPONENT ARE OMITTED.
+ IT MAY BE NECESSARY TO RERUN WITH INSERTED CONDENSED SPECIES
+ CONTAINING COMPONENT       H (EQLBRM)
+
+ POINT ITN      T          H2O         
+   1   10    4930.564     -38.028
+
+
+
+
+         THERMODYNAMIC EQUILIBRIUM COMBUSTION PROPERTIES AT ASSIGNED
+
+                                   PRESSURES
+
+ CASE = Hydrogen_Oxygen
+
+             REACTANT                       MOLES         ENERGY      TEMP
+                                                         KJ/KG-MOL      K
+ OXIDANT     O2                           1.0000000         0.000    298.150
+ FUEL        H2                           1.0000000         0.000    298.150
+
+ O/F=    7.93668  %FUEL= 11.189834  R,EQ.RATIO= 1.000000  PHI,EQ.RATIO= 1.000000
+
+ THERMODYNAMIC PROPERTIES
+
+ P, BAR            1.0132
+ T, K             4930.56
+ RHO, KG/CU M    4.4527-2
+ H, KJ/KG         0.00000
+ U, KJ/KG        -2275.58
+ G, KJ/KG        -86535.6
+ S, KJ/(KG)(K)    17.5509
+
+ M, (1/n)          18.015
+ (dLV/dLP)t      -1.00000
+ (dLV/dLT)p        1.0000
+ Cp, KJ/(KG)(K)    3.3823
+ GAMMAs            1.1580
+ SON VEL,M/SEC     1623.3
+
+ MOLE FRACTIONS
+
+ H2O             1.0000 0
+
+  * THERMODYNAMIC PROPERTIES FITTED TO 20000.K
+
+    PRODUCTS WHICH WERE CONSIDERED BUT WHOSE MOLE FRACTIONS
+    WERE LESS THAN 1.000000E-15 FOR ALL ASSIGNED CONDITIONS
+
+
+
+
+
