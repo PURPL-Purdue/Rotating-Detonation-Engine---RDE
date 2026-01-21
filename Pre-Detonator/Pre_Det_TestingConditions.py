@@ -15,9 +15,7 @@ def chokedFlow(C_D, orificeSize, gas, pressure, temp):
     M = cp.PropsSI("M", gas)  # molar mass [kg/mol]
     R = 8.314 / M # J/kg-K
 
-    Z = cp.PropsSI("Z", "T", temp, "P", pressure, gas)
-
-    return m_dot, Q_gas, R, Z
+    return m_dot, Q_gas, R
 
 #--------------------------------- CONVERSIONS -------------------------------#
 in_to_m = 0.0254
@@ -33,17 +31,17 @@ C_D = 0.6
 # Orifice Link: https://www.mcmaster.com/2275N39/
 h2_orifice = 0.018 # in
 h2_temp = 10 + 273.15 # K
-h2_press = 3.75 * 14.7 * psi_to_Pa
+h2_press = 55.125 * psi_to_Pa
 h2_dpress = h2_press * choke_factor / psi_to_Pa # psia
-[h2_m_dot, h2_Q, h2_R, h2_Z] = chokedFlow(C_D, h2_orifice, "H2", h2_press, h2_temp) # kg/s, m^3/s
+[h2_m_dot, h2_Q, h2_R] = chokedFlow(C_D, h2_orifice, "H2", h2_press, h2_temp) # kg/s, m^3/s
 
 # O2 Conditions
 # Orifice Link: https://www.mcmaster.com/2275N39/
 o2_orifice = 0.035 # in
 o2_temp = 10 + 273.15 # K
-o2_press = 2 * 14.7 * psi_to_Pa
+o2_press = 29.4 * psi_to_Pa
 o2_dpress = o2_press * choke_factor / psi_to_Pa # psia
-[o2_m_dot, o2_Q, o2_R, o2_Z] = chokedFlow(C_D, o2_orifice, "O2", o2_press, o2_temp) # kg/s, m^3/s
+[o2_m_dot, o2_Q, o2_R] = chokedFlow(C_D, o2_orifice, "O2", o2_press, o2_temp) # kg/s, m^3/s
 
 # Pre-Det Dimensions
 quarter_length = (4.3955 + 0.74) * in_to_m # m
@@ -76,11 +74,17 @@ BR = (OD**2 - ID**2) / (OD**2)
 print("Blockage Ratio:", str(BR))
 
 # Hoop Stress Calculations
-P_i = 38.449 * 14.7 # psia
+P_i = 80 * 14.7 # psia
 P_o = 14.7 # psia
 r_o = 0.25/2 # inches
+r2_o = 0.375/2 # inches
+r2_i = r2_o - wall_thickness # inches
 r_i = r_o - wall_thickness # inches
 hoop_stress = ((P_i * r_i**2 - P_o * r_o**2)/(r_o**2 - r_i**2)) + (r_i**2 * r_o**2 * (P_i - P_o) / (r_i**2 * (r_o**2 - r_i**2))) # psia
-print("Hoop Stress:", str(hoop_stress), "psia")
-hoop_stress_safety = 4910.1 # psia
-print("Pressure Safety Factor:", str(hoop_stress_safety/hoop_stress))
+hoop_stress2 = ((P_i * r2_i**2 - P_o * r2_o**2)/(r2_o**2 - r2_i**2)) + (r2_i**2 * r2_o**2 * (P_i - P_o) / (r2_i**2 * (r2_o**2 - r2_i**2))) # psia
+print("Hoop Stress 1/4 in:", str(hoop_stress), "psia")
+print("Hoop Stress 3/8 in:", str(hoop_stress2), "psia")
+hoop_stress_safety = 5100 # psia
+hoop_stress_safety2 = 3300 # psia
+print("Pressure Safety Factor 1/4 in:", str(hoop_stress_safety/hoop_stress))
+print("Pressure Safety Factor 3/8 in:", str(hoop_stress_safety2/hoop_stress2))
