@@ -39,7 +39,8 @@ fprintf("Calculated Cell Width: %.3f mm \n", chosen_cellwidth);
 fprintf("Annulus Gap: %.3f mm \n", annulus_gap);
 
 chosen_annulus_gap = 9.575; %mm
-%for Hades chose annulus gap of 3/8 in or 9.575 mm 
+%for Hades chose annulus gap of 3/8 in or 9.575 mm
+
 
 
 %% fill height
