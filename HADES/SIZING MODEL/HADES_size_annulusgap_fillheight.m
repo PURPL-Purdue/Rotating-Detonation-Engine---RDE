@@ -4,7 +4,7 @@ clear; clc; close;
 % (https://shepherd.caltech.edu/detn_db/html/H2-Air2.html)
 
 %inputs
-data = readmatrix("cell_size_daytaa.xlsx");
+data = readmatrix("HADES_size_cellsizedata.xlsx");
 chosen_phi = 0.9;
 
 phis = data(:, 1);
