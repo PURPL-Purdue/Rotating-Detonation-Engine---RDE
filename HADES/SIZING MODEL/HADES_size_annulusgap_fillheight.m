@@ -1,11 +1,11 @@
-clear; clc; close;
+function [chosen_cellwidth, chosen_annulus_gap, chosen_fillheight] = HADES_size_annulusgap_fillheight(chosen_phi)
 % Author: anjali
 % vals from caltech database
 % (https://shepherd.caltech.edu/detn_db/html/H2-Air2.html)
 
 %inputs
 data = readmatrix("HADES_size_cellsizedata.xlsx");
-chosen_phi = 0.9;
+%chosen_phi = 0.9;
 
 phis = data(:, 1);
 cell_width = data(:, 2);
@@ -26,7 +26,6 @@ ylabel("log(detonation cell width)");
 title("detonation cell width vs equivalence ratio");
 grid on;
 
-
 log_chosen_phi = log10(chosen_phi);
 log_chosen_cellwidth = polyval(coeffs, log_chosen_phi);
 chosen_cellwidth = 10 ^ log_chosen_cellwidth;
@@ -44,4 +43,7 @@ chosen_annulus_gap = 9.575; %mm
 
 
 %% fill height
+
+chosen_fillheight = 0;
+fprintf("Fill Height: %.3f mm \n", chosen_fillheight);
 
