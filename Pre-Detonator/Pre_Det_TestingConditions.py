@@ -20,6 +20,8 @@ def chokedFlow(C_D, orificeSize, gas, pressure, temp):
 #--------------------------------- CONVERSIONS -------------------------------#
 in_to_m = 0.0254
 psi_to_Pa = 6894.76
+bar_to_psia = 14.5
+atm_to_psia = 14.7
 kg_to_lbm = 2.20462
 choke_factor = 0.528
 
@@ -46,7 +48,8 @@ o2_dpress = o2_press * choke_factor / psi_to_Pa # psia
 # Pre-Det Dimensions
 quarter_length = (4.3955 + 0.74) * in_to_m # m
 threeeight_length = 1.5 * in_to_m # m
-wall_thickness = 0.035 # in
+wall_thickness = 0.049 # in
+wall_thickness2 = 0.065 # in
 spring_volume = 0.0216 * in_to_m**3 # m^3
 manifold_volume = math.pi * ((0.3873*in_to_m)/2)**2 * (1.19 * in_to_m) # m^3
 tube_volume = math.pi * (((0.25-wall_thickness*2)*in_to_m)/2)**2 * quarter_length + math.pi * ((0.305 * in_to_m)/2)**2 * threeeight_length - spring_volume # m^3
@@ -74,17 +77,17 @@ BR = (OD**2 - ID**2) / (OD**2)
 print("Blockage Ratio:", str(BR))
 
 # Hoop Stress Calculations
-P_i = 80 * 14.7 # psia
+P_i = 93.786 * bar_to_psia # psia
 P_o = 14.7 # psia
 r_o = 0.25/2 # inches
 r2_o = 0.375/2 # inches
-r2_i = r2_o - wall_thickness # inches
+r2_i = r2_o - wall_thickness2 # inches
 r_i = r_o - wall_thickness # inches
 hoop_stress = ((P_i * r_i**2 - P_o * r_o**2)/(r_o**2 - r_i**2)) + (r_i**2 * r_o**2 * (P_i - P_o) / (r_i**2 * (r_o**2 - r_i**2))) # psia
 hoop_stress2 = ((P_i * r2_i**2 - P_o * r2_o**2)/(r2_o**2 - r2_i**2)) + (r2_i**2 * r2_o**2 * (P_i - P_o) / (r2_i**2 * (r2_o**2 - r2_i**2))) # psia
 print("Hoop Stress 1/4 in:", str(hoop_stress), "psia")
 print("Hoop Stress 3/8 in:", str(hoop_stress2), "psia")
-hoop_stress_safety = 5100 # psia
-hoop_stress_safety2 = 3300 # psia
+hoop_stress_safety = 7514.7 # psia
+hoop_stress_safety2 = 6514.7 # psia
 print("Pressure Safety Factor 1/4 in:", str(hoop_stress_safety/hoop_stress))
 print("Pressure Safety Factor 3/8 in:", str(hoop_stress_safety2/hoop_stress2))
