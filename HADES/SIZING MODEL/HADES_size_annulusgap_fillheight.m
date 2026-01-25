@@ -33,12 +33,11 @@ chosen_cellwidth = 10 ^ log_chosen_cellwidth;
 % annulus gap correlation from karasu continuous spin detonation
 annulus_gap = 1.4 * chosen_cellwidth; 
 
-fprintf("Chosen equivalence ratio: %.1f. \n", chosen_phi);
-fprintf("Calculated Cell Width: %.3f mm \n", chosen_cellwidth);
-fprintf("Annulus Gap: %.3f mm \n", annulus_gap);
+chosen_annulus_gap = 9.525; %mm
+%for Hades chose annulus gap of 3/8 in or 9.525 mm
 
-chosen_annulus_gap = 9.575; %mm
-%for Hades chose annulus gap of 3/8 in or 9.575 mm
+fprintf("Calculated Cell Width: %.3f mm \n", chosen_cellwidth);
+fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 
 
 
