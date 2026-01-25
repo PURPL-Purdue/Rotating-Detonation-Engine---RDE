@@ -7,11 +7,11 @@ exp_decay_const = log(p_p1)/(cycle_time/1000);
 
 time = 0:0.001:cycle_time;
 
-chamber_pressure = p_p1 * p_0 * exp (-1 * exp_decay_const * time ./ 1000);
-avg_chamber_p = mean(chamber_pressure);
+chamber_pressure = p_p1 * p_0 * exp (-1 * exp_decay_const * time ./ 1000); %psia
+avg_chamber_p = mean(chamber_pressure); %psia
 
 % print sol and plot
-fprintf('\n Average Chamber Pressure: %.2f psia (%.3f bar). \n', avg_chamber_p, avg_chamber_p / 14.504);
+fprintf('\nAverage Chamber Pressure: %.2f psia (%.3f bar). \n', avg_chamber_p, avg_chamber_p / 14.504);
 
 figure();
 plot(time, chamber_pressure);
