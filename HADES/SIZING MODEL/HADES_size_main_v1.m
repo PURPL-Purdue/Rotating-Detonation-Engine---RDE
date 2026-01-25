@@ -2,6 +2,11 @@ clear; clc; close;
 
 % put vals in this 
 phi = 0.9;
+
+% CEA inputs (wrapper)
+
+initial_temp = 283.15; %K (10C)
+temp_units = "K";
 initial_pressure = 26; %psia
 pressure_units = "psia";
 
