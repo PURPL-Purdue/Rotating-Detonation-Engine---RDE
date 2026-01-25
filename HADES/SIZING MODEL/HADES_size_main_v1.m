@@ -7,11 +7,11 @@ wall_thickness = 0.625; % in
 
 %% CEA inputs (wrapper)
 initial_temp = 283.15; %K (10C)
-temp_units = "K";
+temp_units = 'K';
 initial_pressure = 26; %psia
-pressure_units = "psia";
-fuel_type = "H2";
-ox_type = "Air";
+pressure_units = 'psia';
+fuel_type = 'H2';
+ox_type = 'Air';
 
 %% print givens
 fprintf("Given: \n");
