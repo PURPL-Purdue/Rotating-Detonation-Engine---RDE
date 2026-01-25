@@ -37,7 +37,7 @@ addParameter(p,'T0',[],@isnumeric);
 addParameter(p,'T0Units','K',@ischar);
 addParameter(p,'of',[],@isnumeric);
 addParameter(p,'pctFuel',[],@isnumeric);
-addParameter(p,'phi',[],@isnumeric);2
+addParameter(p,'phi',[],@isnumeric);
 addParameter(p,'r',[],@isnumeric);
 addParameter(p,'ceaExe', fullfile(pwd,'CEA','FCEA2.exe'), @ischar);
 parse(p,varargin{:});
