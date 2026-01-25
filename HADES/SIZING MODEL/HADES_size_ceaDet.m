@@ -7,7 +7,7 @@ function results = HADES_size_ceaDet(varargin)
 % Options for mixture specification (choose one):
 % 'of' - Oxidizer/Fuel weight ratio
 % 'pctFuel' - Fuel percentage by weight
-% 'phi' - Equivalence ratio based on fuel/oxidizer
+% 'phi' - Equivalence ratio based on fuel/oxidizer*-
 % 'r' - Valence-based equivalence ratio
 %
 % Pressure units: psia, atm, bar, mmHg
