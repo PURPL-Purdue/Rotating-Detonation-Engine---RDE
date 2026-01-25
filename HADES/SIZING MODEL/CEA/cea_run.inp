@@ -1,0 +1,11 @@
+problem
+    rocket equilibrium
+    p,psia=144.063658
+    supar=10.000000
+    phi=0.900000
+reac
+    oxid Air wt=100
+    fuel H2 wt=100
+output short
+only
+end

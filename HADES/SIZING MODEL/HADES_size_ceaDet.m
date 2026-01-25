@@ -1,13 +1,13 @@
-function results = ceaDet(varargin)
+function results = HADES_size_ceaDet(varargin)
 % ceaDet - MATLAB wrapper for NASA CEA detonation equilibrium analysis
 %
 % Usage examples:
-% d = ceaDet('ox','O2','fuel','H2','of',2.5,'P0',1000,'P0Units','psia','T0',300,'T0Units','K');
+% d = HADES_size_ceaDet('ox','O2','fuel','H2','of',2.5,'P0',1000,'P0Units','psia','T0',300,'T0Units','K');
 %
 % Options for mixture specification (choose one):
 % 'of' - Oxidizer/Fuel weight ratio
 % 'pctFuel' - Fuel percentage by weight
-% 'phi' - Equivalence ratio based on fuel/oxidizer
+% 'phi' - Equivalence ratio based on fuel/oxidizer*-
 % 'r' - Valence-based equivalence ratio
 %
 % Pressure units: psia, atm, bar, mmHg
@@ -18,16 +18,13 @@ function results = ceaDet(varargin)
 %
 % Output structure:
 % results.cjVel - Chapman-Jouguet velocity
-% results.Tcj CJ - temperature (K)
-% results.Pcj CJ - pressure (psia)
-% results.gamma - Gamma
-% results.mw - Molecular weight
 % results.detMach - Detonation Mach Number
-% results.detVel - Detonation velocity (m/s)
 % results.P_ratio - P/P1
 % results.T_ratio - T/T1
+% results.M_ratio - M/M1
+% results.RHO_ratio - RHO/RHO1
 % results.P_burned_bar - Burned Pressure
-% results.T_burned_K - Burned Temperature
+% results.T_cj - Burned Gas Temperature
 
 
 %% PARSE INPUTS
@@ -81,7 +78,7 @@ outputFile = fullfile(ceaDir,[inputName,'.out']);
 %% WRITE CEA INPUT
 fid = fopen(inputFile,'w');
 fprintf(fid,'problem\n');
-fprintf(fid,'    detonation equilibrium\n');
+fprintf(fid,'    det\n');
 fprintf(fid,'    p,psia=%f\n',P0_psia);
 fprintf(fid,'    t,k=%f\n',T0_K);
 
@@ -100,6 +97,7 @@ fprintf(fid,'reac\n');
 fprintf(fid,'    oxid %s wt=100\n',opts.ox);
 fprintf(fid,'    fuel %s wt=100\n',opts.fuel);
 
+fprintf(fid,'output transport\n');
 fprintf(fid,'output short\n');
 fprintf(fid,'only\n');
 fprintf(fid,'end\n');
@@ -136,11 +134,20 @@ res = struct( ...
     'M_ratio',NaN, ...
     'rho_ratio',NaN, ...
     'detMach',NaN, ...
-    'detVel',NaN, ...
+    'cjVel',NaN, ...
     'P_burned_bar',NaN, ...
-    'T_burned_K',NaN );
+    'T_cj',NaN, ...
+    'Cp_eq', NaN,...
+    'k_eq', NaN,...
+    'Pr_eq', NaN,...
+    'Cp_frozen', NaN,...
+    'k_frozen', NaN,...
+    'Pr_frozen', NaN,...
+    'Mu', NaN);
 
 inBurnedGas = false;
+inequillibrium = false;
+infrozen = false;
 
 for i=1:length(lines)
     L = strtrim(lines{i});
@@ -159,7 +166,10 @@ for i=1:length(lines)
         res.detMach = str2double(nums{1});
     elseif contains(L,'DET VEL')
         nums = regexp(L,'[-+]?\d*\.?\d+','match');
-        res.detVel = str2double(nums{1});
+        res.cjVel = str2double(nums{1});
+    elseif contains (L, 'VISC,MILLIPOISE')
+        nums = regexp(L,'[-+]?\d*\.?\d+','match');
+        res.Mu = str2double(nums{1});
     end
 
     % Burned gas section flag
@@ -173,7 +183,44 @@ for i=1:length(lines)
             res.P_burned_bar = str2double(nums{1});
         elseif startsWith(L,'T, K')
             nums = regexp(L,'[-+]?\d*\.?\d+','match');
-            res.T_burned_K = str2double(nums{1});
+            res.T_cj = str2double(nums{1});
+        end
+    end
+    if contains(L,'WITH EQUILIBRIUM REACTIONS')
+        inequillibrium = true;
+        inBurnedGas = false;
+        infrozen = false;
+    end
+
+    if inequillibrium
+        if startsWith(L,'Cp, KJ/(KG)(K)')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Cp_eq = str2double(nums{1});
+        elseif startsWith(L,'CONDUCTIVITY')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.k_eq = str2double(nums{1});
+        elseif startsWith(L,'PRANDTL NUMBER')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Pr_eq = str2double(nums{1});
+        end
+    end
+
+    if contains(L,'WITH FROZEN REACTIONS')
+        infrozen = true;
+        inequillibrium = false;
+        inBurnedGas = false;
+    end
+
+    if infrozen
+        if startsWith(L,'Cp, KJ/(KG)(K)')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Cp_frozen = str2double(nums{1});
+        elseif startsWith(L,'CONDUCTIVITY')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.k_frozen = str2double(nums{1});
+        elseif startsWith(L,'PRANDTL NUMBER')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Pr_frozen = str2double(nums{1});
         end
     end
 end

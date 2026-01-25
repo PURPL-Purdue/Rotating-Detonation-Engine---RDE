@@ -1,4 +1,4 @@
-function results = ceaRocket(varargin)
+function results = HADES_size_ceaRocket(varargin)
 % ceaRocket - Modular MATLAB wrapper for NASA CEA rocket equilibrium analysis
 %
 % Usage examples:
