@@ -1,0 +1,38 @@
+import math
+import CoolProp.CoolProp as cp
+
+#--------------------------------- CONVERSIONS -------------------------------#
+psi_to_Pa = 6894.76
+bar_to_psia = 14.5
+choke_factor = 0.5283
+
+#--------------------------------- MAIN CODE ---------------------------------#
+# Inputs
+# po2_1 = 200 * psi_to_Pa # O2 Pressure Upstream (Pa)
+# ph2_1 = 200 * psi_to_Pa # H2 Pressure upstream (Pa)
+
+# Constants
+p_man = 4.5 * bar_to_psia * psi_to_Pa # Manifold Pressure (Pa)
+Mo2 = 31.999 # O2 Molar Mass (kg/kmol)
+Mh2 = 2.016 # H2 Molar Mass (kg/kmol)
+mfo2 = 8/9 # O2 Mass Fraction
+mfh2 = 1/9 # H2 Mass Fraction
+
+# Calculations
+ndoto2 = mfo2 / Mo2 # O2 Molar Flow Rate (kmol/s)
+ndoth2 = mfh2 / Mh2 # H2 Molar Flow rate (kmol/s)
+
+ndott = ndoto2 + ndoth2 # Total Molar Flow Rate (kmol/s)
+
+xo2 = ndoto2 / ndott # O2 Mole Fraction 2
+xh2 = ndoth2 / ndott # H2 Mole Fraction 2
+
+po2_2 = xo2 * p_man # O2 Pressure Downstream (Pa)
+ph2_2 = xh2 * p_man # H2 Pressure Downstream (Pa)
+
+po2_1 = po2_2 / choke_factor # O2 Pressure Upstream (Pa)
+ph2_1 = ph2_2 / choke_factor # H2 Pressure Upstream (Pa)
+
+#------------------------------ PRINT COMMANDS ------------------------------#
+print(f"O2 Supply Pressure: {po2_1 / psi_to_Pa:.3f} psia")
+print(f"H2 Supply Pressure: {ph2_1 / psi_to_Pa:.3f} psia")
