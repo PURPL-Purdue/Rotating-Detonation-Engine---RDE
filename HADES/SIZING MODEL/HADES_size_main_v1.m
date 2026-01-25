@@ -1,10 +1,10 @@
-clear; clc; close;
+clear; clc; close all;
 
 % put vals in this 
 phi = 0.9;
 outer_radius = 2; %in
 wall_thickness = 0.625; % in
-wave_modes = 1; %our fav assumption
+wave_modes = 2; %our fav assumption
 
 %% CEA inputs (wrapper)
 initial_temp = 283.15; %K (10C)

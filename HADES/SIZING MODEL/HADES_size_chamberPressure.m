@@ -2,8 +2,9 @@ function [avg_chamber_p] = HADES_size_chamberPressure(wave_mode, detwave_pathlen
 
 cj_vel = cj_vel_ms * 3.281; %covert to ft/s
 
-cycle_time = (detwave_pathlength /(cj_vel*12)) * 10 ^ 3;
+cycle_time = (detwave_pathlength /(cj_vel*12)) * 10 ^ 3 / wave_mode;
 exp_decay_const = log(p_p1)/(cycle_time/1000);
+
 time = 0:0.001:cycle_time;
 
 chamber_pressure = p_p1 * p_0 * exp (-1 * exp_decay_const * time ./ 1000);
@@ -12,5 +13,9 @@ avg_chamber_p = mean(chamber_pressure);
 % print sol and plot
 fprintf('\n Average Chamber Pressure: %.2f psia (%.3f bar). \n', avg_chamber_p, avg_chamber_p / 14.504);
 
+figure();
 plot(time, chamber_pressure);
-title("Chmaber Pressure vs Time")
+title("Chamber Pressure vs Time");
+xlabel("Time (ms)");
+ylabel("Chmaber Pressure (psia)");
+grid on;
