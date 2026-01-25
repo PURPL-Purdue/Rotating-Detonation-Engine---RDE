@@ -97,6 +97,7 @@ fprintf(fid,'reac\n');
 fprintf(fid,'    oxid %s wt=100\n',opts.ox);
 fprintf(fid,'    fuel %s wt=100\n',opts.fuel);
 
+fprintf(fid,'output transport\n');
 fprintf(fid,'output short\n');
 fprintf(fid,'only\n');
 fprintf(fid,'end\n');
@@ -135,9 +136,18 @@ res = struct( ...
     'detMach',NaN, ...
     'cjVel',NaN, ...
     'P_burned_bar',NaN, ...
-    'T_cj',NaN);
+    'T_cj',NaN, ...
+    'Cp_eq', NaN,...
+    'k_eq', NaN,...
+    'Pr_eq', NaN,...
+    'Cp_frozen', NaN,...
+    'k_frozen', NaN,...
+    'Pr_frozen', NaN,...
+    'Mu', NaN);
 
 inBurnedGas = false;
+inequillibrium = false;
+infrozen = false;
 
 for i=1:length(lines)
     L = strtrim(lines{i});
@@ -157,6 +167,9 @@ for i=1:length(lines)
     elseif contains(L,'DET VEL')
         nums = regexp(L,'[-+]?\d*\.?\d+','match');
         res.cjVel = str2double(nums{1});
+    elseif contains (L, 'VISC,MILLIPOISE')
+        nums = regexp(L,'[-+]?\d*\.?\d+','match');
+        res.Mu = str2double(nums{1});
     end
 
     % Burned gas section flag
@@ -171,6 +184,43 @@ for i=1:length(lines)
         elseif startsWith(L,'T, K')
             nums = regexp(L,'[-+]?\d*\.?\d+','match');
             res.T_cj = str2double(nums{1});
+        end
+    end
+    if contains(L,'WITH EQUILIBRIUM REACTIONS')
+        inequillibrium = true;
+        inBurnedGas = false;
+        infrozen = false;
+    end
+
+    if inequillibrium
+        if startsWith(L,'Cp, KJ/(KG)(K)')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Cp_eq = str2double(nums{1});
+        elseif startsWith(L,'CONDUCTIVITY')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.k_eq = str2double(nums{1});
+        elseif startsWith(L,'PRANDTL NUMBER')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Pr_eq = str2double(nums{1});
+        end
+    end
+
+    if contains(L,'WITH FROZEN REACTIONS')
+        infrozen = true;
+        inequillibrium = false;
+        inBurnedGas = false;
+    end
+
+    if infrozen
+        if startsWith(L,'Cp, KJ/(KG)(K)')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Cp_frozen = str2double(nums{1});
+        elseif startsWith(L,'CONDUCTIVITY')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.k_frozen = str2double(nums{1});
+        elseif startsWith(L,'PRANDTL NUMBER')
+            nums = regexp(L,'[-+]?\d*\.?\d+','match');
+            res.Pr_frozen = str2double(nums{1});
         end
     end
 end
