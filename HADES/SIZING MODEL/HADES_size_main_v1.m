@@ -21,8 +21,5 @@ fprintf("Outputs: \n");
 [cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi);
 ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0', initial_pressure,'P0Units',pressure_units,'T0', initial_temp,'T0Units', temp_units);
 
-% print everythign
-fprintf("Given: \n");
-fprintf("Equivalence Ratio = %.1f\n", phi);
-fprintf("Initial Pressure: %.3f %s \n\n", initial_pressure, pressure_units);
+
 
