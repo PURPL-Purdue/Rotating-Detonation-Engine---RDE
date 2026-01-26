@@ -25,6 +25,8 @@ function results = HADES_size_ceaDet(varargin)
 % results.RHO_ratio - RHO/RHO1
 % results.P_burned_bar - Burned Pressure
 % results.T_cj - Burned Gas Temperature
+% results.Son_speed_unburned - sonic speed of unburned gas
+% results.Son_speed_burned - sonic speed of burned gas
 
 
 %% PARSE INPUTS
@@ -143,7 +145,9 @@ res = struct( ...
     'Cp_frozen', NaN,...
     'k_frozen', NaN,...
     'Pr_frozen', NaN,...
-    'Mu', NaN);
+    'Mu', NaN, ...
+    'Son_speed_unburned', NaN, ...
+    'Son_speed_burned', NaN);
 
 inBurnedGas = false;
 inequillibrium = false;
@@ -170,6 +174,12 @@ for i=1:length(lines)
     elseif contains (L, 'VISC,MILLIPOISE')
         nums = regexp(L,'[-+]?\d*\.?\d+','match');
         res.Mu = str2double(nums{1});
+    elseif contains (L, 'SON VEL1,M/SEC')
+        nums = regexp(L,'[-+]?\d*\.?\d+','match');
+        res.Son_speed_unburned = str2double(nums{1});
+    elseif contains (L, 'SON VEL,M/SEC')
+        nums = regexp(L,'[-+]?\d*\.?\d+','match');
+        res.Son_speed_burned = str2double(nums{1});
     end
 
     % Burned gas section flag
