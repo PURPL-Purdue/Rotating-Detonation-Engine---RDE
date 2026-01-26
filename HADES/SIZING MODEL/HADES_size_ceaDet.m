@@ -176,7 +176,7 @@ for i=1:length(lines)
         res.Mu = str2double(nums{1});
     elseif contains (L, 'SON VEL1,M/SEC')
         nums = regexp(L,'[-+]?\d*\.?\d+','match');
-        res.Son_speed_unburned = str2double(nums{1});
+        res.Son_speed_unburned = str2double(nums{2});
     elseif contains (L, 'SON VEL,M/SEC')
         nums = regexp(L,'[-+]?\d*\.?\d+','match');
         res.Son_speed_burned = str2double(nums{1});
