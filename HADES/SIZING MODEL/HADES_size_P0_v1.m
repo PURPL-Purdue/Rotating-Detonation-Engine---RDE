@@ -6,5 +6,4 @@ P_p = 20; % bar
 gamma_unburned = 1.4; %unitless
 P_c = (2/(gamma_unburned+1))^(gamma_unburned/(gamma_unburned-1)) * P_p; %bar
 P_0 = Ai_Aw * (1/M_0) * ((gamma_unburned + 1)/(2+(gamma_unburned-1) * M_0^2))^(1/2) * P_c; %bar
-
-
+fprintf('Initial Chamber Pressure %.2f bar', P_0);
