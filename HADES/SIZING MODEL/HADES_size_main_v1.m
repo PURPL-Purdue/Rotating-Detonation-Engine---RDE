@@ -4,7 +4,12 @@ clear; clc; close all;
 phi = 0.9;
 outer_radius = 2; %in
 wall_thickness = 0.625; % in
+<<<<<<< HEAD
 wave_modes = 1; %our fav assumption
+=======
+wave_modes = 2; %our fav assumption
+ambient_pressure_Mpa = 0.101325; %ambient pressure
+>>>>>>> 2eddb84cc944859f2958ab80f90bbc0c14402520
 
 ox_mdot = 2; %lbm/s
 fuel_mdot = ox_mdot * phi / 34.3; %also lbm/s
@@ -33,6 +38,7 @@ ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0'
 [avg_chamber_p] = HADES_size_chamberPressure(wave_modes, det_wave_path_length, ceaDet_results.cjVel, ceaDet_results.P_ratio, initial_pressure);
 ceaRock_results = HADES_size_ceaRocket('ox', ox_type,'fuel',fuel_type,'phi', phi,'Pc',avg_chamber_p,'PcUnits', pressure_units);
 [thrust] = HADES_size_thrust(ceaRock_results.isp, total_mdot);
+Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convertPressure(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
 
 
 %%ik thrust is worng this is a work in progress
