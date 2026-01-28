@@ -35,6 +35,6 @@ ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0'
 ceaRock_results = HADES_size_ceaRocket('ox', ox_type,'fuel',fuel_type,'phi', phi,'Pc',avg_chamber_p,'PcUnits', pressure_units);
 [thrust] = HADES_size_thrust(ceaRock_results.isp, total_mdot);
 Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convertPressure(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
-
+[P_0] = HADES_size_P0_v1();
 
 %%ik thrust is worng this is a work in progress
