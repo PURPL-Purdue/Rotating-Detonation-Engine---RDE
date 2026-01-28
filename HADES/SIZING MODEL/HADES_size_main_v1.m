@@ -37,4 +37,4 @@ ceaRock_results = HADES_size_ceaRocket('ox', ox_type,'fuel',fuel_type,'phi', phi
 Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convertPressure(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
 [P_0] = HADES_size_P0_v1();
 
-%%ik thrust is worng this is a work in progress
+[h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure_Mpa);
