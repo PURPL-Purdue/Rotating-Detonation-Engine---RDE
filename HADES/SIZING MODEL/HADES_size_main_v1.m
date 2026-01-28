@@ -4,13 +4,9 @@ clear; clc; close all;
 phi = 0.9;
 outer_radius = 2; %in
 wall_thickness = 0.625; % in
-<<<<<<< HEAD
 wave_modes = 1; %our fav assumption
-=======
-wave_modes = 2; %our fav assumption
-ambient_pressure_Mpa = 0.101325; %ambient pressure
->>>>>>> 2eddb84cc944859f2958ab80f90bbc0c14402520
 
+ambient_pressure_Mpa = 0.101325; %ambient pressure
 ox_mdot = 2; %lbm/s
 fuel_mdot = ox_mdot * phi / 34.3; %also lbm/s
 total_mdot = ox_mdot + fuel_mdot;
