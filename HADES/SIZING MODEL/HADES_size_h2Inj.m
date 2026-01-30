@@ -1,8 +1,7 @@
 %%H2 inj sizing
 
 % make function define inputs ONLY FROM MAIN
-function [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ...
-ambient_pressure)
+function [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure)
 
 %defining constants
 gamma = 1.4; % specific heat ratio for hydrogen
