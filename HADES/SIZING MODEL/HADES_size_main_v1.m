@@ -47,13 +47,8 @@ ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0'
 ceaRock_results = HADES_size_ceaRocket('ox', ox_type,'fuel',fuel_type,'phi', phi,'Pc',avg_chamber_p,'PcUnits', pressure_units);
 
 [thrust] = HADES_size_thrust(ceaRock_results.isp, total_mdot);
-<<<<<<< Updated upstream
 Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convert(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
-=======
 
-Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convertPressure(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
-
->>>>>>> Stashed changes
 [P_0] = HADES_size_P0_v1();
 
 [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure_Mpa);
