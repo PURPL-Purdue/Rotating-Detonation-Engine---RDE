@@ -29,9 +29,10 @@ fuel_type = 'H2';
 ox_type = 'Air';
 
 %% print givens
-fprintf("Given: \n");
+fprintf("Inputs: \n");
 fprintf("Equivalence Ratio = %.1f\n", phi);
-fprintf("Initial Pressure: %.3f %s \n\n", initial_pressure, pressure_units);
+fprintf("Initial Pressure: %.3f %s \n", initial_pressure, pressure_units);
+fprintf("Initial Temp: %.2f %s \n\n",initial_temp, temp_units);
 
 
 %% calcs
