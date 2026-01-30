@@ -6,6 +6,14 @@ outer_radius = 2; %in
 wall_thickness = 0.625; % in
 wave_modes = 1; %our fav assumption
 
+azi_annulus_length = 0.2893; %Azimuthal annulus length [m]
+det_wave_num = 1; %Detonation wave number [-]
+CJ_det_speed = 1931.5; %Chapman-Jouguet detonation speed [m/s]
+burned_gas_mach = 1075.6; %Sound speed in burned gas [m/s]
+burned_gas_p = 32.33; %Pressure of burned gas region [Pa or bar, consistent with Pc]
+inj_crit_p = 2; %Injector critical pressure [same units as P2]
+unburned_axial_vel = 391; %Axial velocity of unburned propellant [m/s]
+
 ambient_pressure_Mpa = 0.101325; %ambient pressure
 ox_mdot = 2; %lbm/s
 fuel_mdot = ox_mdot * phi / 34.3; %also lbm/s
@@ -28,7 +36,7 @@ fprintf("Initial Pressure: %.3f %s \n\n", initial_pressure, pressure_units);
 
 %% calcs
 fprintf("Outputs: \n");
-[cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi);
+[cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, det_wave_num, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
 [det_wave_path_length] = HADES_size_geometry(outer_radius, wall_thickness, annulus_gap);
 ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0', initial_pressure,'P0Units',pressure_units,'T0', initial_temp,'T0Units', temp_units);
 [avg_chamber_p] = HADES_size_chamberPressure(wave_modes, det_wave_path_length, ceaDet_results.cjVel, ceaDet_results.P_ratio, initial_pressure);

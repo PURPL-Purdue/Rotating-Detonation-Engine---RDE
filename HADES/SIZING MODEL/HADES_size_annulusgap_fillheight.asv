@@ -1,4 +1,4 @@
-function [chosen_cellwidth, chosen_annulus_gap, chosen_fillheight] = HADES_size_annulusgap_fillheight(chosen_phi, L_theta, N_det, D_CJ, a2, P2, Pc, u0)
+function [chosen_cellwidth, chosen_annulus_gap, chosen_fillheight] = HADES_size_annulusgap_fillheight(chosen_phi, L_theta, N_det)
 % Author: anjali
 % vals from caltech database
 % (https://shepherd.caltech.edu/detn_db/html/H2-Air2.html)
@@ -59,6 +59,20 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 %   Output:
 %     h_det   : detonation (fill) height [m]
 
+L_theta = 0.2893;
+
+N_det = 1; 
+
+D_CJ = 1931.5; 
+
+a2 = 1075.6; 
+
+P2 = 32.33;
+
+Pc = 2; 
+
+u0 = 391; 
+
 %Getting value for function (eq 9 in paper)
  x = P2 ./ Pc;
 
@@ -78,7 +92,6 @@ bracket = (1./a2) .* (f_val) + 1./u0;
 chosen_fillheight = (L_theta ./ (N_det .* D_CJ)) .* (1 ./ bracket);
 
 % Display the calculated fill height
-fprintf("Fill Height: %.3f m (%.3f mm). \n", chosen_fillheight, chosen_fillheight*1000);
-
+fprintf("Fill Height: %.3f m \n", chosen_fillheight);
 
 
