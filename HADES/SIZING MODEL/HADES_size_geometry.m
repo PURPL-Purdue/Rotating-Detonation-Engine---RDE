@@ -10,7 +10,7 @@ det_wave_path_length = 2 * pi() * annulus_r;
 fprintf("\nGeometry:\n");
 fprintf("Outer Radius: %.3f in.\n", outer_r);
 fprintf("Wall Thickness: %.3f in.\n", wall_thickness);
-fprintf("Annulus Gap: %.3f mm. \n", annulus_gap);
+fprintf("Annulus Gap: %.3f mm (%.3f in). \n", annulus_gap, annulus_gap_in);
 fprintf("Inner Radius: %.3f in.\n", inner_r);
 fprintf("Annulus Radius: %.3f in.\n", annulus_r);
 fprintf("Detonation Wave Path Length: %.3f in.\n", det_wave_path_length);
