@@ -66,4 +66,7 @@ function converted_value = HADES_size_convert(val, from_unit, to_unit)
     end
 
     error('Unit conversion from %s to %s is not supported.', from_unit, to_unit);
+
+    %% Distance Conversions
+    dist_map = ("m",)
 end

@@ -65,5 +65,14 @@ function converted_value = HADES_size_convert(val, from_unit, to_unit)
         return;
     end
 
+    %% Distance Conversions
+    dist_map = struct('m', 1, 'ft', 3.28084, 'in', 39.37);
+    if isfield(dist_map, from_unit) && isfield(dist_map, to_unit)
+        val_in_m = val / dist_map.(from_unit);
+        converted_value = val_in_m * dist_map.(to_unit);
+        return;
+    end
+
+
     error('Unit conversion from %s to %s is not supported.', from_unit, to_unit);
 end
