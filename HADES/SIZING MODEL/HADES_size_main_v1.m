@@ -29,20 +29,29 @@ fuel_type = 'H2';
 ox_type = 'Air';
 
 %% print givens
-fprintf("Given: \n");
+fprintf("Inputs: \n");
 fprintf("Equivalence Ratio = %.1f\n", phi);
-fprintf("Initial Pressure: %.3f %s \n\n", initial_pressure, pressure_units);
+fprintf("Initial Pressure: %.3f %s \n", initial_pressure, pressure_units);
+fprintf("Initial Temp: %.2f %s \n\n",initial_temp, temp_units);
 
 
 %% calcs
 fprintf("Outputs: \n");
 [cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, det_wave_num, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
+
 [det_wave_path_length] = HADES_size_geometry(outer_radius, wall_thickness, annulus_gap);
+
 ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0', initial_pressure,'P0Units',pressure_units,'T0', initial_temp,'T0Units', temp_units);
+
 [avg_chamber_p] = HADES_size_chamberPressure(wave_modes, det_wave_path_length, ceaDet_results.cjVel, ceaDet_results.P_ratio, initial_pressure);
+
 ceaRock_results = HADES_size_ceaRocket('ox', ox_type,'fuel',fuel_type,'phi', phi,'Pc',avg_chamber_p,'PcUnits', pressure_units);
+
 [thrust] = HADES_size_thrust(ceaRock_results.isp, total_mdot);
-Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convertPressure(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
+Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convert(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
+
 [P_0] = HADES_size_P0_v1();
 
 [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure_Mpa);
+
+[air_area] = HADES_size_airInj(h2_area, annulus_gap, outer_radius, initial_temp, initial_pressure);

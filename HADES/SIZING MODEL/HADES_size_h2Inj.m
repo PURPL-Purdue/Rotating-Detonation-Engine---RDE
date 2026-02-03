@@ -10,7 +10,7 @@ R = 4124; % specific gas constant for hydrogen in J/(kg*K)
 % make print statemnts
 fprintf("Given: \n")
 fprintf("gamma (specific heat ratio) = 1.4 \n")
-fprintf("R (specific gas constant for hydrogen in J/(kg*K) = 4124")
+fprintf("R (specific gas constant for hydrogen in J/(kg*K) = 4124\n")
 
 %choked flow equation
 h2_area = (fuel_mdot * sqrt(initial_temp) * sqrt(R/gamma))/...
