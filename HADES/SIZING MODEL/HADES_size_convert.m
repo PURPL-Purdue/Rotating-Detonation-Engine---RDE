@@ -73,6 +73,14 @@ function converted_value = HADES_size_convert(val, from_unit, to_unit)
         return;
     end
 
+    %% Mass flow rate
+    m_dot_map = struct('kgs', 1, 'lbms', 2.205);
+    if isfield(m_dot_map, from_unit) && isfield(m_dot_map, to_unit)
+        val_in_kgs = val / m_dot_map.(from_unit);
+        converted_value = val_in_kgs * m_dot_map.(to_unit);
+        return;
+    end
+
 
     error('Unit conversion from %s to %s is not supported.', from_unit, to_unit);
 end
