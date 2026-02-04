@@ -22,7 +22,7 @@ function [P_inlet, P_exit, Ma_inlet, f] = HADES_size_pdrop_fanno(P0, D, L, epsil
     f = (num / den)^2;
 
     %% Fanno Flow Parameters
-    fanno_param = (4 * f * L) / D; 
+    fanno_param = (f * L) / D; 
     
     options = optimset('Display','off');
     f_to_solve = @(Ma) ((1 - Ma.^2)./(gamma * Ma.^2)) + ((gamma + 1)/(2 * gamma)) * log(((gamma + 1) * Ma.^2) ./ (2 + (gamma - 1) * Ma.^2)) - fanno_param;
