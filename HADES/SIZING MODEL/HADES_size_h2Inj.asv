@@ -1,0 +1,44 @@
+%%H2 inj sizing
+
+% make function define inputs ONLY FROM MAIN
+function [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure)
+
+% to check inputs
+fprintf("\n-------------\nh2 mdot:%.4f\ninitial temp: %.3f\nambient pressure: %.3f\n", fuel_mdot,initial_temp, ambient_pressure)
+
+%defining constants
+gamma = 1.4; % specific heat ratio for hydrogen
+R = 4124; % specific gas constant for hydrogen in J/(kg*K)
+
+% make print statemnts
+fprintf("Given: \n")
+fprintf("gamma (specific heat ratio) = 1.4 \n")
+fprintf("R (specific gas constant for hydrogen in J/(kg*K) = 4124\n")
+
+%choked flow equation
+%% key questions: 
+    %what is C_d, what is it defined as in the main function, it is a
+    %different value between the h2 and air calcs, neeeds to be fixed
+%% once that is resoved should be easier
+
+%(fuel_mdot * sqrt(initial_temp) * sqrt(R/gamma))/...
+    % (ambient_pressure * ((gamma + 1)/2) .^ (-1 / 2 * (gamma + 1)/...
+    % (gamma - 1)));
+
+
+%% this is one form of the equation it was a test and gave 587 mm^2 as an output  
+% pt1 = fuel_mdot * sqrt(initial_temp);
+% pt2 = sqrt(gamma / R) * ambient_pressure;
+% pt3 = ((gamma + 1) / 2);
+% pt4 = -(gamma + 1) / (2 * (gamma + 1));
+% 
+% h2_area = pt1 / (pt2 * pt3^pt4);
+
+%% this was another test eqation and gave an output of .0002 mm^2
+mani_p = 1.9995 * 10^6; % 290 converted to Pa
+cham_p = 999739.807; % 145 converted to Pa
+C_d = .71;
+h2_area = fuel_mdot / (C_d * sqrt(2 * ambient_pressure *(mani_p - cham_p)));
+
+fprintf("\nh2 area: %.4f mm^2 \n", h2_area);
+
