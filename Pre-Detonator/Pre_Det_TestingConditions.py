@@ -77,7 +77,7 @@ BR = (OD**2 - ID**2) / (OD**2)
 print("Blockage Ratio:", str(BR))
 
 # Hoop Stress Calculations
-P_i = 97.367 * bar_to_psia # psia
+P_i = 127.15 * bar_to_psia # psia
 P_o = 14.7 # psia
 r_o = 0.25/2 # inches
 r2_o = 0.375/2 # inches
