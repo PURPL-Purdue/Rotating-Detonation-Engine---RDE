@@ -23,6 +23,7 @@ ox_mdot = 2; %lbm/s
 fuel_mdot = ox_mdot * phi / 34.3; %lbm/s
 total_mdot = ox_mdot + fuel_mdot;
 
+% Hi
 
 
 
