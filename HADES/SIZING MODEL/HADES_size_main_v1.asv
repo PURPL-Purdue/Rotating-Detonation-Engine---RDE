@@ -41,6 +41,13 @@ fprintf("Equivalence Ratio = %.1f\n", phi);
 fprintf("Initial Pressure: %.3f %s \n", initial_pressure, pressure_units);
 fprintf("Initial Temp: %.2f %s \n\n",initial_temp, temp_units);
 
+
+%% printed outputs - pranav k - 
+fprintf("Geometry outputs: \n");
+fprintf("Outer Radius: %0.2f in \n", outer_radius);
+fprintf("Annulus Gap: %0.3 in", );
+fprintf("\n");
+
 %% calcs
 fprintf("Outputs: \n");
 [cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, det_wave_num, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
