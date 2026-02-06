@@ -5,7 +5,7 @@ function [chosen_cellwidth, chosen_annulus_gap, chosen_fillheight] = HADES_size_
 
 %inputs
 data = readmatrix("HADES_size_cellsizedata.xlsx");
-%chosen_phi = 0.9;
+chosen_phi = 0.9;
 
 phis = data(:, 1);
 cell_width = data(:, 2);
@@ -78,7 +78,7 @@ bracket = (1./a2) .* (f_val) + 1./u0;
 chosen_fillheight = (L_theta ./ (N_det .* D_CJ)) .* (1 ./ bracket);
 
 % Display the calculated fill height
-fprintf("Fill Height: %.3f m (%.3f mm). \n", chosen_fillheight, chosen_fillheight*1000);
+fprintf("Fill Height: %.3f m (%.3f mm). \n", chosen_fillheight, chosen_fillheight * 1000);
 
 
 

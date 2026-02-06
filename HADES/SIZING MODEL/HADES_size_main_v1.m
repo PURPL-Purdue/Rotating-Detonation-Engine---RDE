@@ -7,7 +7,6 @@ wall_thickness = 0.625; % in
 wave_modes = 1; %our fav assumption
 
 azi_annulus_length = 0.2893; %Azimuthal annulus length [m]
-det_wave_num = 1; %Detonation wave number [-]
 CJ_det_speed = 1931.5; %Chapman-Jouguet detonation speed [m/s]
 burned_gas_mach = 1075.6; %Sound speed in burned gas [m/s]
 burned_gas_p = 32.33; %Pressure of burned gas region [Pa or bar, consistent with Pc]
@@ -43,7 +42,7 @@ fprintf("Initial Temp: %.2f %s \n\n",initial_temp, temp_units);
 
 %% calcs
 fprintf("Outputs: \n");
-[cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, det_wave_num, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
+[cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, wave_modes, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
 
 [det_wave_path_length] = HADES_size_geometry(outer_radius, wall_thickness, annulus_gap);
 
