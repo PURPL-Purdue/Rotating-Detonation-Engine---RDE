@@ -63,9 +63,3 @@ Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_
 [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure_Mpa);
 
 [air_area] = HADES_size_airInj(h2_area, annulus_gap, outer_radius, initial_temp, initial_pressure);
-
-%% printed outputs - pranav k - 
-fprintf("Geometry outputs: \n");
-fprintf("Outer Radius: %0.2f in \n", outer_radius);
-fprintf("Annulus Gap: %0.3f in \n", annulus_gap);
-fprintf("\n");
