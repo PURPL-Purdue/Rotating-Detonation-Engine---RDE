@@ -1,7 +1,7 @@
 clear; clc; close all;
 
 % put vals in this 
-phi = 0.9;
+phi = 1.02;
 outer_radius = 2; %in
 wall_thickness = 0.625; % in
 wave_modes = 1; %our fav assumption
@@ -22,7 +22,7 @@ ambient_pressure_Mpa = 0.101325; %ambient pressure
 ox_mdot = 2; %lbm/s
 fuel_mdot = ox_mdot * phi / 34.3; %lbm/s
 total_mdot = ox_mdot + fuel_mdot;
-
+h2_inj_density = 0.92; % kg/m^3
 
 
 
@@ -59,6 +59,6 @@ Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_
 
 [P_0] = HADES_size_P0_v1();
 
-[h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure_Mpa);
+[h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, h2_inj_density);
 
 [air_area] = HADES_size_airInj(h2_area, annulus_gap, outer_radius, initial_temp, initial_pressure);
