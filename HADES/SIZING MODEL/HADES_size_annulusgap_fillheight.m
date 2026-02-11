@@ -43,7 +43,7 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 
 %% fill height
 
-%fill_HEIGHT Compute detonation wave height h_det from Kawashima Eq. (15).
+% fill_HEIGHT Compute detonation wave height h_det from Kawashima Eq. (15).
 %
 %   fill_h = detonation_height(L_theta, N_det, D_CJ, a2, P2, Pc, u0)
 %
@@ -59,7 +59,7 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 %   Output:
 %     h_det   : detonation (fill) height [m]
 
-%Getting value for function (eq 9 in paper)
+% Getting value for function (eq 9 in paper)
  x = P2 ./ Pc;
 
  f_val = (231/2^10)*x.^(1/15) + ...

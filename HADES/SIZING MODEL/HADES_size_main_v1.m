@@ -16,15 +16,16 @@ surface_roughness_304 = 3.2e-6; %Stainless steel 304 surface roughness [m]
 injector_dia =1e-3; % [m]
 injector_length = 0.25; %[in]
 
-
-
 ambient_pressure_Mpa = 0.101325; %ambient pressure
 ox_mdot = 2; %lbm/s
 fuel_mdot = ox_mdot * phi / 34.3; %lbm/s
 total_mdot = ox_mdot + fuel_mdot;
+<<<<<<< Updated upstream
 h2_inj_density = 0.92; % kg/m^3
 
 
+=======
+>>>>>>> Stashed changes
 
 %% CEA inputs (wrapper)
 initial_temp = 283.15; %K (10C)
