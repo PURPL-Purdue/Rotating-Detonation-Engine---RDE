@@ -1,25 +1,40 @@
 %%H2 inj sizing
 
 % make function define inputs ONLY FROM MAIN
-function [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, h2_inj_density)
-
-% to check inputs
-fprintf("\n-------------\nh2 mdot:%.4f\ninitial temp: %.3f\nambient pressure: %.3f\n", fuel_mdot,initial_temp, h2_inj_density)
+%<<<<<<< Updated upstream
+%<<<<<<< Updated upstream
+%function [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure)
+%=======
+%function [h2_area] = HADES_size_h2Inj(fuel_mdot, chamber_pressure)
+%>>>>>>> Stashed changes
+%=======
+function [h2_area] = HADES_size_h2Inj(fuel_mdot, chamber_pressure)
+%>>>>>>> Stashed changes
 
 %defining constants
-%gamma = 1.4; % specific heat ratio for hydrogen
-%R = 4124; % specific gas constant for hydrogen in J/(kg*K)
+stiffness = 100;
+fuel_mdot = fuel_mdot * .453592; %%fuel mass flow rate converted to kg/s
+dischargeCoef = .7; %Discharge coefficient
+density = 1.012; %%UNSURE OF WHERE THIS NUM IS FROM
+manifold_pressure = chamber_pressure * (1 + (stiffness / 100)); %%manifold pressure (psia)
+pressureDrop = (manifold_pressure - chamber_pressure) * 6895; %%pressure drop converted to PA
+
 
 % make print statemnts
 fprintf("Given: \n")
 fprintf("gamma (specific heat ratio) = 1.4 \n")
 fprintf("R (specific gas constant for hydrogen in J/(kg*K) = 4124\n")
 
-%% this was another test output that works
-mani_p = 1.9995 * 10^6; % 290 converted to Pa
-cham_p = 999739.807; % 145 converted to Pa
-C_d = 0.71;
-h2_area = (fuel_mdot / 2.205) / (C_d * sqrt(2 * h2_inj_density *(mani_p - cham_p)));
-h2_area = h2_area * 1e6; % Converting m^2 to mm^2
-fprintf("\nh2 area: %.4f mm^2 \n", h2_area);
 
+
+h2_area = (fuel_mdot / dischargeCoef) * sqrt(1 / (2 * density * pressureDrop));
+h2_area = h2_area * 1000000;
+
+fprintf("\nHydrogen Area = " + h2_area + " mm^2 \n");
+
+orificeSize = 1; %%diameter mm
+orificeArea = pi * (orificeSize / 2) ^ 2;
+orificeCount = h2_area / orificeArea;
+
+fprintf("Orifice count: " + orificeCount);
+end
