@@ -1,8 +1,8 @@
 problem
     rocket equilibrium
-    p,psia=142.739529
+    p,psia=385.929557
     supar=10.000000
-    phi=0.900000
+    phi=1.020000
 reac
     oxid Air wt=100
     fuel H2 wt=100

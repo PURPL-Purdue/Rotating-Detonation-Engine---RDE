@@ -5,7 +5,7 @@ function [chosen_cellwidth, chosen_annulus_gap, chosen_fillheight] = HADES_size_
 
 %inputs
 data = readmatrix("HADES_size_cellsizedata.xlsx");
-%chosen_phi = 0.9;
+chosen_phi = 0.9;
 
 phis = data(:, 1);
 cell_width = data(:, 2);
@@ -43,7 +43,7 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 
 %% fill height
 
-%fill_HEIGHT Compute detonation wave height h_det from Kawashima Eq. (15).
+% fill_HEIGHT Compute detonation wave height h_det from Kawashima Eq. (15).
 %
 %   fill_h = detonation_height(L_theta, N_det, D_CJ, a2, P2, Pc, u0)
 %
@@ -59,7 +59,7 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 %   Output:
 %     h_det   : detonation (fill) height [m]
 
-%Getting value for function (eq 9 in paper)
+% Getting value for function (eq 9 in paper)
  x = P2 ./ Pc;
 
  f_val = (231/2^10)*x.^(1/15) + ...
@@ -78,7 +78,7 @@ bracket = (1./a2) .* (f_val) + 1./u0;
 chosen_fillheight = (L_theta ./ (N_det .* D_CJ)) .* (1 ./ bracket);
 
 % Display the calculated fill height
-fprintf("Fill Height: %.3f m (%.3f mm). \n", chosen_fillheight, chosen_fillheight*1000);
+fprintf("Fill Height: %.3f m (%.3f mm). \n", chosen_fillheight, chosen_fillheight * 1000);
 
 
 

@@ -1,6 +1,6 @@
 function [avg_chamber_p] = HADES_size_chamberPressure(wave_mode, detwave_pathlength, cj_vel_ms, p_p1, p_0)
 
-cj_vel = cj_vel_ms * 3.281; %covert to ft/s
+cj_vel = HADES_size_convert(cj_vel_ms,'m/s','ft/s');
 
 cycle_time = (detwave_pathlength /(cj_vel*12)) * 10 ^ 3 / wave_mode;
 exp_decay_const = log(p_p1)/(cycle_time/1000);
