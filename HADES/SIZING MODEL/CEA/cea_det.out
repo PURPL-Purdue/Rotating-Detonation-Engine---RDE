@@ -13,7 +13,7 @@
      det
      p,psia=26.000000
      t,k=283.150000
-     phi=1.020000
+     phi=0.900000
  reac
      oxid Air wt=100
      fuel H2 wt=100
@@ -32,74 +32,75 @@
  OXIDANT     Air                          1.0000000         0.000      0.000
  FUEL        H2                           1.0000000         0.000      0.000
 
- O/F=   33.62375  %FUEL=  2.888191  R,EQ.RATIO= 1.019970  PHI,EQ.RATIO= 1.020000
+ O/F=   38.10692  %FUEL=  2.557092  R,EQ.RATIO= 0.900152  PHI,EQ.RATIO= 0.900000
 
  UNBURNED GAS
 
  P1, BAR           1.7926
  T1, K             283.15
- H1, KJ/KG         -25.02
- M1, (1/n)         20.897
- GAMMA1            1.4024
- SON VEL1,M/SEC     397.5
+ H1, KJ/KG         -24.38
+ M1, (1/n)         21.586
+ GAMMA1            1.4023
+ SON VEL1,M/SEC     391.1
 
  BURNED GAS
 
- P, BAR            29.777
- T, K             2990.16
- RHO, KG/CU M    2.8705 0
- H, KJ/KG         1341.80
- U, KJ/KG          304.45
- G, KJ/KG        -29800.6
- S, KJ/(KG)(K)    10.4150
+ P, BAR            28.927
+ T, K             2904.62
+ RHO, KG/CU M    2.9526 0
+ H, KJ/KG         1260.53
+ U, KJ/KG          280.83
+ G, KJ/KG        -28171.0
+ S, KJ/(KG)(K)    10.1326
 
- M, (1/n)          23.967
- (dLV/dLP)t      -1.00844
- (dLV/dLT)p        1.1812
- Cp, KJ/(KG)(K)    3.1658
- GAMMAs            1.1688
- SON VEL,M/SEC     1101.1
+ M, (1/n)          24.651
+ (dLV/dLP)t      -1.00603
+ (dLV/dLT)p        1.1326
+ Cp, KJ/(KG)(K)    2.7547
+ GAMMAs            1.1779
+ SON VEL,M/SEC     1074.2
 
  TRANSPORT PROPERTIES (GASES ONLY)
    CONDUCTIVITY IN UNITS OF MILLIWATTS/(CM)(K)
 
- VISC,MILLIPOISE  0.93530
+ VISC,MILLIPOISE  0.91685
 
   WITH EQUILIBRIUM REACTIONS
 
- Cp, KJ/(KG)(K)    3.1658
- CONDUCTIVITY      5.8691
- PRANDTL NUMBER    0.5045
+ Cp, KJ/(KG)(K)    2.7547
+ CONDUCTIVITY      5.2103
+ PRANDTL NUMBER    0.4847
 
   WITH FROZEN REACTIONS
 
- Cp, KJ/(KG)(K)    1.7840
- CONDUCTIVITY      2.4687
- PRANDTL NUMBER    0.6759
+ Cp, KJ/(KG)(K)    1.7219
+ CONDUCTIVITY      2.2983
+ PRANDTL NUMBER    0.6869
 
  DETONATION PARAMETERS
 
- P/P1              16.611
- T/T1              10.560
- M/M1              1.1469
- RHO/RHO1          1.8040
- DET MACH NUMBER   4.9975
- DET VEL,M/SEC     1986.5
+ P/P1              16.136
+ T/T1              10.258
+ M/M1              1.1420
+ RHO/RHO1          1.7964
+ DET MACH NUMBER   4.9344
+ DET VEL,M/SEC     1929.7
 
  MOLE FRACTIONS
 
- *Ar              0.00753
- *CO              0.00011
- *CO2             0.00014
- *H               0.00503
- HO2              0.00001
- *H2              0.03199
- H2O              0.30043
- *NO              0.00683
- *N2              0.62401
- *O               0.00149
- *OH              0.01687
- *O2              0.00555
+ *Ar              0.00777
+ *CO              0.00007
+ *CO2             0.00020
+ *H               0.00259
+ HO2              0.00002
+ *H2              0.01418
+ H2O              0.28840
+ *NO              0.01013
+ NO2              0.00001
+ *N2              0.64247
+ *O               0.00182
+ *OH              0.01759
+ *O2              0.01474
 
   * THERMODYNAMIC PROPERTIES FITTED TO 20000.K
 
