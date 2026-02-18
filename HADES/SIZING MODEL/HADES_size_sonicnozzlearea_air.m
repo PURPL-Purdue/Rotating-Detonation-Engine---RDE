@@ -15,7 +15,9 @@ R = 8.134; % J/mol * K
 M = 0.02897; %kg/mol
 T_0 = 283.15; %K
 
-A_feed_gay = 332.45; % (mm^2) -16 : assuming wall thickness of 0.095"
+d_feed_in = 0.61;%in
+d_feed = 0.61 * 25.4; %mm
+A_feed_gay = pi * (d_feed / 2) ^2; % (mm^2) -16 : assuming wall thickness of 0.095"
 A_feed = A_feed_gay / 10^6; % m^2
 
 A_choke_better = air_mdot .* sqrt(R ./ M .* T_0) ./ (c_d .* c_f .* p_feed);
@@ -33,7 +35,3 @@ yline(11,'r-', "Minimum Diameter");
 title('Choke Diameter vs Feed Pressure');
 grid on;
 
-<<<<<<< HEAD
-=======
-% hi
->>>>>>> 1e91c991004ef7f5aec218461c5c10aadfbd31b0
