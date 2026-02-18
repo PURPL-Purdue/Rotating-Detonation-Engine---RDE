@@ -5,7 +5,6 @@ function [chosen_cellwidth, chosen_annulus_gap, chosen_fillheight] = HADES_size_
 
 %inputs
 data = readmatrix("HADES_size_cellsizedata.xlsx");
-chosen_phi = 0.9;
 
 phis = data(:, 1);
 cell_width = data(:, 2);
@@ -26,13 +25,12 @@ ylabel("log(detonation cell width)");
 title("detonation cell width vs equivalence ratio");
 grid on;
 
-log_chosen_phi = log10(chosen_phi);
-log_chosen_cellwidth = polyval(coeffs, log_chosen_phi);
-chosen_cellwidth = 10 ^ log_chosen_cellwidth;
+% cell width equation considering pressure and eqr
+chosen_cellwidth = -0.435 + 8.33 * (Pc * 0.98692327)^-0.4 + 0.219 * chosen_phi^-7; % pressure converted to atm
 
 % annulus gap correlation from karasu continuous spin detonation
 annulus_gap = 1.4 * chosen_cellwidth; 
-
+ 
 chosen_annulus_gap = 9.525; %mm
 %for Hades chose annulus gap of 3/8 in or 9.525 mm
 
