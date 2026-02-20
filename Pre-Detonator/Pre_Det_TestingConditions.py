@@ -77,7 +77,7 @@ BR = (OD**2 - ID**2) / (OD**2)
 print("Blockage Ratio:", str(BR))
 
 # Hoop Stress Calculations
-P_i = 127.15 * bar_to_psia # psia
+P_i = 280.98 # psia
 P_o = 14.7 # psia
 r_o = 0.25/2 # inches
 r2_o = 0.375/2 # inches
@@ -87,7 +87,7 @@ hoop_stress = ((P_i * r_i**2 - P_o * r_o**2)/(r_o**2 - r_i**2)) + (r_i**2 * r_o*
 hoop_stress2 = ((P_i * r2_i**2 - P_o * r2_o**2)/(r2_o**2 - r2_i**2)) + (r2_i**2 * r2_o**2 * (P_i - P_o) / (r2_i**2 * (r2_o**2 - r2_i**2))) # psia
 print("Hoop Stress 1/4 in:", str(hoop_stress), "psia")
 print("Hoop Stress 3/8 in:", str(hoop_stress2), "psia")
-hoop_stress_safety = 7514.7 # psia
-hoop_stress_safety2 = 6514.7 # psia
+hoop_stress_safety = 7514.7*0.96 # psia
+hoop_stress_safety2 = 6514.7*0.96 # psia
 print("Pressure Safety Factor 1/4 in:", str(hoop_stress_safety/hoop_stress))
 print("Pressure Safety Factor 3/8 in:", str(hoop_stress_safety2/hoop_stress2))
