@@ -54,6 +54,7 @@ spring_volume = 0.0216 * in_to_m**3 # m^3
 manifold_volume = math.pi * ((0.3873*in_to_m)/2)**2 * (1.19 * in_to_m) # m^3
 tube_volume = math.pi * (((0.25-wall_thickness*2)*in_to_m)/2)**2 * quarter_length + math.pi * ((0.305 * in_to_m)/2)**2 * threeeight_length - spring_volume # m^3
 total_volume = manifold_volume + tube_volume # m^3
+print(total_volume)
 
 # Testing Values
 total_Q = h2_Q + o2_Q
