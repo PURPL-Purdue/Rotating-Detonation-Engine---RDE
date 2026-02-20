@@ -1,4 +1,4 @@
-function [Fail_temp_C, Fail_temp_F] = HADES_size_HoopStressTemps (r_i_in, r_o_in, p_o_MPa, P_cj_bar)
+function [Fail_temp_C, Fail_temp_F] = HADES_size_HoopStressTemps (r_i_in, r_o_in, p_o_MPa, P_cj_bar, fos)
 % Find failure temperature based on cj Pressure and hoop stress
 % calculations
 % 
@@ -10,6 +10,7 @@ function [Fail_temp_C, Fail_temp_F] = HADES_size_HoopStressTemps (r_i_in, r_o_in
 % r_o_in - outer radius in inches
 % p_o_Mpa - outside pressure in Mpa
 % P_cj_bar - CJ pressure in bar
+% fos - factor of safety
 %
 % Outputs
 % Fail_temp_C - failure temperature in celcius
@@ -23,7 +24,7 @@ temp_F = [1500, 1440, 1330, 1240, 1180, 1140, 1100, 1020, ...
 
 yeild_points_ksi = [25.8, 29.5, 37.4, 42.7, 45.9, 48.1, 49.9, 52.6, ...
               53.7, 54.8, 55.7, 56.3, 56.3, 56.6, 57, 57.4, 58.3, ...
-              59.2, 62.1, 64, 65.5, 67.5, 69.8, 72.5, 79];
+              59.2, 62.1, 64, 65.5, 67.5, 69.8, 72.5, 79] ./  fos;
 
 temp_points_K = ((temp_F - 32) .* 5/9) + 273.15;
 

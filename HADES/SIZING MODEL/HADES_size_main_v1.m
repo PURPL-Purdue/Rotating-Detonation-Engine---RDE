@@ -13,6 +13,11 @@ burned_gas_mach = 1075.6; %Sound speed in burned gas [m/s]
 burned_gas_p = 32.33; %Pressure of burned gas region [Pa or bar, consistent with Pc]
 inj_crit_p = 2; %Injector critical pressure [same units as P2]
 unburned_axial_vel = 391; %Axial velocity of unburned propellant [m/s]
+surface_roughness_304 = 3.2e-6; %Stainless steel 304 surface roughness [m]
+factor_of_safety = 1.75; %yield strength factor of safety
+injector_dia =1e-3; % [m]
+injector_length = 0.25; %[in]
+
 
 ambient_pressure_Mpa = 0.101325; %ambient pressure
 ox_mdot = 2; %lbm/s
@@ -48,7 +53,7 @@ ceaDet_results = HADES_size_ceaDet('ox',ox_type,'fuel',fuel_type,'phi', phi,'P0'
 ceaRock_results = HADES_size_ceaRocket('ox', ox_type,'fuel',fuel_type,'phi', phi,'Pc',avg_chamber_p,'PcUnits', pressure_units);
 
 [thrust] = HADES_size_thrust(ceaRock_results.isp, total_mdot);
-Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convert(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'));
+Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_radius, ambient_pressure_Mpa, HADES_size_convert(initial_pressure * ceaDet_results.P_ratio, pressure_units, 'bar'), factor_of_safety);
 
 [P_0] = HADES_size_P0_v1();
 
