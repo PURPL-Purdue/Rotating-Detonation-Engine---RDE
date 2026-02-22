@@ -42,7 +42,7 @@ fprintf("Initial Temp: %.2f %s \n\n",initial_temp, temp_units);
 
 %% calcs
 fprintf("Outputs: \n");
-[cellWidth, annulus_gap, fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, det_wave_num, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
+[cellWidth, annulus_gap, chosen_fillHeight] = HADES_size_annulusgap_fillheight(phi, azi_annulus_length, det_wave_num, CJ_det_speed, burned_gas_mach, burned_gas_p, inj_crit_p, unburned_axial_vel);
 
 [det_wave_path_length] = HADES_size_geometry(outer_radius, wall_thickness, annulus_gap);
 
