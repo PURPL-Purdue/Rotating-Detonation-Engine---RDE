@@ -45,8 +45,8 @@ gamma = [1.4 1.31]; % specific heat ratio
 R = [259.8 518.3];  % Gas constants (J/kg-K)
 
 mu_ref = [2.07e-5 1.1e-5];        % Reference viscosity @ reference temp (Pa-s)
-T_ref = [291 291];                % Reference termperature (K)
-S_ref = [127 148];                % Reference Sutherland Constant (K)
+T_ref = [273 273];                % Reference termperature (K)
+S_ref = [139 164];                % Reference Sutherland Constant (K) (https://www.pipeflowcalculations.com/pipe-valve-fitting-flow/density-viscosity-specific-volume.xhtml)
 epsilon = 0.015;                  % Stainless Steel surface roughness (mm)
 
 
