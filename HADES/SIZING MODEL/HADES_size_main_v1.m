@@ -62,3 +62,5 @@ Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_
 [air_area, area_annulus] = HADES_size_airInj(h2_area, annulus_gap, outer_radius, initial_temp, initial_pressure);
 
 [max_flux] = HADES_size_max_flux_range(total_mdot, area_annulus);
+
+[P_inlet, P_exit, Ma_inlet, f] = HADES_size_pdrop_fanno(20*10^5, 0.001, 6.35, 0.015, 0.023586803/32, 1.4, 8.35e-6);
