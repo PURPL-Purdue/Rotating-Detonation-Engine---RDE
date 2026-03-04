@@ -3,7 +3,7 @@
 %%% needed function inputs
 % hydrogen area estimation
 
-function [air_area] = HADES_size_airInj(h2_area, an_length, an_rad_1, temp, psia)
+function [air_area, area_annulus] = HADES_size_airInj(h2_area, an_length, an_rad_1, temp, psia)
 
 % givens
 pressure = psia * 6894.76; % converts psia to Pa
@@ -25,8 +25,8 @@ fprintf("\nTotal Area Air: %.5f mm^2\n", air_area);
 
 % Annulus Area Calculations
 an_rad_2 = an_rad_1 * 25.4; % mm
-Area_Annulus = pi * (an_rad_2^2) - pi * (an_rad_2 - an_length)^2; % mm^2
-fprintf("\nArea Annulus: %.5f mm^2\n", Area_Annulus);
+area_annulus = pi * (an_rad_2^2) - pi * (an_rad_2 - an_length)^2; % mm^2
+fprintf("\nArea Annulus: %.5f mm^2\n", area_annulus);
 
 % Air injector width
 air_inj_width = an_rad_2 - sqrt(an_rad_2^2 - (air_area / pi)); % mm

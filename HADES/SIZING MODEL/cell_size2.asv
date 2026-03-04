@@ -93,8 +93,8 @@ bracket = (1./a2) .* (f_val) + 1./u0;
 chosen_fillheight = (L_theta ./ (N_det .* D_CJ)) .* (1 ./ bracket);
 
 % Define inverse model
-inv_model = fittype('a./n', 'independent', 'n', 'coefficients', {'a'});
-fitted_model = fit(N_det', chosen_fillheight', inv_model, 'StartPoint', 1);
+inv_model = fittype('a/x'); 
+fitted_model = fit(N_det', chosen_fillheight', inv_model, 'Start');
 
 % Plot
 figure()
@@ -106,4 +106,6 @@ ylabel('Fill Height');
 title('Fill height as function of wave #');
 grid on;
 
+% Display the calculated fill height
+fprintf("Fill Height: %.3f m \n", chosen_fillheight);
 

@@ -58,6 +58,7 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 %     h_det   : detonation (fill) height [m]
 
 % Getting value for function (eq 9 in paper)
+
  x = P2 ./ Pc;
 
  f_val = (231/2^10)*x.^(1/15) + ...
@@ -74,6 +75,25 @@ fprintf("Calculated Annulus Gap: %.3f mm \n", annulus_gap);
 bracket = (1./a2) .* (f_val) + 1./u0;
 
 chosen_fillheight = (L_theta ./ (N_det .* D_CJ)) .* (1 ./ bracket);
+
+% Plotting variables
+N_plot = [1 2 3 4 5 6]; 
+h_plot = (L_theta ./ (N_plot .* D_CJ)) .* (1 ./ bracket);
+
+% Use x instead of n to avoid any potential shadowing of the 'n' function
+inv_model = fittype('a./x', 'independent', 'x', 'coefficients', {'a'});
+fitted_model = fit(N_plot', h_plot', inv_model, 'StartPoint', 1);
+
+figure();
+scatter(N_plot, h_plot);
+hold on;
+plot(fitted_model);
+plot(N_det, chosen_fillheight); 
+xlabel('Wave #');
+ylabel('Fill Height');
+title('Fill height as function of wave #');
+legend('off');
+grid on;
 
 % Display the calculated fill height
 fprintf("Fill Height: %.3f m (%.3f mm). \n", chosen_fillheight, chosen_fillheight * 1000);
