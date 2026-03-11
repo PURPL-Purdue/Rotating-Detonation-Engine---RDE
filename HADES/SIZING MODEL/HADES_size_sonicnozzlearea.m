@@ -33,7 +33,3 @@ yline(11,'r-', "Minimum Diameter");
 title('Choke Diameter vs Feed Pressure');
 grid on;
 
-<<<<<<< HEAD
-=======
-% hi
->>>>>>> 1e91c991004ef7f5aec218461c5c10aadfbd31b0
