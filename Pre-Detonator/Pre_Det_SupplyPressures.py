@@ -68,13 +68,9 @@ rho1_GH2 = PropsSI('DMASS', 'T', Tt, 'P', p1_GH2, 'H2')
 v_line_GOx = md_GOx / (rho1_GOx * flow_area)         # m/s
 v_line_GH2 = md_GH2 / (rho1_GH2 * flow_area)         # m/s
 
-
-
 # Fill Time Calculations
 
 p2_GOx = p1_GOx * (2 / (g_GOx + 1))**(g_GOx / (g_GOx - 1))
-print(p1_GOx / psi_to_Pa)
-print(p2_GOx / psi_to_Pa)
 p2_GH2 = p1_GH2 * (2 / (g_GH2 + 1))**(g_GH2 / (g_GH2 - 1))
 
 rho2_GOx = PropsSI('DMASS', 'T', Tc_GOx, 'P', p2_GOx, 'O2')
@@ -84,19 +80,7 @@ q_GOx = md_GOx / rho2_GOx
 q_GH2 = md_GH2 / rho2_GH2
 q_tot = q_GOx + q_GH2
 
-l1 = 1.5 * in_to_m # m
-l2 = 4.112 * in_to_m # m
-
-d1 = 0.375
-d2 = 0.25
-
-wt1 = 0.065
-wt2 = 0.049
-
-spr_vol = 0.0216 * in_to_m**3 # Spring Volume, m^3
-man_vol = math.pi * ((0.387*in_to_m)/2)**2 * (1.526 * in_to_m) # Manifold Volume, m^3
-tube_vol = math.pi * ((((d1-(2*wt2))*in_to_m)/2)**2 * l2) + (math.pi * ((d2-(2*wt1)*in_to_m)/2)**2 * l1) - spr_vol # Tube Volume, m^3
-vol_t = man_vol + tube_vol # Total Volume, m^3
+vol_t = (0.1407 * in_to_m**3) # man_vol + tube_vol # Total Volume, m^3
 
 t_fill = vol_t / q_tot
 
