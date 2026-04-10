@@ -8,14 +8,15 @@ psi_to_Pa = 6894.76 # psi to pascals
 bar_to_psia = 14.5 # bar to psi
 in_to_m = 0.0254 # inches to meters
 m_to_ft = 3.28084 # meters to feet
+kg_to_lbm = 2.20462 # kg to lbm
 
 #--------------------------------- MAIN CODE ---------------------------------#
 
 # INPUTS
 
 # Feed Pressures
-p1_GOx = 400 * psi_to_Pa
-p1_GH2 = 200 * psi_to_Pa
+p1_GOx = 500 * psi_to_Pa
+p1_GH2 = 250 * psi_to_Pa
 
 # Sonic Orifice Diameters
 d_GOx = 0.01 * in_to_m 
@@ -87,6 +88,7 @@ v_line_GH2 = md_GH2 / (rho1_GH2 * flow_area)         # m/s
 # Sonic Pressures
 p2_GOx = p1_GOx * (2 / (g_GOx + 1))**(g_GOx / (g_GOx - 1))
 p2_GH2 = p1_GH2 * (2 / (g_GH2 + 1))**(g_GH2 / (g_GH2 - 1))
+p2tota = p2_GOx + p2_GH2
 
 # Sonic Densities
 rho2_GOx = PropsSI('DMASS', 'T', Tc_GOx, 'P', p2_GOx, 'O2')
@@ -106,9 +108,10 @@ t_fill = vol_t / q_tot
 #------------------------------ PRINT COMMANDS ------------------------------#
 print()
 print(f"Pre-Detonator Fill Time: {t_fill * 1000:.3f} ms")
+print(f"Pre-Detonator Chamber Pressure: {p2tota/psi_to_Pa:.3f} psi")
 print(f"Mass Ratio: {md_GOx / md_GH2:.6f}")
-print(f"O2 Mass Flow Rate: {md_GOx*1000:.3f} g/s")
-print(f"H2 Mass Flow Rate: {md_GH2*1000:.3f} g/s")
+print(f"O2 Mass Flow Rate: {md_GOx*1000:.6f} g/s")
+print(f"H2 Mass Flow Rate: {md_GH2*1000:.6f} g/s")
 print(f"O2 Choked Velocity: {v_GOx * m_to_ft:.3f} ft/s")
 print(f"O2 Line Velocity: {v_line_GOx * m_to_ft:.3f} ft/s")
 print(f"H2 Choked Velocity: {v_GH2 * m_to_ft:.3f} ft/s")
