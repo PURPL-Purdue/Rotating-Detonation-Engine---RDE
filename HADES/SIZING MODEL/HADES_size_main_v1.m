@@ -59,8 +59,10 @@ Failure_temps = HADES_size_HoopStressTemps(outer_radius - wall_thickness, outer_
 
 [h2_area] = HADES_size_h2Inj(fuel_mdot, avg_chamber_p);
 
-[air_area, area_annulus] = HADES_size_airInj(h2_area, annulus_gap, outer_radius, initial_temp, initial_pressure);
+[air_area, area_annulus] = HADES_size_airInj(ox_mdot, annulus_gap, outer_radius, initial_temp);
 
 [max_flux] = HADES_size_max_flux_range(total_mdot, area_annulus);
 
-[P_inlet, P_exit, Ma_inlet, f] = HADES_size_pdrop_fanno(20*10^5, 0.001, 6.35, 0.015, 0.023586803/32, 1.4, 8.35e-6);
+
+P_plenum_req = HADES_size_P_plenum_fanno(10 * 100000, fuel_mdot/(2.205*32), (pi*0.25*0.00118^2), HADES_size_convert(0.25, 'in', 'm')*1e3, 1.18, initial_temp, 0.6, 1.4, 4124.2, 84e-7, 273, 72, surface_roughness_304*1e3, 0.5);
+
