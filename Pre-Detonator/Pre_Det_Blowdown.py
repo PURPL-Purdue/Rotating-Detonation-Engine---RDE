@@ -16,16 +16,16 @@ Cd = 0.61                   # discharge coefficient
 # -------------------------------------------------------------------------
 # MIXTURE COMPOSITION
 # -------------------------------------------------------------------------
-Y_O2 = 0.88889 # mass fraction of o2
-Y_H2 = 0.11111 # mass fraction of h2
+mdot_O2 = 0.273752 # mass flow rate of o2
+mdot_H2 = 0.033847 # mass flow rate of h2
 
-MW_O2 = 0.032 # molar weight of o2 (g/mol)
-MW_H2 = 0.002016 # molar weight of h2 (g/mol)
+MW_O2 = 32 # molar weight of o2 (g/mol)
+MW_H2 = 2.016 # molar weight of h2 (g/mol)
 
 # Convert mass fractions → mole fractions
-nO2 = Y_O2 / MW_O2 # moles of o2
-nH2 = Y_H2 / MW_H2 # moles of h2
-n_sum = nO2 + nH2 # total moles
+nO2 = mdot_O2 / MW_O2 # mole flow rate of o2
+nH2 = mdot_H2 / MW_H2 # mole flow rate of h2
+n_sum = nO2 + nH2 # total mole flow rate
 
 xO2 = nO2 / n_sum # mole fraction of o2
 xH2 = nH2 / n_sum # mole fraction of h2
@@ -36,8 +36,8 @@ R_mix = R_univ / MW_mix # gas constant of mixture
 # -------------------------------------------------------------------------
 # INITIAL FEED PRESSURES
 # -------------------------------------------------------------------------
-p1_O2 = 400 * psi_to_Pa # feed pressure of o2
-p1_H2 = 200 * psi_to_Pa # feed pressure of h2
+p1_O2 = 500 * psi_to_Pa # feed pressure of o2
+p1_H2 = 250 * psi_to_Pa # feed pressure of h2
 
 # Assume chamber initially at choked pressure (isentropic)
 cp_GOx = PropsSI('CPMASS', 'T', T, 'P', p1_O2, 'Oxygen')      # J/kg-K
