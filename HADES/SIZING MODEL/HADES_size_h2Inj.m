@@ -1,21 +1,13 @@
 %%H2 inj sizing
 
 % make function define inputs ONLY FROM MAIN
-%<<<<<<< Updated upstream
-%<<<<<<< Updated upstream
-%function [h2_area] = HADES_size_h2Inj(fuel_mdot, initial_temp, ambient_pressure)
-%=======
-%function [h2_area] = HADES_size_h2Inj(fuel_mdot, chamber_pressure)
-%>>>>>>> Stashed changes
-%=======
 function [h2_area] = HADES_size_h2Inj(fuel_mdot, chamber_pressure)
-%>>>>>>> Stashed changes
 
 %defining constants
 stiffness = 100;
-fuel_mdot = fuel_mdot * .453592; %%fuel mass flow rate converted to kg/s
-dischargeCoef = .7; %Discharge coefficient
-density = 1.012; %%UNSURE OF WHERE THIS NUM IS FROM
+fuel_mdot = fuel_mdot * 0.453592; %%fuel mass flow rate converted to kg/s
+dischargeCoef = 0.7; %Discharge coefficient
+density = 0.91; %%UNSURE OF WHERE THIS NUM IS FROM
 manifold_pressure = chamber_pressure * (1 + (stiffness / 100)); %%manifold pressure (psia)
 pressureDrop = (manifold_pressure - chamber_pressure) * 6895; %%pressure drop converted to PA
 
