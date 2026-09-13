@@ -19,16 +19,16 @@ psi_to_Pa = 6894.76;
 %% DESIGN REQUIREMENTS
 
 % Mass flow requirement
-m_dot_req   = 2 * lb_to_kg;      % Required mass flow [kg/s]
-flow_margin = 1.15;              % 15% design margin
+m_dot_req   = 2 * lb_to_kg;  % Required mass flow [kg/s]
+flow_margin = 0.85;              % 15% design margin
 m_dot       = m_dot_req * flow_margin;
 
 % Downstream pressure requirement
-P_down = 20e5;                   % Downstream/back pressure [Pa] = 20 bar
+P_down = 20e5 + 20*psi_to_Pa;    % Downstream/back pressure [Pa] = 20 bar
 
-% Air properties
-R       = 287;                   % Specific gas constant [J/(kg*K)]
-gamma   = 1.4;                   % Specific heat ratio [-]
+% Gas properties
+R       = 287.05;                   % Specific gas constant [J/(kg*K)]
+gamma   = 1.4;                  % Specific heat ratio [-]
 T_tu    = 283;                   % Upstream total temperature [K]
 
 %% CHOKING CONDITION
@@ -136,12 +136,6 @@ fprintf('Minimum Upstream Total P    : %.2f bar\n', ...
         P_tu_min / 1e5);
 
 fprintf('\n--- THROAT ---\n');
-
-fprintf('Throat Area                 : %.6f m^2\n', ...
-        A_t);
-
-fprintf('Throat Area                 : %.4f in^2\n', ...
-        A_t / in_to_m^2);
 
 fprintf('Throat Diameter             : %.2f thou\n', ...
         (D_t_m / in_to_m) * 1000);
