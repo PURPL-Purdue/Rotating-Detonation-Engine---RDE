@@ -102,7 +102,7 @@ a2 = math.pi*(di2/2)**2 # inner area of tube 2
 l1 = (4.3955 + 0.74)*in_to_m # length of tube 1
 l2 = 1.5*in_to_m # length of tube 2
 
-Vt = 0.1407 * in_to_m**3 # volume of pre-detonator
+Vt = 0.1407 * in_to_m**3 # volume of pre-detonator, UPDATE THIS!!!!
 
 # -------------------------------------------------------------------------
 # TIME SETUP

@@ -51,7 +51,7 @@ OD_spiral = 0.30            # in
 ID_spiral = 0.21            # in
 
 # --- Hoop stress ---
-P_i           = 1360.251      # psia — max expected internal pressure
+P_i           = 1360.251    # psia — max expected internal pressure
 P_o           = 14.7        # psia — external (atmospheric)
 allow_1_4     = 7514.7      # psia — allowable stress, 1/4 in tube
 allow_3_8     = 6514.7      # psia — allowable stress, 3/8 in tube
@@ -115,12 +115,13 @@ rho_H2 = PropsSI('DMASS', 'T', T, 'P', p1_H2, 'H2')
 # Throat conditions
 p2_O2   = p1_O2 * cf_O2
 p2_H2   = p1_H2 * cf_H2
+P0_O2        = p2_O2                    # blowdown starts at choked pressure
+P0_H2        = p2_H2
+P0           = xO2 * P0_O2 + xH2 * P0_H2
 rho2_O2 = PropsSI('DMASS', 'T', Tc_O2, 'P', p2_O2, 'O2')
 rho2_H2 = PropsSI('DMASS', 'T', Tc_H2, 'P', p2_H2, 'H2')
 
 # Mixture Cp/Cv/gamma at initial blowdown pressure (molar-weighted)
-P0_O2        = p2_O2                    # blowdown starts at choked pressure
-P0_H2        = p2_H2
 Cp_O2_b      = PropsSI('CPMASS', 'T', T, 'P', P0_O2, 'Oxygen')
 Cp_H2_b      = PropsSI('CPMASS', 'T', T, 'P', P0_H2, 'Hydrogen')
 Cp_mix_molar = xO2 * Cp_O2_b * MW_O2 + xH2 * Cp_H2_b * MW_H2
@@ -176,7 +177,6 @@ safety1 = allow_1_4 / hoop1
 safety2 = allow_3_8 / hoop2
 
 # --- Blowdown ---
-P0             = xO2 * P0_O2 + xH2 * P0_H2
 steps          = int(t_final / dt)
 time           = np.zeros(steps)
 P_tube         = np.zeros(steps)
