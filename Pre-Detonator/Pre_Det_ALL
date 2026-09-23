@@ -118,6 +118,10 @@ p2_H2   = p1_H2 * cf_H2
 P0_O2        = p2_O2                    # blowdown starts at choked pressure
 P0_H2        = p2_H2
 P0           = xO2 * P0_O2 + xH2 * P0_H2
+
+print(f"  O2 Mass Flow Rate    : {md_O2 * 1000:.3f} g/s")
+print(f"  H2 Mass Flow Rate    : {md_H2 * 1000:.3f} g/s")
+
 rho2_O2 = PropsSI('DMASS', 'T', Tc_O2, 'P', p2_O2, 'O2')
 rho2_H2 = PropsSI('DMASS', 'T', Tc_H2, 'P', p2_H2, 'H2')
 
