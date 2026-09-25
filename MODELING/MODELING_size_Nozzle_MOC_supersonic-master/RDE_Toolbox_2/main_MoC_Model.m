@@ -1,0 +1,80 @@
+clear
+clc
+close all
+
+%% Description:
+% In addition to running the entire program this main file initializes by
+% computing the 2D injector velocity CJ speed. It constructs the first
+% velocity triangle to determine the angle and height of the detonation
+% wave. Before interpolating starting points along the detonation wave and
+% drawing characteristic lines from them.
+
+%% Definitions:
+% IVLine = Initial value line = detonation wave front
+
+
+%% Annulus mean diameter and getting circumference for X and Y max length. (unwrapping RDE)
+
+outer_chamber_diameter = 0; % [mm]
+
+inner_chamber_diameter = 0; % [mm]
+
+chamber_length = 0; % [mm] Length of the chamber measured from the injector face to the exit. 
+
+
+OC_dia = outer_chamber_diameter; % Outer chamber wall diameter in mm
+
+IC_dia = inner_chamber_diameter; % Inner Chamber wall diameter in mm
+
+Chamb_L = chamber_length; % Chamber length from injector face to exit. (Must be flat with no nozzle geometry). 
+
+% Convert all variables to SI units (meters)
+
+OC_dia = outer_chamber_diameter * 1e-3;
+IC_dia = inner_chamber_diameter * 1e-3;
+Chamb_L = chamber_length * 1e-3;
+
+% Calculate annulus circumference and establish the unwrapped domain.
+
+annulusMeanDiameter = (OC_dia + IC_dia) / 2;
+annulusCircumference = pi * annulusMeanDiameter;
+xMax = annulusCircumference;
+yMax = Chamb_L;
+
+
+%% Drawing the first velocity triangle and getting phi.
+
+% calculate retrieve injector velocity and determine phi angle. 
+
+P3 = 3e6;
+T3 = 398;
+mdot = 0.59;
+A3 = 0.000143;
+
+% Post injection
+A4 = 0.001053;
+Pa = 101325 ; % Ambient air pressure
+R = 287;
+Cp = 1005;
+
+out = velocity_wave_calculations(P3,T3,mdot,A3,A4,Pa,R,Cp);
+
+
+% plug in phi into triple point equation to put all angles into phi
+
+
+
+%% Draw Detonation wave line and put triple point at the end of it.
+
+%% Parameters for detonation wave (IVLine) + Fill Height
+% The IVLine is derived from a 1D model to calculate injector velocity.
+% Use CEA "tp" mode and assign a temperature and pressure to determine
+% chamber pressure?
+
+gamma = 1.2; % [-] specific heat ratio of propellants (via CEA)
+
+mP = 400;    % [pa] Manifold pressure before being injected
+
+
+
+out = velocity_wave_calculations(P3,T3,mdot,A3,A4,Pa,R,Cp);

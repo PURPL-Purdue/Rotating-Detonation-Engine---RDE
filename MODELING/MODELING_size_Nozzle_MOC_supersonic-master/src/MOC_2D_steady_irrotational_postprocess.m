@@ -116,8 +116,8 @@ function [fig1,fig2,fig3] = MOC_2D_steady_irrotational_postprocess(geom,params,p
 
 %% NEW COLOR PLOTTING BY CLAUDE to get characteristic lines to appear. Lines commented out are from the original
      if (plot_colours)
-         patch('Faces',faces_tri ,'Vertices',nodes_tri /geom.yt,'FaceVertexCData',nodesC_tri ,'FaceColor','interp','EdgeColor','k','LineWidth',0.25);
-         patch('Faces',faces_quad,'Vertices',nodes_quad/geom.yt,'FaceVertexCData',nodesC_quad,'FaceColor','interp','EdgeColor','k','LineWidth',0.25);
+         patch('Faces',faces_tri ,'Vertices',nodes_tri /geom.yt,'FaceVertexCData',nodesC_tri ,'FaceColor','interp','EdgeColor','none','LineWidth',0.25);
+         patch('Faces',faces_quad,'Vertices',nodes_quad/geom.yt,'FaceVertexCData',nodesC_quad,'FaceColor','interp','EdgeColor','none','LineWidth',0.25);
          colormap(jet(256)); colorbar;
      else
          patch('Faces',faces_tri ,'Vertices',nodes_tri /geom.yt,'FaceVertexCData',nodesRGB_tri ,'EdgeColor','flat','FaceColor','none','LineWidth',1);

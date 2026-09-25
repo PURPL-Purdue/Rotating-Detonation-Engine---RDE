@@ -15,7 +15,7 @@ function [xsonic,xvnull,u] = MOC_2D_steady_irrotational_IVLINE ( geom , params ,
   
   % Equation for the v=0 line: x=coeff_vnull * y^2, where coeff_vnull is [1/m]
   coeff_vnull = -(params.gamma+1)*alpha*0.5/(3+geom.delta);
-  xvnull=coeff_vnull*y.^2 - eps;
+  xvnull= coeff_vnull*y.^2 - eps;
   
   % Perturbation velocity field on the v=0 line
   u = astar * (1 + alpha * (xvnull+eps) + (params.gamma+1)*(alpha^2)*(y.^2)*0.5/(1+geom.delta) );

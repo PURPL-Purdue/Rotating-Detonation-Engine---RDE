@@ -5,8 +5,10 @@ function [xo,yo,uo,vo] = MOC_2D_steady_irrotational_internal_point ( xp,yp,up,vp
 % and a right-running C- characteristic.
 % xp,yp,up,vp are conditions from the left -running characteristic C+
 % xm,ym,um,vm are conditions from the right-running characteristic C-
-   x_orig = [ xp , xm ] ; y_orig = [ yp , ym ] ;
-   u_orig = [ up , um ] ; v_orig = [ vp , vm ] ;
+   x_orig = [ xp , xm ] ;
+   y_orig = [ yp , ym ] ;
+   u_orig = [ up , um ] ;
+   v_orig = [ vp , vm ] ;
    
    step_current = 0;
    step_max = 50;
@@ -22,16 +24,23 @@ function [xo,yo,uo,vo] = MOC_2D_steady_irrotational_internal_point ( xp,yp,up,vp
    while 1
       step_current = step_current + 1;
 % Corrector step
-      xcp = xp; ycp = 0.5*(yp+yo) ; ucp = 0.5*(up+uo) ; vcp = 0.5*(vp+vo) ;
-      xcm = xm; ycm = 0.5*(ym+yo) ; ucm = 0.5*(um+uo) ; vcm = 0.5*(vm+vo) ;
+      xcp = xp; ycp = 0.5*(yp+yo) ;
+      ucp = 0.5*(up+uo) ;
+      vcp = 0.5*(vp+vo) ;
+      xcm = xm;
+      ycm = 0.5*(ym+yo) ;
+      ucm = 0.5*(um+uo) ;
+      vcm = 0.5*(vm+vo) ;
      [xn,yn,un,vn] = MOC_2D_steady_irrotational_solve_internal_point ( xcp,ycp,ucp,vcp,...
                                                                        xcm,ycm,ucm,vcm,...
                                                                        x_orig,y_orig,u_orig,v_orig,...
                                                                        geom,params ) ;
       error_pos = max( [ xo-xn , yo-yn ] );
       error_vel = max( [ uo-un , vo-vn ] );
-      xo = xn ;      yo = yn ;
-      uo = un ;      vo = vn ;
+      xo = xn ;     
+      yo = yn ;
+      uo = un ;    
+      vo = vn ;
       % Check if we converged on the position and on the velocity components
       if (abs(error_pos)<eps_pos && abs(error_vel)<eps_vel)
         break;
