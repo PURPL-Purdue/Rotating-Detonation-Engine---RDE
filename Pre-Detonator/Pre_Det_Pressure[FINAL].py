@@ -78,7 +78,22 @@ while True:
         p_out = required_GH2_pressure(p_in)
         md_O = choked_mdot(p_in * psi_to_Pa, 'Oxygen', R_GOx, A_GOx, Cd_GOx)
         md_H = choked_mdot(p_out * psi_to_Pa, 'Hydrogen', R_GH2, A_GH2, Cd_GH2)
+        x_GOx = md_O / MW_GOx
+        x_GH2 = md_H / MW_GH2
+        n_GOx = x_GOx / (x_GH2 + x_GOx)
+        n_GH2 = x_GH2 / (x_GH2 + x_GOx)
+        cph2 = int(PropsSI('CPMASS', 'T', Tt, 'P', p_out, "Hydrogen"))
+        cvh2 = int(PropsSI('CVMASS', 'T', Tt, 'P', p_out, "Hydrogen"))
+        cpo2 = int(PropsSI('CPMASS', 'T', Tt, 'P', p_in, "Oxygen"))
+        cvo2 = int(PropsSI('CVMASS', 'T', Tt, 'P', p_in, "Oxygen"))
+        gh2 = cph2 / cvh2
+        go2 = cpo2 / cvo2
+        p2_GH2 = p_out / ((1 + (gh2 - 1) / 2) ** (gh2 / (gh2 - 1)))
+        p2_GOx = p_in / ((1 + (go2 - 1) / 2) ** (go2 / (go2 - 1)))
+        p_total = (p2_GH2*n_GH2) + (p2_GOx*n_GOx)
+        print(f"Total pressure: {p_total:.2f} psia")
         print(f"Required GH2 pressure: {p_out:.2f} psia")
         print(f"Check -> O2: {md_O*1000:.5f} g/s, H2: {md_H*1000:.5f} g/s, O/F = {md_O/md_H:.4f}")
+        False
     except ValueError:
         print("Invalid input, enter a number.")
