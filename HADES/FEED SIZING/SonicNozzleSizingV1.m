@@ -19,17 +19,26 @@ psi_to_Pa = 6894.76;
 %% DESIGN REQUIREMENTS
 
 % Mass flow requirement
-m_dot_req   = 2 * lb_to_kg;  % Required mass flow [kg/s]
-flow_margin = 0.85;              % 15% design margin
-m_dot       = m_dot_req * flow_margin;
+
+m_dot_req = 0.9072;     % Required mass flow [kg/s]
+
+flow_margin = 1.15;     % 15% positive design margin
+
+m_dot = m_dot_req * flow_margin;
+
+Cd = 1.0;              % Discharge coefficient
 
 % Downstream pressure requirement
+
 P_down = 20e5 + 20*psi_to_Pa;    % Downstream/back pressure [Pa] = 20 bar
 
 % Gas properties
-R       = 287.05;                   % Specific gas constant [J/(kg*K)]
-gamma   = 1.4;                  % Specific heat ratio [-]
-T_tu    = 283;                   % Upstream total temperature [K]
+
+R       = 287.05;       % Specific gas constant [J/(kg*K)]
+
+gamma   = 1.4;          % Specific heat ratio [-]
+
+T_tu    = 283;          % Upstream total temperature [K]
 
 %% CHOKING CONDITION
 
@@ -72,7 +81,7 @@ choked_param = sqrt(gamma / R) * ...
 % A_t = mdot * sqrt(T_tu) / (P_tu * choked_param)
 
 A_t = (m_dot * sqrt(T_tu)) / ...
-      (P_tu_min * choked_param);
+      (Cd * P_tu_min * choked_param);
 
 %% THROAT DIAMETER
 
@@ -88,6 +97,7 @@ D_t_m = 2 * sqrt(A_t / pi);
 % Calculate throat static conditions.
 
 T_throat = T_tu * (2 / (gamma + 1));
+
 P_throat = P_tu_min * crit_ratio;
 
 %% FEED LINE GEOMETRY
@@ -95,13 +105,17 @@ P_throat = P_tu_min * crit_ratio;
 wall_thickness = 0.049 * in_to_m;
 
 feed_OD = (16 / 16) * in_to_m;       % 1.000 in OD
+
 feed_ID = feed_OD - 2 * wall_thickness;
 
 %% OUTPUTS
 
 fprintf('\n');
+
 fprintf('=============================================\n');
+
 fprintf('       SONIC NOZZLE SIZING RESULTS\n');
+
 fprintf('=============================================\n');
 
 fprintf('\n--- DESIGN REQUIREMENTS ---\n');
