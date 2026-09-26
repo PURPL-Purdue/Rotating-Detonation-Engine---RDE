@@ -1,0 +1,74 @@
+clear
+clc
+close all
+
+%% Description:
+% In addition to running the entire program this main file initializes by
+% computing the 2D injector velocity CJ speed. It constructs the first
+% velocity triangle to determine the angle and height of the detonation
+% wave. Before interpolating starting points along the detonation wave and
+% drawing characteristic lines from them.
+
+%% Definitions:
+% IVLine = Initial value line = detonation wave front
+
+%%% INPUTS %%%
+
+%% Cell sizer from CEA should go here to render the unwrapping hand inputs obsolete.
+
+%% Annulus mean diameter and getting circumference for X and Y max length. (unwrapping RDE)
+
+ChamberDim.outer_chamber_diameter = 0; % [mm]
+
+ChamberDim.inner_chamber_diameter = 0; % [mm]
+
+ChamberDim.chamber_length         = 0; % [mm] Axial length of the chamber measured from the injector face to the exit. 
+
+
+%% Triple Point Inputs
+
+iTripleParam.P1     = 0;  % Injection static pressure (assumed equal to bounding gas initial pressure) [Pa]
+iTripleParam.P2     = 0;  % Post-detonation static pressure [Pa]
+iTripleParam.T2     = 0;  % Post-detonation static temperature [K]
+iTripleParam.Vcj    = 0;  % Chapman-Jouguet *detonation wave velocity* [m/s]
+iTripleParam.gamma2 = 0;  % Specific heat ratio of post-detonation gas
+iTripleParam.R1     = 0;  % Specific gas constant of bounding gas [J/kg-K]
+
+
+
+%% Drawing the first velocity triangle and getting phi.
+
+%% Delta and beta angles are relative to phi angle. delta + beta = phi angle. 
+% calculate retrieve injector velocity and determine phi angle. 
+
+InjV.P3 = 3e6;
+InjV.T3 = 398;
+InjV.mdot = 0.59;
+A3 = 0.000143;
+
+% Post injection
+A4 = 0.001053;
+Pa = 101325 ; % Ambient air pressure
+R = 287;
+Cp = 1005;
+
+% plug in phi into triple point equation to put all angles into phi
+
+
+
+%% Draw Detonation wave line and put triple point at the end of it.
+
+%% Parameters for detonation wave (IVLine) + Fill Height
+% The IVLine is derived from a 1D model to calculate injector velocity.
+% Use CEA "tp" mode and assign a temperature and pressure to determine
+% chamber pressure?
+
+
+
+out = velocity_wave_calculations(P3,T3,mdot,A3,A4,Pa,R,Cp);
+
+
+% Logic process -> Draw first velocity triangle -> Draw main lines,
+% detonation line, slip line, injector fill line, shock line -> Define
+% conditions in each zone -> Draw characteristic lines -> Draw more
+% characteristic lines in the slip line and oblique shock. 
