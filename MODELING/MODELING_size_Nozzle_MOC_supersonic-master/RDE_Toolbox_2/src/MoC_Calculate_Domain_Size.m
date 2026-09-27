@@ -14,7 +14,7 @@ Chamb_L = ChamberDim.chamber_length * 1e-3;
 
 annulusMeanDiameter = (OC_dia + IC_dia) / 2;
 annulusCircumference = pi * annulusMeanDiameter;
-xMax = annulusCircumference;
-yMax = Chamb_L;
+xMax = annulusCircumference * 1000;
+yMax = ChamberDim.chamber_length;
 
 end

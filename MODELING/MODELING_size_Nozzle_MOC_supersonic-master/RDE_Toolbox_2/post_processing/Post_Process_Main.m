@@ -1,16 +1,14 @@
-% function Post_Process_Main(simOutput)
-% %POST_PROCESS_MAIN Summary of this function goes here
-% %   Detailed explanation goes here
-% arguments (Input)
-%     inputArg1
-%     inputArg2
-% end
-% 
-% arguments (Output)
-%     outputArg1
-%     outputArg2
-% end
-% 
-% outputArg1 = inputArg1;
-% outputArg2 = inputArg2;
-% end
+function Post_Process_Main(PostProc)
+%POST_PROCESS_MAIN Entry point for all post-processing / plotting steps.
+%   Post_Process_Main(PostProc) takes a struct PostProc holding whatever
+%   each step needs, and runs the post-processing steps in order. Called
+%   from MoC_Main.m once the flow-field computation is finished.
+%
+%   PostProc fields used so far:
+%       xMax - domain extent in x
+%       yMax - domain extent in y
+
+ax = Setup_Graph_Domain(PostProc.xMax, PostProc.yMax);
+
+% Future stuff goes here
+end
