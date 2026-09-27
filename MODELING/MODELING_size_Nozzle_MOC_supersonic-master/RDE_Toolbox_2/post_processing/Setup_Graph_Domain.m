@@ -23,8 +23,8 @@ ylim(ax, [0, yMax]);
 % same 1:1 scaling WITHOUT MATLAB expanding xlim/ylim to solve for it.
 pbaspect(ax, [xMax, yMax, 1]);
 
-xlabel(ax, 'x');      % TODO: set real units once decided (m, mm, deg...)
-ylabel(ax, 'y');
+xlabel(ax, 'x (mm)');      % TODO: set real units once decided (m, mm, deg...)
+ylabel(ax, 'y (mm)');
 title(ax, 'RDE Domain');
 
 grid(ax, 'on');

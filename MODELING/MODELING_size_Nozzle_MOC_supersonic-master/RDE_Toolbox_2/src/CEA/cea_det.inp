@@ -1,0 +1,12 @@
+problem
+    det
+    p,psia=26.000000
+    t,k=283.150000
+    phi=0.900000
+reac
+    oxid Air wt=100
+    fuel H2 wt=100
+output transport
+output short
+only
+end
