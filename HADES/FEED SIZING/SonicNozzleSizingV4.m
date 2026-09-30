@@ -33,7 +33,7 @@ input_file = 'flow_requirements_manifold_input.csv';
 % This is used only to CHECK whether the injector is
 % actually choked at the calculated manifold pressure.
 
-P_chamber_bar = 1.0;
+P_chamber_bar = 10.0;
 
 %% =====================================================
 %  TOTAL INJECTOR AREAS
