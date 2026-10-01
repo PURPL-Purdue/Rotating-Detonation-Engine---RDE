@@ -37,7 +37,7 @@ x0 = [M3_guess, theta_shock_guess];
 options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', 1e-8, 'StepTolerance', 1e-8);
 
 % Solve the system
-[sol, fval, exitflag] = fsolve(@(x) triple_point_residuals(x, P1, P2, gamma2, gamma2, M1_prime), x0, options);
+[sol, fval, exitflag] = fsolve(@(x) triple_point_residuals(x, P1, P2, gamma2, M1_prime), x0, options);
 
 if exitflag <= 0
     warning('Triple point solver did not converge.');
