@@ -71,7 +71,7 @@ InjV.Cp = 315;       % [J/(kg K)] ORIGINAL placeholder: verify before use
 
 %% Triple-point inputs - defined after CEA has returned its results
 % P1 and R1 are chosen bounding-gas inputs; the other inputs come from CEA.
-iTripleParam.P1 = 250000;  % [Pa] original injection/bounding pressure
+iTripleParam.P1 = ceaOut.P_unburned_bar * 1e5;  % [Pa] original injection/bounding pressure
 iTripleParam.P2 = ceaOut.P_burned_bar * 1e5; % [Pa] CEA pressure: bar -> Pa
 iTripleParam.T2 = ceaOut.T_cj;    % [K] post-detonation temperature
 iTripleParam.Vcj = ceaOut.cjVel;   % [m/s] detonation propagation velocity

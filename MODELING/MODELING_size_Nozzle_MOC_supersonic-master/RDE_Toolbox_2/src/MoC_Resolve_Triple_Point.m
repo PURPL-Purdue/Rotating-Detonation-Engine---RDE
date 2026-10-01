@@ -66,7 +66,7 @@ P_match = P_matched;
 M1_p = M1_prime;
 end
 
-function res = triple_point_residuals(x, P1, P2, gamma1, gamma2, M1_prime)
+function res = triple_point_residuals(x, P1, P2, gamma2, M1_prime)
 M3 = x(1);
 theta = x(2);
 
@@ -86,11 +86,11 @@ P3 = P2 * ( (1 + (gamma2 - 1)/2) / (1 + (gamma2 - 1)/2 * M3^2) )^(gamma2 / (gamm
 
 % Left Side: Oblique Shock (Sousa eqn. 2)
 % Pressure ratio across the oblique shock
-P2_prime = P1 * (1 + (2 * gamma1 / (gamma1 + 1)) * (M1_prime^2 * sin(theta)^2 - 1));
+P2_prime = P1 * (1 + (2 * gamma2 / (gamma2 + 1)) * (M1_prime^2 * sin(theta)^2 - 1));
 
 % Flow deflection angle across the oblique shock (Sousa eqn. 1)
 num = M1_prime^2 * sin(theta)^2 - 1;
-den = M1_prime^2 * (gamma1 + cos(2 * theta)) + 2;
+den = M1_prime^2 * (gamma2 + cos(2 * theta)) + 2;
 delta_2_prime = atan(2 * cot(theta) * (num / den));
 
 % Residuals to drive to zero[cite: 2]
