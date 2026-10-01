@@ -1,26 +1,24 @@
-# Nozzle_MOC_supersonic
-A code based on the Method of Characteristics to solve the supersonic flow inside a de Laval nozzle.
+# RDE model framework
 
-This Matlab / Octave code solves the flow inside a de Laval nozzle of known shape. The flow is assumed to be steady, two-dimensional, irrotational and supersonic. 
-The methods developed in this project are strongly based on the reference book "Gas Dynamics, Volume II, Multidimensional Flow" by Zucrow Maurice J. and Hoffman Joe D., 
-John Wiley and Sons, 1977.
+This project is a starting framework for a hand-written MATLAB model. **Only the NASA CEA call runs.** Injection, velocity triangles, wave geometry, characteristics, interpolation, and plots are intentionally unimplemented.
 
-The main routine is called **MOC_2D_steady_irrotational_main.m**. It contains all the inputs for the geometry of the nozzle. The geometry of this nozzle contains only 
-the diverging part of the nozzle and a sonic condition is assumed at the throat. The radius of the throat is adapted by the parameter (geom.yt). The downstream region shows first 
-a circular arc of radius (geom.rhod) which extends up to an angle (geom.ta). The diverging section is made of a parabolic curve which extends up to an axial distance (geom.xe) 
-and shows an exit lip angle (geom.te). If (geom.ta) and (geom.te) are equal, then the diverging section is a line.
+Open `RDE_Toolbox_2/src/MoC_Main_Model.m` and press Run, or from this project directory:
 
-The initial-value line is chosen as the line where the y-velocity component is equal to zero. This line is discretized by (geom.NI) points and the data is propagated downstream 
-by intersecting left-running and right-running characteristics. The compatibility and characteristic equations are numerically solved by a modified Euler predictor-corrector 
-method to determine the x- and y-velocity components and the location of the new node.
+```matlab
+run('RDE_Toolbox_2/src/MoC_Main_Model.m');
+```
 
-## Example of result in the case of a horizontal tangent at the exit lip point
-![Example of intersections of characteristics](https://github.com/xavierdechamps/Nozzle_MOC_supersonic/blob/master/Images/Characteristics_velocity_thetae0.jpg)
+Main is a readable script again. It restores the original named inputs (`ChamberDim`, `InjV`, `iTripleParam`, fuel/oxidizer, pressure, and temperature), calls CEA, and leaves `ceaOut` in the workspace. Paths are resolved from main's location, so it also works when MATLAB's current folder is elsewhere.
 
-## Example of result in the case of conical diverging section
-![Example of intersections of characteristics](https://github.com/xavierdechamps/Nozzle_MOC_supersonic/blob/master/Images/Characteristics_velocity.jpg)
+The existing source filenames remain as short TODO placeholders. Their calls in main are commented out. Calling a placeholder raises `MoC:NotImplemented`; it does not return fabricated states or plots. Implement and verify one stage at a time, then enable its call in main.
 
-![Example of pressure distribution](https://github.com/xavierdechamps/Nozzle_MOC_supersonic/blob/master/Images/Pressure.jpg)
+The CEA executable and libraries remain in `RDE_Toolbox_2/src/CEA`. Each main run saves readable CEA input/output under `RDE_Toolbox_2/results/CEA`. See [MODEL_NOTES.md](RDE_Toolbox_2/MODEL_NOTES.md) for how this interface works.
 
-![Example of pressure distribution](https://github.com/xavierdechamps/Nozzle_MOC_supersonic/blob/master/Images/Mach_number.jpg)
+The previous implemented model, tests, notes, and generated results are preserved in `archive/previous_model_20260930`. Older nozzle/HADES references remain elsewhere in `archive`. Do not add the archive recursively to MATLAB's path.
 
+To check the CEA interface only:
+
+```matlab
+addpath('RDE_Toolbox_2/tests');
+run_tests;
+```

@@ -1,10 +1,6 @@
 function [xMax, yMax] = MoC_Calculate_Domain_Size(ChamberDim)
-
-% Calculates 2D unwrapped domain of engine from given chamber size values
-% and outputs the domain of the graph that will be used to display the sim.  
-
-
-% Convert all variables to SI units (meters)
+    
+% Convert the chamber dimensions in mm into an unwrapped domain.
 
 OC_dia = ChamberDim.outer_chamber_diameter * 1e-3;
 IC_dia = ChamberDim.inner_chamber_diameter * 1e-3;
@@ -16,5 +12,6 @@ annulusMeanDiameter = (OC_dia + IC_dia) / 2;
 annulusCircumference = pi * annulusMeanDiameter;
 xMax = annulusCircumference * 1000;
 yMax = ChamberDim.chamber_length;
+
 
 end

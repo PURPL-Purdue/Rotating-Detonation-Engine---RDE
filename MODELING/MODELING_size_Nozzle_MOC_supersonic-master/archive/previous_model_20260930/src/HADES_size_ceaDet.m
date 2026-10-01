@@ -1,8 +1,5 @@
 function results = HADES_size_ceaDet(varargin)
 % ceaDet - MATLAB wrapper for NASA CEA detonation equilibrium analysis
-% This wrapper writes text input, runs FCEA2.exe, and reads text output.
-% The executable performs the chemistry calculation; MATLAB does not solve it.
-% See ../MODEL_NOTES.md for the call sequence and file formats.
 %
 % Usage examples:
 % d = HADES_size_ceaDet('ox','O2','fuel','H2','of',2.5,'P0',1000,'P0Units','psia','T0',300,'T0Units','K');
@@ -25,15 +22,12 @@ function results = HADES_size_ceaDet(varargin)
 % results.P_ratio - P/P1
 % results.T_ratio - T/T1
 % results.M_ratio - M/M1
-% results.rho_ratio - RHO/RHO1
+% results.RHO_ratio - RHO/RHO1
 % results.P_burned_bar - Burned Pressure
 % results.T_cj - Burned Gas Temperature
 % results.R_specific - Specific gas constant of burned gas (J/(kg*K))
 % results.Son_speed_unburned - sonic speed of unburned gas
 % results.Son_speed_burned - sonic speed of burned gas
-% Optional 'outputDir': keep cea_det.inp, cea_det.out, and cea_console.txt
-% for human inspection. Without it, the temporary run files are removed.
-% Legacy P0/T0 arguments specify the initial unburned reactant state.
 
 
 %% PARSE INPUTS
@@ -48,9 +42,7 @@ addParameter(p,'of',[],@isnumeric);
 addParameter(p,'pctFuel',[],@isnumeric);
 addParameter(p,'phi',[],@isnumeric);
 addParameter(p,'r',[],@isnumeric);
-sourceDir = fileparts(mfilename('fullpath'));
-addParameter(p,'ceaExe', fullfile(sourceDir,'CEA','FCEA2.exe'), @ischar);
-addParameter(p,'outputDir','',@ischar);
+addParameter(p,'ceaExe', fullfile(pwd,'CEA','FCEA2.exe'), @ischar);
 parse(p,varargin{:});
 opts = p.Results;
 
@@ -81,8 +73,6 @@ P0_psia = convertPressure(opts.P0, opts.P0Units, 'psia');
 T0_K    = convertTemperature(opts.T0, opts.T0Units, 'K');
 
 %% FILE PATHS
-% Each call gets its own working folder, so an old output cannot be reused.
-% CEA reads thermo.lib and trans.lib from that working folder.
 sourceDir = fileparts(opts.ceaExe);
 ceaDir = tempname;
 mkdir(ceaDir);
@@ -95,7 +85,6 @@ inputFile = fullfile(ceaDir,[inputName,'.inp']);
 outputFile = fullfile(ceaDir,[inputName,'.out']);
 
 %% WRITE CEA INPUT
-% "det" requests a detonation calculation. The base name is cea_det.
 fid = fopen(inputFile, 'w');
 if fid < 0
     error('Could not open CEA input file for writing: %s', inputFile);
@@ -127,15 +116,11 @@ fprintf(fid,'end\n');
 fclose(fid);
 
 %% RUN CEA
-% FCEA2 prompts for an input base name (without .inp). run.txt supplies it.
-% Shell redirection: < sends run.txt to stdin; > captures console output.
 orig = pwd;
 restore = onCleanup(@() cd(orig));
 cd(ceaDir);
 runFile = 'run.txt';
-fid = fopen(runFile,'w');
-fprintf(fid,'%s\n',inputName);
-fclose(fid);
+fid = fopen(runFile,'w'); fprintf(fid,'%s\n',inputName); fclose(fid);
 cmd = sprintf('"%s" < %s > cea_console.txt', fullfile(ceaDir,'FCEA2.exe'), runFile);
 [status,~] = system(cmd);
 cd(orig);
@@ -150,22 +135,6 @@ results.P0 = opts.P0;
 results.T0 = opts.T0;
 results.P0Units = opts.P0Units;
 results.T0Units = opts.T0Units;
-
-%% KEEP READABLE RUN FILES WHEN REQUESTED
-results.inputFile = '';
-results.outputFile = '';
-if ~isempty(opts.outputDir)
-    if ~isfolder(opts.outputDir)
-        mkdir(opts.outputDir);
-    end
-    [~, folderInfo] = fileattrib(opts.outputDir);
-    savedDir = folderInfo.Name;
-    results.inputFile = fullfile(savedDir, 'cea_det.inp');
-    results.outputFile = fullfile(savedDir, 'cea_det.out');
-    copyfile(inputFile, results.inputFile);
-    copyfile(outputFile, results.outputFile);
-    copyfile(fullfile(ceaDir, 'cea_console.txt'), fullfile(savedDir, 'cea_console.txt'));
-end
 
 end
 
@@ -239,7 +208,7 @@ for i=1:length(lines)
     end
 
     % Burned gas section flag
-    if strcmp(L,'BURNED GAS')
+    if contains(L,'BURNED GAS')
         inBurnedGas = true;
     end
 

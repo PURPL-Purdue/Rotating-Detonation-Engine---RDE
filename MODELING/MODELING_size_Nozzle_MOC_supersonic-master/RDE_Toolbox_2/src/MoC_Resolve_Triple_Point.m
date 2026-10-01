@@ -1,19 +1,19 @@
-function [beta_shock, delta_slip, P_matched, M3, M1_prime] = MoC_Resolve_Triple_Point(iTripleParam)
+function [beta, delta, P_match, M3, M1_p] = MoC_Resolve_Triple_Point(iTripleParam)
 % Inputs:
-
 % P1     - Injection static pressure (assumed equal to bounding gas initial pressure) [Pa]
 % P2     - Post-detonation static pressure [Pa]
 % T2     - Post-detonation static temperature [K]
-% Vcj    - Chapman-Jouguet detonation wave velocity [m/s]
+% Vcj    - Chapman-Jouguet velocity [m/s]
 % gamma2 - Specific heat ratio of post-detonation gas
 % R1     - Specific gas constant of bounding gas [J/kg-K]
 
+% Read the inputs passed from main into this function's local workspace.
 P1 = iTripleParam.P1;
-P2 = iTripleParam.P2;     
-T2 = iTripleParam.T2;     
-Vcj = iTripleParam.Vcj;    
-gamma2 = iTripleParam.gamma2; 
-R1 = iTripleParam.R1;     
+P2 = iTripleParam.P2;
+T2 = iTripleParam.T2;
+Vcj = iTripleParam.Vcj;
+gamma2 = iTripleParam.gamma2;
+R1 = iTripleParam.R1;
 
 % 1. Calculate bounding gas properties 
 % The bounding gas consists of detonation products isentropically 
@@ -58,6 +58,12 @@ P_matched = P2 * ( (1 + (gamma2 - 1)/2) / (1 + (gamma2 - 1)/2 * M3^2) )^(gamma2 
 % Convert angles to degrees for user readability if desired
 beta_shock = beta_shock * (180/pi);
 delta_slip = delta_slip * (180/pi);
+
+% Return the names requested by main (angles in degrees).
+beta = beta_shock;
+delta = delta_slip;
+P_match = P_matched;
+M1_p = M1_prime;
 end
 
 function res = triple_point_residuals(x, P1, P2, gamma1, gamma2, M1_prime)

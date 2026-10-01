@@ -1,0 +1,109 @@
+
+ *******************************************************************************
+
+         NASA-GLENN CHEMICAL EQUILIBRIUM PROGRAM CEA2, MAY 21, 2004
+                   BY  BONNIE MCBRIDE AND SANFORD GORDON
+      REFS: NASA RP-1311, PART I, 1994 AND NASA RP-1311, PART II, 1996
+
+ *******************************************************************************
+
+
+
+ problem
+     det
+     p,psia=36.259420
+     t,k=283.000000
+     phi=1.300000
+ reac
+     oxid O2 wt=100
+     fuel CH4 wt=100
+ output transport
+ output short
+ only
+ end
+
+
+
+                     DETONATION PROPERTIES OF AN IDEAL REACTING GAS
+ CASE =                
+
+             REACTANT                    WT FRACTION      ENERGY      TEMP
+                                          (SEE NOTE)     KJ/KG-MOL      K  
+ OXIDANT     O2                           1.0000000         0.000      0.000
+ FUEL        CH4                          1.0000000         0.000      0.000
+
+ O/F=    3.06866  %FUEL= 24.578091  R,EQ.RATIO= 1.300000  PHI,EQ.RATIO= 1.300000
+
+ UNBURNED GAS
+
+ P1, BAR           2.5000
+ T1, K             283.00
+ H1, KJ/KG       -1161.62
+ M1, (1/n)         25.713
+ GAMMA1            1.3568
+ SON VEL1,M/SEC     352.4
+
+ BURNED GAS
+
+ P, BAR            85.116
+ T, K             3904.22
+ RHO, KG/CU M    5.0567 0
+ H, KJ/KG         1167.32
+ U, KJ/KG         -515.90
+ G, KJ/KG        -50403.6
+ S, KJ/(KG)(K)    13.2090
+
+ M, (1/n)          19.286
+ (dLV/dLP)t      -1.05666
+ (dLV/dLT)p        1.8990
+ Cp, KJ/(KG)(K)    8.6410
+ GAMMAs            1.1406
+ SON VEL,M/SEC     1385.6
+
+ TRANSPORT PROPERTIES (GASES ONLY)
+   CONDUCTIVITY IN UNITS OF MILLIWATTS/(CM)(K)
+
+ VISC,MILLIPOISE   1.1810
+
+  WITH EQUILIBRIUM REACTIONS
+
+ Cp, KJ/(KG)(K)    8.6410
+ CONDUCTIVITY     21.4122
+ PRANDTL NUMBER    0.4766
+
+  WITH FROZEN REACTIONS
+
+ Cp, KJ/(KG)(K)    2.4326
+ CONDUCTIVITY      4.5179
+ PRANDTL NUMBER    0.6359
+
+ DETONATION PARAMETERS
+
+ P/P1              34.046
+ T/T1              13.796
+ M/M1              0.7500
+ RHO/RHO1          1.8510
+ DET MACH NUMBER   7.2785
+ DET VEL,M/SEC     2564.7
+
+ MOLE FRACTIONS
+
+ *CO              0.22210
+ *CO2             0.07331
+ COOH             0.00002
+ *H               0.05313
+ HCO              0.00004
+ HO2              0.00017
+ *H2              0.13268
+ H2O              0.38550
+ H2O2             0.00003
+ *O               0.01952
+ *OH              0.09209
+ *O2              0.02142
+
+  * THERMODYNAMIC PROPERTIES FITTED TO 20000.K
+
+ NOTE. WEIGHT FRACTION OF FUEL IN TOTAL FUELS AND OF OXIDANT IN TOTAL OXIDANTS
+
+
+
