@@ -4,6 +4,7 @@
 
 clear
 clc
+clf
 
 %% Paths - relative to this file, not MATLAB's current folder
 modelDir = fileparts(mfilename('fullpath'));
@@ -24,7 +25,7 @@ mixture_spec_value = 1.3;
 
 % These are the initial UNBURNED reactant conditions supplied to CEA.
 P0Units = 'bar';
-P0 = 2.5;
+P0 = 55.5;
 T0Units = 'K';
 T0 = 283;
 
