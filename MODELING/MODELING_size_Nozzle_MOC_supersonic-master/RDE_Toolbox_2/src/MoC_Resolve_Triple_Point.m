@@ -34,11 +34,12 @@ theta_shock_guess = 45 * (pi/180); % Radians
 x0 = [M3_guess, theta_shock_guess];
 
 % fsolve options
-options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', 1e-8, 'StepTolerance', 1e-8);
+options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', .005, 'StepTolerance', 1e-6, 'MaxIterations', 1e10, 'MaxFunctionEvaluations', 1e10);
 
 % Solve the system
 [sol, fval, exitflag] = fsolve(@(x) triple_point_residuals(x, P1, P2, gamma2, M1_prime), x0, options);
-
+fprintf('fsolve exit flag: %d\n', exitflag);
+fprintf('fsolve solution: M3 = %.4f, theta_shock = %.4f rad\n', sol(1), sol(2));
 if exitflag <= 0
     warning('Triple point solver did not converge.');
 end

@@ -4,6 +4,7 @@
 
 clear
 clc
+clf
 
 %% Paths - relative to this file, not MATLAB's current folder
 modelDir = fileparts(mfilename('fullpath'));
@@ -28,6 +29,26 @@ P0 = 2.5;
 T0Units = 'K';
 T0 = 283;
 
+%% Chamber dimensions and injector port inputs
+ChamberDim.outer_chamber_diameter = 52.243;  % [mm]
+ChamberDim.inner_chamber_diameter = 37.167;  % [mm]
+ChamberDim.chamber_length = 29.21;           % [mm], injector face to exit
+
+InjV.injector_area = 3.7138;  % [mm^2] summed area of one injector port set
+InjV.N_holes = 36;           % number of port sets; one for a single opening
+
+%% Injection inputs - original values, not yet used by a model
+InjV.P3 = 1e6;        % [Pa] original pre-injection pressure input
+InjV.T3 = 398;        % [K] original pre-injection temperature input
+InjV.mdot = 0.59;     % [kg/s]
+InjV.gamma1 = 1.3569;
+
+InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
+InjV.R = 315;        % [J/(kg K)] gas constant
+InjV.Cp = 315;       % [J/(kg K)] ORIGINAL placeholder: verify before use
+% Cp = R is not a consistent ideal-gas property pair. Kept for review, unused.
+% Decide whether P3/T3 are static or stagnation values before deriving injection.
+
 %% Run CEA 
 fprintf('\n--- RUNNING CEA ---\n');
 ceaPath = getCEAPath();
@@ -49,26 +70,6 @@ disp(ceaOut);
 
 fprintf('CEA input and output saved in:\n%s\n', ceaResultsDir);
 
-%% Chamber dimensions and injector port inputs
-ChamberDim.outer_chamber_diameter = 52.243;  % [mm]
-ChamberDim.inner_chamber_diameter = 37.167;  % [mm]
-ChamberDim.chamber_length = 29.21;           % [mm], injector face to exit
-
-InjV.injector_area = 3.7138;  % [mm^2] summed area of one injector port set
-InjV.N_holes = 36;           % number of port sets; one for a single opening
-
-%% Injection inputs - original values, not yet used by a model
-InjV.P3 = 1e6;        % [Pa] original pre-injection pressure input
-InjV.T3 = 398;        % [K] original pre-injection temperature input
-InjV.mdot = 0.59;     % [kg/s]
-InjV.gamma1 = 1.3569;
-
-InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
-InjV.R = 315;        % [J/(kg K)] gas constant
-InjV.Cp = 315;       % [J/(kg K)] ORIGINAL placeholder: verify before use
-% Cp = R is not a consistent ideal-gas property pair. Kept for review, unused.
-% Decide whether P3/T3 are static or stagnation values before deriving injection.
-
 %% Triple-point inputs - defined after CEA has returned its results
 % P1 and R1 are chosen bounding-gas inputs; the other inputs come from CEA.
 iTripleParam.P1 = P0 * 1e5;  % [Pa] original injection/bounding pressure
@@ -89,6 +90,21 @@ MoC_Plot_Field([], [], xMax, yMax); %  no field is solved yet so we're just plot
 % TODO: define the laboratory and wave reference frames explicitly.
 % TODO: calculate the wave angle and fill height from the chosen triangle.
 
+v_inj = 150; % TODO: placeholder injection velocity [m/s]
+y_inj = 7.5; % TODO: placeholder injection triangle height [mm]
+
+[phi, y_inj, x_inj] = MoC_Infill_Triangle(v_inj, iTripleParam.Vcj, y_inj);
+
+% Plot right side triangle
+x_triangle = [xMax-x_inj, xMax, xMax, xMax-x_inj];
+y_triangle = [0, y_inj, 0, 0];
+fill(x_triangle, y_triangle, 'r', 'FaceAlpha', 0.5);
+
+% Plot left side triangle
+x_triangle = [0, 0, y_inj * tand(phi), 0];
+y_triangle = [0, y_inj, 0, 0];
+fill(x_triangle, y_triangle, 'r', 'FaceAlpha', 0.5);
+
 %% 3. Detonation line and triple point
 % TODO: place the angled detonation line and its triple point.
 % TODO: define all angle conventions before using beta and delta.
@@ -108,6 +124,16 @@ fprintf('Beta Shock: %.2f° | Slip Angle: %.2f° | P Matched: %.2f Pa | M3: %.2f
 % TODO: calculate the chosen straight boundary geometry.
 % TODO: seed and solve the post-shock region separately.
 
+x_shock = [0, xMax * 100];
+y_shock = [y_inj, xMax * 100 * sind(beta + phi) + y_inj];
+
+plot(x_shock, y_shock, 'b-', 'LineWidth', 1.5);
+
+x_slip = [0, xMax * 100];
+y_slip = [y_inj, xMax * 100 * sind(delta + phi) + y_inj];
+
+plot(x_slip, y_slip, 'b-', 'LineWidth', 1.5);
+
 %% 7. Refill state and region-by-region interpolation
 % TODO: assign primitive variables in refill using the verified injection model.
 % TODO: document which frame each Mach number uses.
@@ -118,4 +144,3 @@ fprintf('Beta Shock: %.2f° | Slip Angle: %.2f° | P Matched: %.2f Pa | M3: %.2f
 % [fieldFigure, netFigure] = MoC_Plot_Field(field, geometry);
 
 fprintf('\nSolution complete.\n');
-
