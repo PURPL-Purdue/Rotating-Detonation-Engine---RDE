@@ -56,3 +56,8 @@ title('CJ velocity vs. initial pressure');
 
 fprintf('CEA interface check passed. No RDE model calculation was tested.\n');
 end
+
+
+% ADD GUESS SENSITIVITY TESTS
+
+% ADD GRID INDEPENDENCE TESTS DEIMOS CDR SLIDE 32

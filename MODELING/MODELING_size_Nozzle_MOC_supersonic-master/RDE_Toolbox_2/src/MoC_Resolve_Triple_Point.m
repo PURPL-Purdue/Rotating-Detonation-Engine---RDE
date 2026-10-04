@@ -35,9 +35,6 @@ x0 = [M3_guess, theta_shock_guess];
 
 % fsolve options
 options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', 1e-3, 'StepTolerance', 1e-8);
-=======
-options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', .005, 'StepTolerance', 1e-6, 'MaxIterations', 1e10, 'MaxFunctionEvaluations', 1e10);
->>>>>>> 2d020e6b8addd729c197ac23c0fdb8f740e5cb16
 
 % Solve the system
 [sol, fval, exitflag] = fsolve(@(x) triple_point_residuals(x, P1, P2, gamma2, M1_prime), x0, options);
