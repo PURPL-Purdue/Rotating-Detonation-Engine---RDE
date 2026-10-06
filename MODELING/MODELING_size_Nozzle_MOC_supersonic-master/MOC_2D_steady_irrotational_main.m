@@ -9,8 +9,9 @@ close all
 %   geom gives the parameters for the geometry and the mesh.
 %%
 
+ 
 % Parameters for the flow field
-params.gamma   = 1.2;    % Specific heat ratio = Cp / Cv
+params.gamma   = 1.2;    % Specific heat ratio = Cp / Cv 
 params.R       = 320;    % [J/kg-K] Gas constant
 params.P       = 70.e5;  % [Pa] Stagnation pressure
 params.PRatio  = 2;      % Ratio of static pressure at exit lip point [>1 to have a Prandtl-Meyer expansion]
@@ -22,17 +23,17 @@ params.T       = 3000;   % [K] Stagnation temperature
 geom.delta = 0 ;         % [0/1] 0: planar nozzle
                          %       1: axisymmetric nozzle
 geom.yt    = 1.  ;           % [m] Throat radius -> used as reference length for the whole nozzle
-geom.rhou  = 2   * geom.yt ; % [m] Throat upstream radius of circular arc, required by MOC_2D_steady_irrotational_IVLINE
-geom.rhod  = 0.5 * geom.yt ; % [m] Throat downstream radius of circular arc
-geom.xe    = 10  * geom.yt ; % [m] Nozzle length
-geom.xplume= 20   * geom.yt; % [m] Axial length of the plume from the nozzle exit lip point to the end (on the free pressure boundary)
+geom.rhou  = 1   * geom.yt ; % [m] Throat upstream radius of circular arc, required by MOC_2D_steady_irrotational_IVLINE
+geom.rhod  = 1e-6 * geom.yt ; % [m] Throat downstream radius of circular arc
+geom.xe    = 10   * geom.yt ; % [m] Nozzle length
+geom.xplume= 10   * geom.yt; % [m] Axial length of the plume from the nozzle exit lip point to the end (on the free pressure boundary)
 geom.ta    = 15 ;            % [deg] Attachment angle between circular arc and line
 geom.te    = 15 ;            % [deg] Exit lip point angle
 
 % Parameters for the discretization
-geom.NI            = 20 ;          % Number of points on the initial-value line
+geom.NI            = 11 ;          % Number of points on the initial-value line
 geom.circdownTheta = 1:1:geom.ta ; % Discretization of the circular arc downstream of the throat
-geom.NIexpansion   = 10  ;          % Number of expansion waves, if any exists
+geom.NIexpansion   = 5  ;          % Number of expansion waves, if any exists
 
 % Parameters for the post-processing of the results
 plots.patches      = 1; % [0/1] Plot the 2D patches to visualize the characteristics and 
@@ -49,9 +50,10 @@ plots.patches_xlim = 40 * geom.yt; % Abscissa above which the patch plot is cut
 addpath('./src/');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Geometry of the downstream circular arc
-geom.circdownX =           geom.rhod*   sind( geom.circdownTheta ) ;
+% % Geometry of the downstream circular arc
+geom.circdownX = geom.rhod*   sind( geom.circdownTheta ) ;
 geom.circdownY = geom.yt + geom.rhod*(1-cosd( geom.circdownTheta)) ;
+
 
 % The initial-value line is chosen as the line where V=0
 ythroat = 0:geom.yt/(geom.NI-1):geom.yt;

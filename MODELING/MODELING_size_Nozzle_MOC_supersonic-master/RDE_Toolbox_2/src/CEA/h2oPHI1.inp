@@ -1,0 +1,23 @@
+!     COMBUSTION OF HYDROGEN IN OXYGEN
+!     (a)  Combustion or assigned-enthalpy-and-pressure problem (hp).
+!     (b)  Fuels is  H2  at 298.15 K. The oxidant is O2 at 298K.
+!     (c)  Oxidant-to-fuel weight ratio is specified interms of phi=1
+!     (d)  Mixture enthalpy is calculated from reactant values given in 
+!          thermo.lib. This is because data for these species are given in
+!          thermo.lib and the species names match exactly.
+!     (e)  product species considered is  H2O  ('only' dataset).
+!          Note:  these species names must match those used in thermo.lib.
+!     (f)  Assigned pressure is 1atm.
+!     (g)  Mixture properties are to be printed in SI units (siunits).
+!     (h)  Mole fractions > 1.e-15 are to be in e-format (trace=1.e-15).
+!
+reac   
+     oxid O2 moles=1 t(K)=298.15  
+     fuel H2 moles=1 t(K)=298.15 
+prob 
+     case=Hydrogen_Oxygen   hp  p(atm)=1, phi=1
+only
+     H2O
+output 
+     siunits  trace=1.e-15
+end  End all input for Hydrogen_Oxygen
