@@ -24,7 +24,7 @@ BR = (OD**2 - ID**2) / (OD**2)
 print("Blockage Ratio:", str(BR))
 
 # Hoop Stress Calculations
-P_i = 3004 # psia
+P_i = 3004/2 # Half of CJ det pressure (assumption), psia
 P_o = 14.7 # psia
 r1_i = r1_o - t1 # inches
 r2_i = r2_o - t2 # inches
