@@ -2,42 +2,50 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from CoolProp.CoolProp import PropsSI
+from scipy.optimize import brentq
 
 # -------------------------------------------------------------------------
 # INITIALIZATION
 # -------------------------------------------------------------------------
-T = 293.15                  # K
+T = 283.15                  # K
 psi_to_Pa = 6894.76         # psi to pa conversion
 in_to_m = 0.0254            # inches to meters conversion
-R_univ = 8.314462           # J/mol-K
-P_atm = 101325.0            # Pa
+R_univ = 8.3144             # J/mol-K
+P_atm = 14.7 * psi_to_Pa  # Pa
 Cd = 0.61                   # discharge coefficient
 
-# -------------------------------------------------------------------------
-# MIXTURE COMPOSITION
-# -------------------------------------------------------------------------
-mdot_O2 = 0.273752 # mass flow rate of o2
-mdot_H2 = 0.033847 # mass flow rate of h2
-
-MW_O2 = 32 # molar weight of o2 (g/mol)
-MW_H2 = 2.016 # molar weight of h2 (g/mol)
-
-# Convert mass fractions → mole fractions
-nO2 = mdot_O2 / MW_O2 # mole flow rate of o2
-nH2 = mdot_H2 / MW_H2 # mole flow rate of h2
-n_sum = nO2 + nH2 # total mole flow rate
-
-xO2 = nO2 / n_sum # mole fraction of o2
-xH2 = nH2 / n_sum # mole fraction of h2
-
-MW_mix = xO2*MW_O2 + xH2*MW_H2 # molar weight of mixture
-R_mix = R_univ / MW_mix # gas constant of mixture
+# Orifice parameters and target mixture ratio
+O_F_target = 8
+orifice_O2 = 0.01 * in_to_m
+orifice_H2 = 0.01 * in_to_m
+A_inj_O2 = math.pi*(orifice_O2/2)**2
+A_inj_H2 = math.pi*(orifice_H2/2)**2
 
 # -------------------------------------------------------------------------
 # INITIAL FEED PRESSURES
 # -------------------------------------------------------------------------
 p1_O2 = 500 * psi_to_Pa # feed pressure of o2
-p1_H2 = 250 * psi_to_Pa # feed pressure of h2
+# p1_H2 is calculated from p1_O2 using the O/F=8 target
+
+MW_O2 = 31.9988 # molar weight of o2 (g/mol)
+MW_H2 = 2.01588 # molar weight of h2 (g/mol)
+R_O2 = R_univ / (MW_O2/1000)
+R_H2 = R_univ / (MW_H2/1000)
+
+def choked_mdot(P, fluid, R, A):
+    cp_gas = PropsSI('CPMASS', 'T', T, 'P', P, fluid)
+    cv_gas = PropsSI('CVMASS', 'T', T, 'P', P, fluid)
+    g = cp_gas/cv_gas
+    return Cd * (A*P/math.sqrt(T)) * math.sqrt(g/R) * \
+           ((g + 1)/2)**(-(g + 1)/(2*(g - 1)))
+
+mdot_O2_kg_s = choked_mdot(p1_O2, 'Oxygen', R_O2, A_inj_O2)
+
+def pressure_residual(p_H2_psia):
+    mdot_H2_kg_s = choked_mdot(p_H2_psia*psi_to_Pa, 'Hydrogen', R_H2, A_inj_H2)
+    return mdot_H2_kg_s - mdot_O2_kg_s/O_F_target
+
+p1_H2 = brentq(pressure_residual, 1, 10000) * psi_to_Pa # feed pressure of h2
 
 # Assume chamber initially at choked pressure (isentropic)
 cp_GOx = PropsSI('CPMASS', 'T', T, 'P', p1_O2, 'Oxygen')      # J/kg-K
@@ -51,6 +59,25 @@ g_GH2 = cp_GH2 / cv_GH2 # gamma of h2
 
 P0_O2 = p1_O2 * (2 / (g_GOx + 1))**(g_GOx / (g_GOx - 1)) # choked pressure of o2
 P0_H2 = p1_H2 * (2 / (g_GH2 + 1))**(g_GH2 / (g_GH2 - 1)) # choked pressure of h2
+
+# -------------------------------------------------------------------------
+# MIXTURE COMPOSITION
+# -------------------------------------------------------------------------
+mdot_O2 = mdot_O2_kg_s # mass flow rate of o2
+mdot_H2 = choked_mdot(p1_H2, 'Hydrogen', R_H2, A_inj_H2) # mass flow rate of h2
+
+# Convert mass fractions → mole fractions
+nO2 = mdot_O2 / (MW_O2/1000) # mole flow rate of o2
+nH2 = mdot_H2 / (MW_H2/1000) # mole flow rate of h2
+n_sum = nO2 + nH2 # total mole flow rate
+
+xO2 = nO2 / n_sum # mole fraction of o2
+xH2 = nH2 / n_sum # mole fraction of h2
+
+MW_mix = xO2*MW_O2 + xH2*MW_H2 # molar weight of mixture
+R_mix = R_univ / (MW_mix/1000) # gas constant of mixture
+
+# Weighted sonic-throat pressure is a legacy model assumption, not verified chamber pressure.
 P0 = xO2*P0_O2 + xH2*P0_H2 # total choked pressure
 
 # -------------------------------------------------------------------------
@@ -60,10 +87,10 @@ Cp_O2 = PropsSI('CPMASS','T',T,'P', P0_O2 ,'Oxygen') # new cp of o2
 Cp_H2 = PropsSI('CPMASS','T',T,'P', P0_H2 ,'Hydrogen') # new cp of h2
 
 # Convert to molar, mix, convert back
-Cp_O2_m = Cp_O2 * MW_O2 # molar cp of o2
-Cp_H2_m = Cp_H2 * MW_H2 # molar cp of h2
+Cp_O2_m = Cp_O2 * (MW_O2/1000) # molar cp of o2
+Cp_H2_m = Cp_H2 * (MW_H2/1000) # molar cp of h2
 Cp_mix_m = xO2*Cp_O2_m + xH2*Cp_H2_m # molar cp of mixture
-Cp_mix = Cp_mix_m / MW_mix # cp of mixture
+Cp_mix = Cp_mix_m / (MW_mix/1000) # cp of mixture
 
 Cv_mix = Cp_mix - R_mix # cv of mixture
 gamma = Cp_mix / Cv_mix # gamma of mixture
@@ -99,8 +126,8 @@ di2 = do2 - 2*thick2 # inner diameter of tube 2
 a1 = math.pi*(di1/2)**2 # inner area of tube 1
 a2 = math.pi*(di2/2)**2 # inner area of tube 2
 
-l1 = (4.3955 + 0.74)*in_to_m # length of tube 1
-l2 = 1.5*in_to_m # length of tube 2
+l1 = 1.5*in_to_m # length of tube 1
+l2 = 2.5*in_to_m # length of tube 2
 
 Vt = 0.1407 * in_to_m**3 # volume of pre-detonator, UPDATE THIS!!!!
 
@@ -164,6 +191,15 @@ P_tube = P_tube[:lastIndex]
 # -------------------------------------------------------------------------
 # PLOT
 # -------------------------------------------------------------------------
+print(f"GOx feed pressure: {p1_O2/psi_to_Pa:.3f} psia")
+print(f"GH2 feed pressure for O/F=8: {p1_H2/psi_to_Pa:.3f} psia")
+print(f"O2 mass flow: {mdot_O2*1000:.5f} g/s")
+print(f"H2 mass flow: {mdot_H2*1000:.5f} g/s")
+print(f"O/F mass ratio: {mdot_O2/mdot_H2:.5f}")
+print(f"Initial pressure (weighted throat approximation): {P0/psi_to_Pa:.3f} psia")
+print(f"Blowdown duration (model): {time[-1]*1000:.3f} ms")
+print("Note: Chamber starting pressure, CAD volume, and outlet Cd remain model assumptions.")
+
 plt.figure()
 plt.plot(time*1e3, P_tube/psi_to_Pa, linewidth=2)
 plt.xlabel("Time (ms)")
