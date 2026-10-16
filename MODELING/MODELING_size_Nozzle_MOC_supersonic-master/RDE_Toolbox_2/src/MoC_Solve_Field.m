@@ -62,7 +62,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
         phi = 0;
     end
     
-    m_shock = tand(beta_shock + phi);
+    m_shock = tand(beta_shock);
 
     % Piecewise functions for the shock and slip lines (valid for x >= geom.xMax)
     shock_line = @(x) (y_inj + m_shock * (x - geom.xMax)) .* (x >= geom.xMax);

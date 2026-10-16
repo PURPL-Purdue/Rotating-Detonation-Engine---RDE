@@ -46,9 +46,9 @@ InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
 %% Solver inputs
 
 % Set the max and min number of points along the various lines, if you want to use the non-optimized version, toggle is below.
-num_det_points = 800; % Max number of points along the detonation line (from triple point to floor)
+num_det_points = 200; % Max number of points along the detonation line (from triple point to floor)
 min_det_points = 50;  % Minimum number of points along the detonation line (from triple point to floor)
-num_fan_points = 800; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+num_fan_points = 200; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
 min_fan_points = 50;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
 
 % delta_h optimization toggle: If off, the solver will use the max number of points for every iteration.
@@ -86,9 +86,9 @@ ceaOut = HADES_size_ceaDet( ...
     'outputDir', ceaResultsDir);
 
 % Prints CEA output into console. 
-disp(ceaOut);
+%disp(ceaOut);
 
-fprintf('CEA input and output saved in:\n%s\n', ceaResultsDir);
+%fprintf('CEA input and output saved in:\n%s\n', ceaResultsDir);
 
 %% Triple-point inputs - defined after CEA has returned its results
 % P1 and R1 are chosen bounding-gas inputs; the other inputs come from CEA.
@@ -307,7 +307,7 @@ geometry.phi = phi;
 geometry.shock_angle = beta;
 geometry.chamber_length = ChamberDim.chamber_length;
 
-[fieldFigure, netFigure] = MoC_Plot_Field(field, geometry, xMax, yMax); % AI SLOP OLD PLOTTING, TO BE REPLACED BY THE FOLLOWING SECTION
+% [fieldFigure, netFigure] = MoC_Plot_Field(field, geometry, xMax, yMax); % AI SLOP OLD PLOTTING, TO BE REPLACED BY THE FOLLOWING SECTION
 
 % TODO: add the infill area, slip, and shock lines to this plot
 
@@ -322,7 +322,13 @@ base = figure('Name', 'Method of Characteristics Net', 'NumberTitle', 'off', ...
 ax = axes('Parent', base);
 hold(ax, 'on');
 plot(field.X(field.Y <= geometry.yMax), field.Y(field.Y <= geometry.yMax), 'k.', 'MarkerSize', 5);
+plot(field.X(field.Region == 2), field.Y(field.Region == 2), 'b.', 'MarkerSize', 10);
 %yline(ChamberDim.chamber_length, 'b', 'LineWidth', 2);
+
+plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+patch([geometry.x_infill_start, xMax, xMax, geometry.x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+patch([0, geometry.y_inj*tand(phi), 0, 0], [geometry.y_inj, 0, 0, geometry.y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
 
 xlim(ax, [0, xMax]);
 ylim(ax, [0, ChamberDim.chamber_length]);
