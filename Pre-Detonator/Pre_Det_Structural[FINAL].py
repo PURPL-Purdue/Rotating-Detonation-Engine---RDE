@@ -19,7 +19,7 @@ print("Tube Outer Diameter:", 2*r_o, "in")
 print("Tube Inner Diameter:", 2*r_i, "in")
 
 # Hoop Stress Calculations
-P_i = 2300 # Half of CJ det pressure (assumption), psia -- set to keep Pressure Safety Factor > 1.5
+P_i = 2300 # set to keep Pressure Safety Factor > 1.5
 P_o = 14.7 # psia
 sigma_hoop = ((r_i**2 * P_i - r_o**2 * P_o) / (r_o**2 - r_i**2)) + (r_i**2 * r_o**2 * (P_i - P_o) / (r_i**2 * (r_o**2 - r_i**2))) # psi
 print("Hoop Stress 1/4 in:", str(sigma_hoop), "psi")
