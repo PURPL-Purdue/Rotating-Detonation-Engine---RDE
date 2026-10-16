@@ -55,18 +55,18 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
     end
     
     if isfield(geom, 'phi')
-        phi_shock = geom.phi;
+        phi = geom.phi;
     elseif isfield(geom, 'infill_phi')
-        phi_shock = geom.infill_phi;
+        phi = geom.infill_phi;
     else
-        phi_shock = 0;
+        phi = 0;
     end
     
-    m_shock = tand(beta_shock + phi_shock);
+    m_shock = tand(beta_shock + phi);
 
     % Piecewise functions for the shock and slip lines (valid for x >= geom.xMax)
     shock_line = @(x) (y_inj + m_shock * (x - geom.xMax)) .* (x >= geom.xMax);
-    slip_line  = @(x) (y_inj + tand(geom.slip_angle + phi_shock) * (x - geom.xMax)) .* (x >= geom.xMax);
+    slip_line  = @(x) (y_inj + tand(geom.slip_angle + phi) * (x - geom.xMax)) .* (x >= geom.xMax);
 
     % Pre-allocate Shock Seeds struct for Region 2 evaluation
     MAX_SHOCK_SEEDS = 10000;
@@ -274,7 +274,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                             % Rankine-Hugoniot jump across oblique shock
                             M_up = Field.M(p_up);
                             theta_up_val = Field.Theta(p_up);
-                            [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock + phi_shock, gas.gamma);
+                            [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock + phi, gas.gamma);
                             
                             % Store shock boundary point in Field
                             Field.X(idx) = x_s;
@@ -313,7 +313,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                 Field.Type(idx) = 0; % Interior
                 
                 % Region classification: Region 1 (Chamber) vs Region 3 (Above exit)
-                if y_int <= y_exit
+                if y_int <= geom.yMax
                     Field.Region(idx) = 1; % Post-Detonation chamber zone
                 else
                     Field.Region(idx) = 3; % Out of top of engine
@@ -378,7 +378,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                     if x_s >= geom.xMax - 1e-4 && y_s >= y_inj - 1e-4 && y_s <= geom.y_engine_top
                         M_up = Field.M(p_top);
                         theta_up_val = Field.Theta(p_top);
-                        [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock + phi_shock, gas.gamma);
+                        [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock + phi, gas.gamma);
                         
                         Field.X(idx) = x_s;
                         Field.Y(idx) = y_s;
@@ -417,7 +417,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                 Field.M(idx) = MoC_PM_Inv(nu_int, gas.gamma);
                 Field.Type(idx) = 2; % Slipline
                 
-                if y_int <= y_exit
+                if y_int <= geom.yMax
                     Field.Region(idx) = 1; % Post-Detonation chamber zone
                 else
                     Field.Region(idx) = 3; % Out of top

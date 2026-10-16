@@ -6,6 +6,8 @@ clear
 clc
 close all
 
+tic;
+
 %% Paths - relative to this file, not MATLAB's current folder
 modelDir = fileparts(mfilename('fullpath'));
 toolboxDir = fileparts(modelDir);
@@ -16,8 +18,8 @@ addpath(modelDir);
 % Plotting placeholders now live in src, so no post_processing path is needed.
 
 %% CEA Chemistry inputs
-ox_type = 'Air';
-fuel_type = 'H2';
+ox_type = 'O2';
+fuel_type = 'CH4';
 
 % Choose one: 'of', 'pctFuel', 'phi', or 'r'.
 mixture_spec = 'phi';
@@ -43,11 +45,29 @@ InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
 
 %% Solver inputs
 
-num_det_points = 400; % Number of points along the detonation line (from triple point to floor)
-num_fan_points = 400; % Number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+% Set the max and min number of points along the various lines, if you want to use the non-optimized version, toggle is below.
+num_det_points = 800; % Max number of points along the detonation line (from triple point to floor)
+min_det_points = 50;  % Minimum number of points along the detonation line (from triple point to floor)
+num_fan_points = 800; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+min_fan_points = 50;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+
+% delta_h optimization toggle: If off, the solver will use the max number of points for every iteration.
+delta_h_opt_toggle = 1; % 1 = on, 0 = off
+
+if delta_h_opt_toggle == 0
+    min_det_points = num_det_points;
+    min_fan_points = num_fan_points;
+    fprintf('Delta_h optimization is OFF. Using max points for every iteration.\n');
+
+elseif delta_h_opt_toggle == 1
+    fprintf('Delta_h optimization is ON. Using min points for first iteration, then scaling to max points as convergence is approached.\n');
+end 
+
 tol = 1e-4; % Tolerance for the y_inj iteration convergence
 max_iter = 50; % Maximum number of iterations for the y_inj convergence loop
 y_inj_update_method = 1; % Method for updating y_inj: 1 = simple update, 2 = weighted average
+
+
 
 %% Run CEA 
 fprintf('\n--- RUNNING CEA ---\n');
@@ -122,8 +142,23 @@ nu_initial = (sqrt(gp1/gm1)*atan(sqrt((gm1/gp1)*M2_m1)) - atan(sqrt(M2_m1))) * 1
 v_inj = 150; % TODO: placeholder injection velocity [m/s]
 y_inj = .3 * ChamberDim.chamber_length; % Initial guess for injection triangle height [mm] (Converged value is independent of this)
 
+delta_h = Inf; % Initialize delta_h for mesh scaling on iteration 1
+
 fprintf('--- Starting y_inj iteration ---\n');
 for iter = 1:max_iter
+    % Determine mesh resolution as a function of delta_h
+    if iter == 1 || isinf(delta_h)
+        cur_det_points = min_det_points;
+        cur_fan_points = min_fan_points;
+    else
+        % Scale points based on |delta_h|: as error drops toward tol, points increase to max
+        delta_h_scale = 0.5; % [mm] threshold below which mesh progressively refines
+        refine_factor = min(1.0, max(0.0, 1.0 - abs(delta_h) / delta_h_scale));
+        
+        cur_det_points = round(min_det_points + refine_factor * (num_det_points - min_det_points));
+        cur_fan_points = round(min_fan_points + refine_factor * (num_fan_points - min_fan_points));
+    end
+
     % Solves for y_inj assuming that infill does not exist, then it will 
     % be added after, based on the converged infill height.
 
@@ -131,16 +166,14 @@ for iter = 1:max_iter
     
     % 1. Seed points along the actual angled Detonation Line
     x_det_floor = y_inj * tand(phi); % Calculate the x-coordinate where the detonation line hits the floor
-    X_det = linspace(x_det_floor, 0, num_det_points); % Calculate the x-coordinates along the detonation line
-    Y_det = linspace(0, y_inj - 1e-4, num_det_points); % Calculate the y-coordinates along the detonation line,
-                                                       % subtracting a small value (1e-4) from y_inj to avoid 
-                                                       % overlapping with the fan points at the triple point
+    X_det = linspace(x_det_floor, 0, cur_det_points); % Calculate the x-coordinates along the detonation line
+    Y_det = linspace(0, y_inj - 1e-4, cur_det_points); % Calculate the y-coordinates along the detonation line
     
-    Theta_det = zeros(1, num_det_points); % Pre-allocate vector for detonation line angles
-    Nu_det = repmat(nu_initial, 1, num_det_points); % Pre-allocate vector for detonation line Prandtl-Meyer angles
+    Theta_det = zeros(1, cur_det_points); % Pre-allocate vector for detonation line angles
+    Nu_det = repmat(nu_initial, 1, cur_det_points); % Pre-allocate vector for detonation line Prandtl-Meyer angles
     
     % 2. Prandtl-Meyer Expansion Fan at the Triple Point (0, y_inj)
-    Theta_fan = linspace(0, delta + phi, num_fan_points); % Pre-allocate vector for fan angles
+    Theta_fan = linspace(0, delta + phi, cur_fan_points); % Pre-allocate vector for fan angles
     Theta_fan = Theta_fan(2:end); % Remove the first point to avoid duplication at the triple point
     Nu_fan = nu_initial + Theta_fan; % Calculate the Prandtl-Meyer angles for the fan points
     
@@ -149,13 +182,13 @@ for iter = 1:max_iter
     
     seedPoints.X = [X_det, X_fan]; % Combine detonation line and fan x-coordinates
     seedPoints.Y = [Y_det, Y_fan]; % Combine detonation line and fan y-coordinates
-    seedPoints.M = zeros(1, num_det_points + length(Theta_fan)); % Pre-allocate Mach numbers
-    seedPoints.M(1:num_det_points) = M3; % Set Mach numbers for detonation line points
+    seedPoints.M = zeros(1, cur_det_points + length(Theta_fan)); % Pre-allocate Mach numbers
+    seedPoints.M(1:cur_det_points) = M3; % Set Mach numbers for detonation line points
     seedPoints.Theta = [Theta_det, Theta_fan]; % Combine detonation line and fan angle flow angle (theta) vectors
     seedPoints.Nu = [Nu_det, Nu_fan]; % Combine detonation line and fan Prandtl-Meyer angle (Nu) vectors
     
     for i = 1:length(Theta_fan)
-        seedPoints.M(num_det_points + i) = MoC_PM_Inv(Nu_fan(i), gamma); % Calculate Mach number for the fan point based on its PM angle
+        seedPoints.M(cur_det_points + i) = MoC_PM_Inv(Nu_fan(i), gamma); % Calculate Mach number for the fan point based on its PM angle
     end 
     
     % 3. Set up geometry struct to test expansion along a solid floor
@@ -170,6 +203,7 @@ for iter = 1:max_iter
     geometry.x_slip0 = 0;
     geometry.y_slip0 = y_inj;
     geometry.y_inj = y_inj;
+    geometry.yMax = ChamberDim.chamber_length; % Set the maximum y-coordinate for the geometry to the chamber length
     
     gas.gamma = gamma;
     
@@ -195,17 +229,17 @@ for iter = 1:max_iter
     y_inj_new = (xMax - x_infill) * tand(phi); % Calculate the new y_inj based on the x-coordinate of the infill start and the angle phi
     delta_h = y_inj_new - y_inj; % Calculate the difference between the new and old y_inj values
     
-    fprintf('Iter %d: y_inj = %.3f, x_infill = %.2f, y_inj_new = %.5f, delta_h = %.3f\n', iter, y_inj, x_infill, y_inj_new, delta_h);
+    fprintf('Iter %d [det: %d, fan: %d]: y_inj = %.3f, x_infill = %.2f, y_inj_new = %.5f, delta_h = %.3f\n', ...
+        iter, cur_det_points, cur_fan_points, y_inj, x_infill, y_inj_new, delta_h);
     
-    if abs(y_inj_new - y_inj) < tol % Check for convergence based on the tolerance
+    if abs(y_inj_new - y_inj) < tol % Check for convergence based on tolerance
         y_inj = y_inj_new;
         x_inj = xMax - x_infill;
         fprintf('Converged!\n\n');
         break;
     end
     
-    % Choose whether to use a simple update or a weighted average for y_inj. The weighted average can help with convergence in some cases.
-    
+    % Choose whether to use a simple update or a weighted average for y_inj.
     if y_inj_update_method == 1
         y_inj = y_inj_new; % Simple update
     elseif y_inj_update_method == 2
@@ -215,12 +249,36 @@ for iter = 1:max_iter
 end
 
 %% 5. Final Geometry and Solved Field
-% Now re-solve the field with the correct infill start location
+% Regenerate seed points at final converged y_inj using MAX number of points
+x_det_floor = y_inj * tand(phi);
+X_det = linspace(x_det_floor, 0, num_det_points);
+Y_det = linspace(0, y_inj - 1e-4, num_det_points);
+Theta_det = zeros(1, num_det_points);
+Nu_det = repmat(nu_initial, 1, num_det_points);
+
+Theta_fan = linspace(0, delta + phi, num_fan_points);
+Theta_fan = Theta_fan(2:end);
+Nu_fan = nu_initial + Theta_fan;
+X_fan = zeros(1, length(Theta_fan));
+Y_fan = linspace(y_inj - 0.8e-4, y_inj, length(Theta_fan));
+
+seedPoints.X = [X_det, X_fan];
+seedPoints.Y = [Y_det, Y_fan];
+seedPoints.M = zeros(1, num_det_points + length(Theta_fan));
+seedPoints.M(1:num_det_points) = M3;
+seedPoints.Theta = [Theta_det, Theta_fan];
+seedPoints.Nu = [Nu_det, Nu_fan];
+
+for i = 1:length(Theta_fan)
+    seedPoints.M(num_det_points + i) = MoC_PM_Inv(Nu_fan(i), gamma);
+end
+
+% Re-solve the final characteristic field with the infill boundary at max points
 geometry.x_infill_start = xMax - x_inj;
 geometry.y_inj = y_inj;
-geometry.shock_angle = beta;
-fprintf('Solving final characteristic field with infill boundary...\n');
-field = MoC_Solve_Field(seedPoints, geometry, gas);
+geometry.shock_angle = beta + phi;
+fprintf('Solving final characteristic field with infill boundary at max resolution (%d det, %d fan points)...\n', num_det_points, num_fan_points);
+[field, shockSeeds] = MoC_Solve_Field(seedPoints, geometry, gas);
 fprintf('Solved %d points.\n\n', length(field.X));
 
 %% 5.1 Compute Thermodynamic and Kinematic Field Properties
@@ -243,18 +301,39 @@ field.v_x = field.V .* cosd(field.Theta);       % Horizontal / circumferential v
 field.v_y = field.V .* sind(field.Theta);       % Vertical / axial velocity [m/s]
 
 %% 6. Plotting - Method of Characteristics Net and RDE Flow Field
-%% 6.1 THIS SECTION IS ALL CHATTED IM NGL
 geometry.y_inj = y_inj;
 geometry.x_inj = x_inj;
 geometry.phi = phi;
 geometry.shock_angle = beta;
 geometry.chamber_length = ChamberDim.chamber_length;
 
-[fieldFigure, netFigure] = MoC_Plot_Field(field, geometry, xMax, yMax);
+[fieldFigure, netFigure] = MoC_Plot_Field(field, geometry, xMax, yMax); % AI SLOP OLD PLOTTING, TO BE REPLACED BY THE FOLLOWING SECTION
 
-%% --- Temperature Field Point Gradient Plot (Reversible Addition) ---
-% Set ENABLE_TEMP_PLOT to false (or comment out this block) to disable/revert.
-ENABLE_TEMP_PLOT = true;
-if ENABLE_TEMP_PLOT && isfield(field, 'T')
-    tempFigure = MoC_Plot_Temperature_Field(field, geometry, xMax, yMax);
+% TODO: add the infill area, slip, and shock lines to this plot
+
+for i = 1:length(field.X)
+    if field.X(i) >= geometry.xMax 
+        field.X(i) = field.X(i) - geometry.xMax;
+    end
 end
+
+base = figure('Name', 'Method of Characteristics Net', 'NumberTitle', 'off', ...
+        'Position', [100, 200, 1200, 320]);
+ax = axes('Parent', base);
+hold(ax, 'on');
+plot(field.X(field.Y <= geometry.yMax), field.Y(field.Y <= geometry.yMax), 'k.', 'MarkerSize', 5);
+%yline(ChamberDim.chamber_length, 'b', 'LineWidth', 2);
+
+xlim(ax, [0, xMax]);
+ylim(ax, [0, ChamberDim.chamber_length]);
+yticks(ax, 0:10:30);
+pbaspect(ax, [xMax, ChamberDim.chamber_length + 10, 1]);
+    
+grid(ax, 'on');
+box(ax, 'on');
+    
+xlabel(ax, 'Axial Distance - mm (Unwrapped)');
+ylabel(ax, 'Height - mm');
+title(ax, ['Method of Characteristics Net - ' num2str(length(field.X)) ' Points'], 'FontWeight', 'bold');
+
+toc;
