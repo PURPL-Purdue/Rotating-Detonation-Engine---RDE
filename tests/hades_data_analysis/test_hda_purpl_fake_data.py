@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from HADES.data_analysis._matlab_compat import as_rng, matlab_rng, matlab_round, randi
+from rdelib.matlab_compat import as_rng, matlab_rng, matlab_round, randi
 from HADES.data_analysis.purpl_fake_data import (
     PURPL_Fake_ITP_Pressure_Data,
     PURPL_Fake_Plenum_pressure,
@@ -11,7 +11,7 @@ from HADES.data_analysis.purpl_fake_data import (
     main,
 )
 
-from ._octave_harness import ReplayRNG, make_streams, octave_available, run_octave
+from ._octave_harness import ReplayRNG, make_streams, requires_originals, run_octave
 
 
 def test_matlab_twister_stream():
@@ -91,8 +91,7 @@ def test_main_writes_csv_to_cwd_or_output_dir(no_show, tmp_path, monkeypatch):
     assert not (tmp_path / "synthetic_pressure_data.csv").exists()
 
 
-@pytest.mark.skipif(not octave_available("PURPL_Fake_Plenum_pressure.m", "PURPL_test_fake_ITP_data_v2.m"),
-                    reason="Octave or original .m not available")  # fmt: skip
+@requires_originals("PURPL_Fake_Plenum_pressure.m", "PURPL_test_fake_ITP_data_v2.m")
 def test_live_octave_generators(tmp_path):
     streams = make_streams(17)
     out = run_octave(tmp_path / "plenum", "pp = PURPL_Fake_Plenum_pressure();", ["pp"], streams=streams)

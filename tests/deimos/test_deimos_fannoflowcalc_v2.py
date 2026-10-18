@@ -35,7 +35,9 @@ from DEIMOS.DEIMOS_sys_FannoFlowCalc_v2 import (  # noqa: E402
     orifice_mdot,
     plot_P01_diagnostic,
     solve_P01,
+    sutherland_viscosity,
 )
+from rdelib import gasdynamics as gd  # noqa: E402
 
 OCTAVE_COMMON = {
     "m_dotT": 0.77750997364022789,
@@ -196,6 +198,17 @@ def test_fanno_relations_match_textbook_table(M, TT, PP, fLD):
     assert fanno_T_Tstar(M, 1.4) == pytest.approx(TT, rel=1e-4)
     assert fanno_P_Pstar(M, 1.4) == pytest.approx(PP, rel=1e-4)
     assert fanno_fLD(M, 1.4) == pytest.approx(fLD, rel=1e-4, abs=1e-12)
+
+
+def test_sutherland_viscosity_keeps_deimos_signature():
+    """DEIMOS keyword names (S_ref) still work and give rdelib's value bit for bit."""
+    mu = sutherland_viscosity(T=300, mu_ref=2.07e-5, T_ref=291, S_ref=127)
+    assert mu == gd.sutherland_viscosity(300, 2.07e-5, 291, 127)
+    assert mu == 2.07e-5 * (291 + 127) / (300 + 127) * (300 / 291) ** (3 / 2)
+    T, mu_ref = np.array([283.15, 315.29104028453435]), np.array([2.07e-5, 1.1e-5])
+    T_ref, S_ref = np.array([291.0, 273.0]), np.array([127.0, 197.8])
+    np.testing.assert_array_equal(sutherland_viscosity(T, mu_ref, T_ref, S_ref=S_ref),
+                                  gd.sutherland_viscosity(T, mu_ref, T_ref, S_ref))
 
 
 def test_fanno_fLD_max_textbook():

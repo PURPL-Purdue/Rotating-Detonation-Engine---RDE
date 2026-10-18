@@ -12,6 +12,7 @@ reads the bundled xlsx.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import site
 import subprocess
@@ -79,13 +80,22 @@ def test_wheel_runs_sizing_model_outside_checkout(wheel, tmp_path):
     py = env_dir / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
     subprocess.run(["uv", "pip", "install", "-q", "--no-deps", "--offline", "--python", str(py), str(wheel)],
                    check=True, capture_output=True, timeout=300)
-    env_site = subprocess.run([str(py), "-c", "import site; print(site.getsitepackages()[0])"],
-                              check=True, capture_output=True, text=True).stdout.strip()
+    # the site-packages entry (on Windows getsitepackages() also lists the venv root first)
+    env_site = subprocess.run(
+        [str(py), "-c", "import site; print([p for p in site.getsitepackages() if p.endswith('site-packages')][0])"],
+        check=True, capture_output=True, text=True,
+    ).stdout.strip()
     (Path(env_site) / "_dev_deps.pth").write_text("\n".join(site.getsitepackages()) + "\n")
     run_dir = tmp_path / "elsewhere"
     run_dir.mkdir()
+    # Minimal environment; Windows needs SYSTEMROOT & co. for the interpreter to start, and an
+    # explicit MPLCONFIGDIR avoids depending on a home directory.
+    env = {"MPLBACKEND": "Agg", "MPLCONFIGDIR": str(tmp_path / "mplconfig"), "PATH": os.defpath}
+    if sys.platform == "win32":
+        env.update({k: os.environ[k] for k in ("SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "TEMP", "TMP", "USERPROFILE")
+                    if k in os.environ})
     p = subprocess.run([str(py), "-I", "-c", SCRIPT], cwd=run_dir, capture_output=True, text=True,
-                       timeout=300, env={"MPLBACKEND": "Agg", "PATH": "/usr/bin:/bin"})
+                       timeout=300, env=env)
     assert p.returncode == 0, p.stderr[-3000:]
     res = json.loads([ln for ln in p.stdout.splitlines() if ln.startswith("RESULT")][-1][6:])
     assert Path(res["file"]).resolve().is_relative_to(env_dir.resolve())  # code came from the wheel

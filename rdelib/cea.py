@@ -5,8 +5,8 @@ workflow of the MATLAB wrappers with NASA's official open-source CEA
 re-implementation, published on PyPI as ``cea`` (https://github.com/nasa/cea,
 wheels for macOS, Linux and Windows). It ships the same ``thermo.lib`` /
 ``trans.lib`` databases as CEA2 and reproduces the committed CEA2 outputs in
-``HADES/SIZING MODEL/CEA`` to every printed digit (see
-``tests/hades_sizing/test_rdelib_cea.py``).
+the former ``HADES/SIZING MODEL/CEA`` folder (kept in ``tests/hades_sizing/reference/``)
+to every printed digit (see ``tests/hades_sizing/test_rdelib_cea.py``).
 
 Three problem types are wrapped:
 

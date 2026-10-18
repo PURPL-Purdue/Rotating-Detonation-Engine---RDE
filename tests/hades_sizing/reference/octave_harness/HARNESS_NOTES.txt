@@ -3,6 +3,9 @@ Produced: ../octave_main.json, ../octave_units.json, ../octave_cool.json, ../oct
 
 Setup (all in /tmp, originals never edited):
  1. cp -R "HADES/SIZING MODEL/." /tmp/hades_octave/run/
+    (the originals were removed from the working tree after the port; recover them first with
+    mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src, then copy from
+    "/tmp/rde_src/HADES/SIZING MODEL/.")
  2. CEA/FCEA2.exe replaced by FCEA2_replay_shim.sh: it copies the committed CEA2 .out file only if the
     deck the MATLAB just wrote is byte-identical to the committed deck (it was, for cea_det and cea_run).
  3. shims/ on the path for functions Octave lacks: readmatrix (reads a CSV export of the xlsx),

@@ -12,25 +12,35 @@ scratch directory and put first on the Octave path:
 * ``readmatrix`` / ``writematrix`` / ``subtitle`` / ``sgtitle`` fill Octave gaps
   (``readmatrix`` also redirects the hard-coded ``/Users/Abby/...`` path).
 
-These tests are skipped when Octave or the original .m files are unavailable;
-the hard-coded reference numbers in the test files keep the regression check.
+The originals were removed from the working tree after the port. They are
+looked up under ``$RDE_MATLAB_SOURCE_ROOT/HADES/DATA ANALYSIS`` (see
+``tests/matlab_sources.py`` for how to extract them from git history). These
+tests are skipped when Octave or the original .m files are unavailable; the
+hard-coded reference numbers in the test files keep the regression check.
 """
 
 from __future__ import annotations
 
-import shutil
 import subprocess
 from pathlib import Path
 
 import numpy as np
+import pytest
+from matlab_sources import OCTAVE, original, skip_reason
 
-REPO = Path(__file__).resolve().parents[2]
-ORIGINAL_DIR = REPO / "HADES" / "DATA ANALYSIS"
-OCTAVE = shutil.which("octave") or ("/opt/homebrew/bin/octave" if Path("/opt/homebrew/bin/octave").exists() else None)
+ORIGINAL_DIR = original("HADES", "DATA ANALYSIS")
 
 
-def octave_available(*m_files: str) -> bool:
-    return OCTAVE is not None and all((ORIGINAL_DIR / f).exists() for f in m_files)
+def live_skip_reason(*m_files: str, octave: bool = True, packages=()) -> str | None:
+    """``None`` if the live check can run, else the actionable skip reason."""
+    return skip_reason([ORIGINAL_DIR / f for f in m_files] or [ORIGINAL_DIR], octave=octave,
+                       octave_packages=packages)
+
+
+def requires_originals(*m_files: str, octave: bool = True, packages=()):
+    """Skip marker for tests that need Octave (and Octave ``packages``) and/or the original files."""
+    reason = live_skip_reason(*m_files, octave=octave, packages=packages)
+    return pytest.mark.skipif(reason is not None, reason=reason or "")
 
 
 class ReplayRNG:

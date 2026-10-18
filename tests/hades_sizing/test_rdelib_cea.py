@@ -1,6 +1,7 @@
 """rdelib.cea (NASA CEA 3 via the `cea` package) vs the committed CEA2 outputs.
 
-Every value printed in HADES/SIZING MODEL/CEA/{cea_det,cea_run,h2ophi1}.out
+Every value printed in the committed CEA2 outputs {cea_det,cea_run,h2ophi1}.out
+(copied from HADES/SIZING MODEL/CEA, now removed, into reference/)
 is compared at the precision CEA2 printed it (half a unit in the last digit),
 except where noted.
 """

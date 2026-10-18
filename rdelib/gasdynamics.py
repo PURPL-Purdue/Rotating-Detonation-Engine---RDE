@@ -4,6 +4,12 @@ Perfect-gas relations used by the HADES sizing model, the feed-system
 sizing and DEIMOS. Every function works on scalars and on numpy arrays
 unless it solves for a root.
 
+Several ports keep their own copies of algebraically identical relations
+(e.g. the choked-flow factor in ``HADES.feed_sizing.choked_flow``) because
+their operation order differs and the ports are pinned bit-for-bit to the
+MATLAB/Octave results. Only expressions with the same operation order live
+here; see the PORTING_NOTES.md of each package.
+
 Conventions
 -----------
 * ``gamma``  ratio of specific heats [-]
@@ -18,7 +24,7 @@ from __future__ import annotations
 import math
 
 import numpy as np
-from scipy.optimize import brentq, fsolve
+from scipy.optimize import brentq
 
 __all__ = [
     "T0_over_T",
@@ -33,8 +39,11 @@ __all__ = [
     "incompressible_orifice_area",
     "fanno_fLD",
     "fanno_p_over_pstar",
+    "fanno_T_over_Tstar",
+    "fanno_fLD_max",
     "fanno_mach_from_fLD",
     "colebrook",
+    "colebrook_darcy",
     "tkachenko_friction_factor",
     "sutherland_viscosity",
     "reynolds_number",
@@ -133,6 +142,16 @@ def fanno_p_over_pstar(M, gamma):
     return (1.0 / M) * np.sqrt((gamma + 1.0) / (2.0 + (gamma - 1.0) * M**2))
 
 
+def fanno_T_over_Tstar(M, gamma):
+    """Fanno static-temperature ratio T/T* = (gamma+1) / (2 + (gamma-1) M^2)."""
+    return (gamma + 1) / (2 + (gamma - 1) * M**2)
+
+
+def fanno_fLD_max(gamma: float) -> float:
+    """Limit of :func:`fanno_fLD` as M -> infinity (largest value on the supersonic branch)."""
+    return ((gamma + 1) / (2 * gamma)) * math.log((gamma + 1) / (gamma - 1)) - 1 / gamma
+
+
 def fanno_mach_from_fLD(fLD, gamma, branch: str = "subsonic"):
     """Invert :func:`fanno_fLD` for the inlet Mach number.
 
@@ -147,16 +166,33 @@ def fanno_mach_from_fLD(fLD, gamma, branch: str = "subsonic"):
 
 
 # --- Friction factor / viscosity -----------------------------------------
-def colebrook(Re, rel_rough, f0: float = 0.02):
+_BRENT_RTOL = 4 * np.finfo(float).eps  # brentq minimum
+
+
+def colebrook_darcy(Re: float, epsilon: float, D: float) -> float:
     """Darcy friction factor from the Colebrook-White equation.
 
-    Solves ``1/sqrt(f) + 2 log10( rel_rough/3.7 + 2.51/(Re sqrt(f)) ) = 0``
-    starting from ``f0`` (default 0.02, the MATLAB ``fsolve`` start point).
-    ``rel_rough`` = epsilon/D.
+    Solves ``1/sqrt(f) + 2 log10( epsilon/(3.7 D) + 2.51/(Re sqrt(f)) ) = 0``.
+    ``epsilon`` and ``D`` must share units. Solved in x = 1/sqrt(f), where the
+    residual x + 2 log10(eps/(3.7 D) + 2.51 x/Re) is strictly increasing, so the
+    root is unique and bracketed by [1e-6, 1e3] for any eps/D < 3.7. The
+    bracketed solve needs no start point and, unlike ``fsolve`` from f = 0.02,
+    never stops early with a "not making good progress" warning.
     """
-    fun = lambda ff: 1.0 / np.sqrt(ff) + 2.0 * np.log10(rel_rough / 3.7 + 2.51 / (Re * np.sqrt(ff)))  # noqa: E731
-    f = fsolve(fun, f0)
-    return float(np.atleast_1d(f)[0])
+    a = epsilon / (3.7 * D)
+    b = 2.51 / Re
+    x = brentq(lambda x: x + 2 * math.log10(a + b * x), 1e-6, 1e3, xtol=1e-15, rtol=_BRENT_RTOL, maxiter=500)
+    return 1 / x**2
+
+
+def colebrook(Re: float, rel_rough: float, f0: float | None = None) -> float:
+    """Darcy friction factor from Colebrook-White for relative roughness ``rel_rough`` = epsilon/D.
+
+    Same bracketed solve as :func:`colebrook_darcy` (``colebrook_darcy(Re, rel_rough, 1.0)``).
+    ``f0`` (the MATLAB ``fsolve`` start point, 0.02) is accepted for compatibility
+    and ignored: the root is unique.
+    """
+    return colebrook_darcy(Re, rel_rough, 1.0)
 
 
 def tkachenko_friction_factor(Re, rel_rough):

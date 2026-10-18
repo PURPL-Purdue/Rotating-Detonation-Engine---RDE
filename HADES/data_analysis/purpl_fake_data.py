@@ -11,7 +11,7 @@ MATLAB file                            Python function (this module)
 ``PURPL_Fake_Plenum_pressure.m``       :func:`PURPL_Fake_Plenum_pressure`
 =====================================  ==========================================
 
-Every generator takes ``rng`` (see ``_matlab_compat.as_rng``): ``None`` for a
+Every generator takes ``rng`` (see ``rdelib.matlab_compat.as_rng``): ``None`` for a
 fresh random stream (MATLAB behaviour), an ``int`` seed for a reproducible
 stream whose ``rand`` values equal MATLAB's ``rng(seed)``, or a numpy
 Generator/RandomState.  Random numbers are drawn in exactly the MATLAB order.
@@ -33,7 +33,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ._matlab_compat import as_rng, rand, randi, randn
+from rdelib.matlab_compat import as_rng, rand, randi, randn
 
 SYNTHETIC_CSV = "synthetic_pressure_data.csv"
 

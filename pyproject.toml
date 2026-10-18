@@ -8,6 +8,7 @@ dependencies = [
     "scipy>=1.12",
     "pandas>=2.2",
     "matplotlib>=3.8",
+    "pillow>=10.0",  # PNG output (HADES.data_analysis.bos_background_generation)
     "openpyxl>=3.1",
     "CoolProp>=6.6",
     "cea>=3.3.4",
@@ -22,16 +23,9 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["rdelib*", "HADES*", "DEIMOS*", "MODELING*"]
-# Only real packages (with __init__.py); never pick up the legacy MATLAB folders
-# as namespace subpackages.
+# Only real packages (with __init__.py); folders without one (e.g. an extracted
+# copy of the original MATLAB) are never picked up as namespace subpackages.
 namespaces = false
-exclude = [
-    "HADES.SIZING MODEL*",
-    "HADES.FEED SIZING*",
-    "HADES.DATA ANALYSIS*",
-    "MODELING.MODELING_size_*",
-    "DEIMOS.test*",
-]
 
 [tool.setuptools.package-data]
 # Data files read at run time (and docs/licences) must ship inside the wheel.
@@ -40,3 +34,5 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# tests/matlab_sources.py (shared locator for the live Octave checks) is imported by name.
+pythonpath = ["tests"]

@@ -27,7 +27,7 @@ import math
 import warnings
 from dataclasses import dataclass
 
-IN_TO_M = 0.0254  # (m/in)
+from rdelib.units import M_PER_IN as IN_TO_M  # 0.0254 m/in
 
 
 @dataclass

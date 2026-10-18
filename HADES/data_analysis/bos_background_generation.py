@@ -14,7 +14,7 @@ and the dot count so that the expected black coverage of the overlapping random
 dots is ``target_black_fraction`` (``f = 1 - exp(-N*A_dot/A_total)``).
 
 Random stream: with the default ``random_seed = 1`` the dot positions and sizes
-are bit-identical to MATLAB's ``rng(1)`` output (see ``_matlab_compat``), so the
+are bit-identical to MATLAB's ``rng(1)`` output (see ``rdelib.matlab_compat``), so the
 MATLAB-generated SVG/PNG are reproduced exactly.  Copies of those files for
 printing are in ``bos_print_assets/`` next to this module (never written by
 this code); the test oracles are separate, read-only fixtures under
@@ -34,7 +34,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ._matlab_compat import matlab_rng, matlab_round
+from rdelib.matlab_compat import matlab_rng, matlab_round
 
 # ======================================================================
 #  USER INPUTS (same defaults as the MATLAB script)
@@ -245,8 +245,9 @@ def BOS_Background_Generation(
 
     # ---------------- SAVE SVG ----------------
     if svg_file is not None:
+        # newline="\n": LF on every OS, so the file is byte-identical to the MATLAB output on Windows too
         svg_file.write_text(
-            svg_text(poster_width_mm, poster_height_mm, x_mm, y_mm, dot_radius_mm), encoding="ascii"
+            svg_text(poster_width_mm, poster_height_mm, x_mm, y_mm, dot_radius_mm), encoding="ascii", newline="\n"
         )
 
     # ---------------- CREATE PNG ----------------
@@ -258,7 +259,7 @@ def BOS_Background_Generation(
     if make_png:
         img = rasterize_dots(x_mm, y_mm, dot_radius_mm, poster_width_px, poster_height_px, px_per_mm)
         if png_file is not None:
-            from PIL import Image  # Pillow ships with matplotlib
+            from PIL import Image  # Pillow (declared dependency)
 
             Image.fromarray(img, mode="L").save(png_file, format="PNG")
 

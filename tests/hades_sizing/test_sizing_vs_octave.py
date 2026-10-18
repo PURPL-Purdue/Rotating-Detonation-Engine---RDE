@@ -2,6 +2,8 @@
 
 Reference numbers in reference/octave_*.json were produced by running the
 unmodified HADES/SIZING MODEL/*.m files (harness: reference/octave_harness).
+Those originals were removed from the working tree after the port; recover
+them with ``git archive 2a30c95 | tar -x -C /tmp/rde_src`` to rerun the harness.
 The CEA steps replayed the committed CEA2 outputs; the decks the MATLAB wrote
 were byte-identical to the committed decks.
 """

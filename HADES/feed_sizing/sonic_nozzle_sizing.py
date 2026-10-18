@@ -52,6 +52,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from rdelib.units import LBM_TO_KG as LB_TO_KG
+from rdelib.units import M_PER_IN as IN_TO_M
+from rdelib.units import PSI_TO_PA  # 6894.76, used by V1, V2, V3
 
 from HADES.feed_sizing.choked_flow import (
     area_to_diameter,
@@ -68,13 +71,12 @@ FLOW_REQUIREMENTS_CSV = MODULE_DIR / "flow_requirements.csv"
 MANIFOLD_INPUT_CSV = MODULE_DIR / "flow_requirements_manifold_input.csv"
 
 # ---------------------------------------------------------------------------
-# Conversions (each MATLAB version carried its own psi->Pa constant; they are
-# kept separate so outputs match the originals).
+# Conversions. IN_TO_M (0.0254), LB_TO_KG (0.453592) and PSI_TO_PA (6894.76,
+# V1-V3) are the shared rdelib.units values imported above. Each MATLAB version
+# carried its own psi->Pa constant, so V5's differs and is kept separate so
+# outputs match the originals.
 # ---------------------------------------------------------------------------
 
-IN_TO_M = 0.0254
-LB_TO_KG = 0.453592
-PSI_TO_PA = 6894.76  # V1, V2, V3
 PSI_TO_PA_V5 = 6894.757293  # V5
 
 GAS_NAMES = ("H2", "Air", "CH4", "GOx")

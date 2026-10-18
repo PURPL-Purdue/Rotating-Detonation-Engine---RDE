@@ -12,6 +12,10 @@
 The MATLAB files were scripts. Every user input is now a keyword argument with
 the MATLAB default, in the order the MATLAB declared them.
 
+The original `.m` files (and `test`) were removed from the working tree after
+the port. They are in git history: `mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src`
+extracts them (commit `2a30c95` is `main` before the rewrite).
+
 ## Validation
 
 The original `.m` files were run unmodified in GNU Octave 11.3.0. Octave has no
@@ -34,7 +38,9 @@ The original `.m` files were run unmodified in GNU Octave 11.3.0. Octave has no
   matches the Mach-number form.
 
 The tests are in `tests/deimos/`. `test_deimos_octave_live.py` reruns the
-originals in Octave and skips itself when Octave or the `.m` files are absent.
+originals in Octave from `$RDE_MATLAB_SOURCE_ROOT/DEIMOS` and skips itself, with
+the recovery command, when Octave or the `.m` files are absent:
+`RDE_MATLAB_SOURCE_ROOT=/tmp/rde_src uv run pytest tests/deimos`.
 
 ## Solver substitutions (same roots)
 
@@ -122,11 +128,25 @@ Other v1 differences:
   velocity-of-approach factor 1/sqrt(1 - beta^4). That is 1.0008 for
   beta = 0.2, so the effect is negligible. Kept as in the MATLAB.
 
-## Candidates for `rdelib`
+## Shared helpers (`rdelib`)
 
-These helpers in `DEIMOS_sys_FannoFlowCalc_v2.py` match the functions in
-`rdelib.gasdynamics` to round-off:
-`sutherland_viscosity`, `colebrook_darcy`, `fanno_fLD`, `fanno_P_Pstar`,
-`fanno_mach_from_fLD`, `orifice_mdot`, `critical_pressure_ratio`.
+Moved to or shared with `rdelib.gasdynamics`. The expressions are the same
+operation for operation, so every DEIMOS result is bit-identical (checked on the
+default run, the scalar-input, `max_iter = 0.5`, `M_G = 0.3` and tight-`tol`
+variants, `P01_diagnostic`, and grids of each helper):
 
-Not yet in `rdelib`: `fanno_T_Tstar` and `fanno_fLD_max`.
+| DEIMOS name | `rdelib` |
+|---|---|
+| `sutherland_viscosity` | `gasdynamics.sutherland_viscosity` |
+| `colebrook_darcy` (bracketed solve) | `gasdynamics.colebrook_darcy`; `gasdynamics.colebrook` now uses it too |
+| `fanno_T_Tstar` | `gasdynamics.fanno_T_over_Tstar` |
+| `fanno_fLD_max` | `gasdynamics.fanno_fLD_max` |
+| `critical_pressure_ratio` | `gasdynamics.critical_pressure_ratio` |
+| `orifice_mdot` (MATLAB argument order) | wrapper around `gasdynamics.subcritical_orifice_mass_flow` |
+| `IN_TO_M`, `PA_PER_BAR` | `units.M_PER_IN`, `units.PA_PER_BAR` |
+
+Kept local: `fanno_fLD` (uses `math.log`; rdelib uses `np.log`), `fanno_P_Pstar`
+(a different but algebraically equal form), `fanno_mach_from_fLD` (branch from
+`M_G`, different bracket), `colebrook_residual` (the MATLAB handle), and
+`PSI_PER_BAR = 14.504` (rdelib's is 14.5038). Switching these would change
+results at round-off level.

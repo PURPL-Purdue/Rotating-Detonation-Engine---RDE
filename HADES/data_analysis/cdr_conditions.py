@@ -22,6 +22,7 @@ from dataclasses import dataclass
 
 import CoolProp.CoolProp as CP
 import numpy as np
+from rdelib.gasdynamics import tkachenko_friction_factor
 from scipy.optimize import brentq
 
 # === Fixed Inputs ===
@@ -94,16 +95,14 @@ def fanno_pdrop(P0_bar, D, L, epsilon, m_dot, gamma, mu):
     """Fanno-flow inlet/exit pressures [bar], inlet Mach and friction factor.
 
     Friction factor from the explicit Colebrook approximation used in the
-    original; inlet Mach from ``4fL*/D = fL/D`` on the subsonic branch.
+    original (the same expression as
+    :func:`rdelib.gasdynamics.tkachenko_friction_factor`); inlet Mach from
+    ``4fL*/D = fL/D`` on the subsonic branch.
     """
     P0 = P0_bar * 1e5
     Re = (4 * m_dot) / (np.pi * D * mu)
     rel_rough = epsilon / D
-    A0 = -0.79638 * np.log((rel_rough / 8.208) + (7.3357 / Re))
-    A1 = Re * rel_rough + 9.3120665 * A0
-    num = 8.128943 + A1
-    den = 8.128943 * A0 - 0.86859209 * A1 * np.log(A1 / (3.7099535 * Re))
-    f = (num / den) ** 2
+    f = tkachenko_friction_factor(Re, rel_rough)
     fanno_param = (f * L) / D
 
     def func(Ma):

@@ -1,13 +1,15 @@
 """Live cross-check against the original MATLAB scripts run in GNU Octave.
 
-Skipped automatically when Octave is not installed or the original .m files
-have been removed from DEIMOS/. The originals are never modified: Octave's
-missing ``optimoptions`` is provided by a shim written to a temp directory.
+The originals were removed from the working tree after the port; they are
+looked up under ``$RDE_MATLAB_SOURCE_ROOT/DEIMOS`` (see ``tests/matlab_sources.py``
+for how to extract them from git history). Skipped automatically, with the
+recovery instructions, when Octave or the original .m files are unavailable.
+The originals are never modified: Octave's missing ``optimoptions`` is provided
+by a shim written to a temp directory.
 """
 
 import os
 import re
-import shutil
 import subprocess
 import warnings
 from pathlib import Path
@@ -15,20 +17,18 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from matlab_sources import OCTAVE, original, skip_reason
+
 from DEIMOS.DEIMOS_sys_CdCalc_v1 import DEIMOS_sys_CdCalc_v1
 from DEIMOS.DEIMOS_sys_FannoFlowCalc_v2 import DEIMOS_sys_FannoFlowCalc_v2
 
-DEIMOS_DIR = Path(__file__).resolve().parents[2] / "DEIMOS"
-OCTAVE = shutil.which("octave") or (
-    "/opt/homebrew/bin/octave" if Path("/opt/homebrew/bin/octave").exists() else None
-)
+DEIMOS_DIR = original("DEIMOS")
 
 
 def _run_octave(tmp_path: Path, script: Path, varnames, shim: bool) -> dict:
-    if OCTAVE is None:
-        pytest.skip("GNU Octave not installed")
-    if not script.exists():
-        pytest.skip(f"original {script.name} no longer present")
+    reason = skip_reason([script])
+    if reason:
+        pytest.skip(reason)
     lines = []
     if shim:
         (tmp_path / "optimoptions.m").write_text(

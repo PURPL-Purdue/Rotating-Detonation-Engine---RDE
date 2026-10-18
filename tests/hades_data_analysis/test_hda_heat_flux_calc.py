@@ -14,7 +14,7 @@ from HADES.data_analysis.heat_flux_calc import (
     SensorDepthUnitsWarning,
 )
 
-from ._octave_harness import octave_available, run_octave
+from ._octave_harness import requires_originals, run_octave
 
 IDX = [0, 5, 10, 250, 1000, 1990, 1999]
 MATLAB_DEPTHS = hf.MATLAB_SENSOR_DEPTHS_M
@@ -186,7 +186,7 @@ def test_derivative_fix_is_exact_for_quadratic_signal(tmp_path):
     np.testing.assert_allclose(r.T1_s, T1, rtol=1e-13)
 
 
-@pytest.mark.skipif(not octave_available("HeatFluxCalc.m"), reason="Octave or original .m not available")
+@requires_originals("HeatFluxCalc.m", packages=("signal",))  # sgolayfilt
 def test_live_octave_full_arrays(tmp_path, legacy):
     out = run_octave(tmp_path, "HeatFluxCalc;", ["t", "T1_s", "T2_s", "T1_dot", "T0", "q0"],
                      readmatrix_file=hf.DATA_FILE, packages=["signal"])  # fmt: skip

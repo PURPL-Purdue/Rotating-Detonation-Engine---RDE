@@ -1,6 +1,6 @@
 # HADES feed sizing: MATLAB/Python to Python port notes
 
-Source folder: `HADES/FEED SIZING/`. Target package: `HADES/feed_sizing/`.
+Source folder: `HADES/FEED SIZING/` (removed from the working tree after the port; `mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src` restores it). Target package: `HADES/feed_sizing/`.
 
 ## Where each original went
 
@@ -139,14 +139,21 @@ Ran `uv run pytest tests/hades_feed_sizing`.
 
 ### Reproducing the Octave comparison
 
-1. Copy the `.m` files and the input CSVs into a scratch folder.
+1. Recover the originals (`mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src`) and copy `/tmp/rde_src/HADES/FEED SIZING/*.m` and the input CSVs into a scratch folder.
 2. Put shims for `readtable` (parse with `strsplit(..., ',', 'CollapseDelimiters', false)` so blank cells become NaN), `writetable` (`%.17g`, `NaN`, logical as `%d`) and a small table class on the Octave path.
 3. Run `octave --no-gui --eval "addpath('<shims>'); SonicNozzleSizingV5"`.
 
 The reference outputs are in `tests/hades_feed_sizing/reference/octave/`.
 
-## Candidates for `rdelib`
+## Shared helpers (`rdelib`)
 
-These all live in `choked_flow.py`: `critical_pressure_ratio`, `choked_flow_parameter`, `choked_mass_flow`, `choked_area`, `choked_upstream_pressure`, `area_to_diameter`. The unit constants (`IN_TO_M`, `LB_TO_KG`, the `PSI_TO_PA` variants, `L_TO_M3`, `P_ATM_PSI`) could move too. Two expressions are written inline to keep the original operation order: the blowdown ideal flow (the same as `choked_mass_flow(1, A, P0, T0, gamma, R)`) and the feed-line area-Mach factor.
+Switched to `rdelib` (same expression and value, so every result, printed summary and CSV is bit-identical; checked on all six workflows, the 2 lb/s and 0.049 in feed-line variants, and the blowdown run):
 
-`rdelib/gasdynamics.py` appeared while this port was being finished. Its equivalents are `critical_pressure_ratio`, `choked_flow_factor`, `choked_throat_area`, `choked_mass_flow` and `area_ratio`; `rdelib/units.py` has `PSI_TO_PA = 6894.76`, `M_PER_IN` and `LBM_TO_KG`. The package was not switched over yet. When it is, re-run `tests/hades_feed_sizing`: the Octave comparison uses rtol = 1e-14, so a different operation order is fine, but a different psi constant is not.
+- `choked_flow.critical_pressure_ratio` is `rdelib.gasdynamics.critical_pressure_ratio`.
+- `IN_TO_M = 0.0254`, `LB_TO_KG = 0.453592` and the V1-V3 `PSI_TO_PA = 6894.76` are `rdelib.units.M_PER_IN`, `LBM_TO_KG` and `PSI_TO_PA`.
+
+Kept local on purpose:
+
+- `choked_flow_parameter`, `choked_mass_flow`, `choked_area`, `choked_upstream_pressure`: `rdelib.gasdynamics.choked_flow_factor` / `choked_mass_flow` / `choked_throat_area` are the same physics but take one square root of the whole product and apply Cd differently, so results change in the last bits, and the regenerated CSVs are pinned byte for byte. `area_to_diameter` has no rdelib equivalent.
+- `PSI_TO_PA_V5 = 6894.757293`, the blowdown `PSI_TO_PA = 6894.75729`, `P_ATM_PSI = 14.6959`, `L_TO_M3`: script-specific values (issue 3).
+- The inline blowdown ideal flow and the feed-line area-Mach factor (original operation order).

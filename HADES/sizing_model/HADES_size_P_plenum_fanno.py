@@ -8,7 +8,7 @@ import warnings
 import numpy as np
 from scipy.optimize import brentq, fsolve
 
-from rdelib.gasdynamics import colebrook
+from rdelib.gasdynamics import colebrook, subcritical_orifice_mass_flow
 
 __all__ = ["HADES_size_P_plenum_fanno"]
 
@@ -50,8 +50,9 @@ def HADES_size_P_plenum_fanno(Pc, m_dot, A_inj, L, D, T, Cd, gamma, R, mu_ref, T
         mu = mu_ref * (T_ref + S_ref) / (T_stag + S_ref) * (T / T_ref) ** (3 / 2)
         # Reynolds number
         Re = (P2 * M_G * math.sqrt(gamma * R * T) * (D / 1000)) / (R * T * mu)
-        # Colebrook (Darcy) friction factor, fsolve from 0.02
-        f = colebrook(Re, epsilon / D, 0.02)
+        # Colebrook (Darcy) friction factor. The MATLAB used fsolve from 0.02; the
+        # root is unique, so rdelib's bracketed solve finds the same root (to ~1e-15).
+        f = colebrook(Re, epsilon / D)
 
         # Fanno: solve fL/D(M) = f L / D for the inlet Mach number (fsolve from M_G)
         fLD = f * L / D
@@ -79,9 +80,7 @@ def HADES_size_P_plenum_fanno(Pc, m_dot, A_inj, L, D, T, Cd, gamma, R, mu_ref, T
 
     # Cd contraction -- subcritical compressible orifice equation solved for P01
     def P01_fun(P0):
-        return Cd * A_inj * P0 * math.sqrt(
-            (2 * gamma / (R * T * (gamma - 1))) * (P2 / P0) ** (2 / gamma) * (1 - (P2 / P0) ** ((gamma - 1) / gamma))
-        ) - m_dot
+        return subcritical_orifice_mass_flow(Cd, A_inj, P0, P2, T, gamma, R) - m_dot
 
     a = P2 * 1.01
     b = a + 1e8  # 1000 bar search window

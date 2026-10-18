@@ -44,16 +44,17 @@ from pathlib import Path
 import CoolProp.CoolProp as cp
 import numpy as np
 import pandas as pd
+from rdelib.units import M_PER_IN as IN_TO_M  # 0.0254 m/in
 
 MODULE_DIR = Path(__file__).resolve().parent
 
 #: Default blowdown test data (resolved relative to this module, not the CWD).
 BLOWDOWN_INPUT_CSV = MODULE_DIR / "orifice_blowdown_input.csv"
 
-# Conversion factors (as in the original scripts)
+# Conversion factors (as in the original scripts; this psi->Pa value is specific
+# to the blowdown scripts, see PORTING_NOTES.md issue 3)
 PSI_TO_PA = 6894.75729
 L_TO_M3 = 0.001
-IN_TO_M = 0.0254
 P_ATM_PSI = 14.6959
 
 REQUIRED_COLUMNS = (

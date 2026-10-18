@@ -17,7 +17,7 @@ from PIL import Image
 
 from HADES.data_analysis import bos_background_generation as bos
 
-from ._octave_harness import ORIGINAL_DIR
+from ._octave_harness import ORIGINAL_DIR, requires_originals
 
 FIXTURES = Path(__file__).parent / "reference" / "bos"
 Image.MAX_IMAGE_PIXELS = None  # 11811 x 8268 poster
@@ -151,7 +151,8 @@ def test_print_assets_are_the_matlab_files():
     assert _sha((bos.PRINT_ASSETS / "BOS_random_dot_background_FOV60mm.svg").read_bytes()) == SHA_SVG_FOV60
 
 
-@pytest.mark.skipif(not (ORIGINAL_DIR / "BOS Backgrounds").exists(), reason="original MATLAB folder removed")
+@requires_originals("BOS Backgrounds/BOS_random_dot_background.svg", "BOS Backgrounds/BOS_random_dot_background.png",
+                    "BOS_random_dot_background.svg", octave=False)  # fmt: skip
 def test_hashes_match_original_matlab_folder():
     assert _sha((ORIGINAL_DIR / "BOS Backgrounds" / "BOS_random_dot_background.svg").read_bytes()) == SHA_SVG
     assert _sha((ORIGINAL_DIR / "BOS Backgrounds" / "BOS_random_dot_background.png").read_bytes()) == SHA_PNG_FILE

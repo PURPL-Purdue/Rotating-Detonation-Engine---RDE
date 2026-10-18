@@ -1,12 +1,15 @@
 """Ideal-gas choked (sonic) flow relations used by the HADES feed-sizing tools.
 
 These are the equations that every ``SonicNozzleSizingV*.m`` script and the
-blowdown Cd scripts wrote out inline.  They are kept local to this package
-until the shared ``rdelib`` compressible-flow helpers exist; every function
-here is a candidate for consolidation into ``rdelib``.
+blowdown Cd scripts wrote out inline.
 
 The expressions keep the operation order of the MATLAB originals so the port
-reproduces MATLAB results to round-off.
+reproduces the MATLAB/Octave results bit for bit.  ``critical_pressure_ratio``
+is the shared :func:`rdelib.gasdynamics.critical_pressure_ratio` (same
+expression).  The rest stay here on purpose: ``rdelib.gasdynamics`` has the same
+physics (``choked_flow_factor``, ``choked_mass_flow``, ``choked_throat_area``)
+with a different operation order (one square root of the whole product, Cd
+applied differently), which changes results in the last bits.
 
 Choked mass flow through an orifice/throat of area ``A`` fed from stagnation
 conditions ``P0, T0``::
@@ -21,6 +24,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from rdelib.gasdynamics import critical_pressure_ratio
+
 __all__ = [
     "critical_pressure_ratio",
     "choked_flow_parameter",
@@ -29,11 +34,6 @@ __all__ = [
     "choked_upstream_pressure",
     "area_to_diameter",
 ]
-
-
-def critical_pressure_ratio(gamma):
-    """Critical (sonic) pressure ratio ``P*/P0 = (2/(gamma+1))**(gamma/(gamma-1))``."""
-    return (2 / (gamma + 1)) ** (gamma / (gamma - 1))
 
 
 def choked_flow_parameter(gamma, R):

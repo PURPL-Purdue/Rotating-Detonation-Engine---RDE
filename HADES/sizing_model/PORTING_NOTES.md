@@ -1,6 +1,6 @@
 # HADES sizing model: MATLAB to Python porting notes
 
-Source: `HADES/SIZING MODEL/` (MATLAB). Target: `HADES/sizing_model/` + shared helpers in `rdelib/`.
+Source: `HADES/SIZING MODEL/` (MATLAB; removed from the working tree after the port, `mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src` restores it). Target: `HADES/sizing_model/` + shared helpers in `rdelib/`.
 Tests: `tests/hades_sizing/` (115 tests). Run everything with
 `uv run python -m HADES.sizing_model.HADES_size_main`.
 
@@ -20,7 +20,7 @@ Tests: `tests/hades_sizing/` (115 tests). Run everything with
 | `HADES_size_h2Inj.m` | `HADES_size_h2Inj.py` | `"txt" + number` printing reproduced with MATLAB `num2str` formatting. |
 | `HADES_size_airInj.m` | `HADES_size_airInj.py` | Returns `(air_area, Area_Annulus)`. |
 | `HADES_size_max_flux_range.m` | `HADES_size_max_flux_range.py` | |
-| `HADES_size_P_plenum_fanno.m` | `HADES_size_P_plenum_fanno.py` | `fsolve` -> `scipy.optimize.fsolve` (same start points); `fzero` on bracket -> `brentq`. |
+| `HADES_size_P_plenum_fanno.m` | `HADES_size_P_plenum_fanno.py` | Fanno `fsolve` -> `scipy.optimize.fsolve` (same start point); Colebrook `fsolve` from 0.02 -> bracketed `rdelib.gasdynamics.colebrook` (unique root, see 3); `fzero` on bracket -> `brentq` on `rdelib.gasdynamics.subcritical_orifice_mass_flow`. |
 | `HADES_size_pdrop_fanno.m` | `HADES_size_pdrop_fanno.py` | Returns `(P_inlet, P_exit, Ma_inlet, f)`. |
 | `HADES_size_throat.m` | `HADES_size_throat.py` | |
 | `HADES_size_thrust.m` | `HADES_size_thrust.py` | Default = MATLAB formula. Opt-in `station="exit"` and `exit_thrust_from_cea(...)` include the pressure term, see 4a. |
@@ -100,6 +100,7 @@ that folder byte-identically. The MoC port should import `HADES.sizing_model.*`.
   - Validated against the analytic steady state (cylinder, Robin-Robin), the analytic convective semi-infinite solid (m = 0), mesh refinement, and an independent Octave `ode15s` implementation.
 - **`fzero(f, x0)`:** reproduces MATLAB's bracket search (dx = x0/50, growing by sqrt(2)), which decides *which* root is found, and then refines with Brent's method. Bracketed `fzero` maps to `brentq`.
 - **`fsolve`:** `scipy.optimize.fsolve` from the same start points. Differences from MATLAB/Octave are around 1e-8 relative (the test tolerance for `P_plenum_fanno` is 1e-7).
+- **Colebrook:** `rdelib.gasdynamics.colebrook` used `fsolve` from f = 0.02 until the final cleanup; it now shares DEIMOS's bracketed solve in x = 1/sqrt(f) (`colebrook_darcy`). The Colebrook root is unique, so this only removes fsolve's stopping error: on the main inputs f changes by at most 1.6e-15 relative and `P_plenum_req` by 1 ulp (1954432.758810425 -> 1954432.7588104247 Pa, -1.2e-16); the printed report and the second Octave case are unchanged. On a 1200-point grid, `Re = np.geomspace(3e3, 1e8, 200)` x `eps/D` in {1e-6, 1e-4, 1.25e-3, 2.7e-3, 0.0167, 0.05}, the old fsolve stalled at its 0.02 start point with a RuntimeWarning ("invalid value encountered in sqrt") in 54 cases; elsewhere the two agree to 6e-14, and the new root's Colebrook residual is below 1e-12 everywhere. (An independent review on a 40 x 30 log grid found 79/1200 stalls, max new residual 5.3e-15.)
 - **Other mappings:** `a:b:c` -> `colon` (MATLAB element count and symmetric generation), `polyfit`/`polyval` -> numpy (same least squares), `interp1` -> `np.interp` (`T_inner` is monotonic).
 - **Plots:** every figure is reproduced with matplotlib. Functions take `plot=True` and never call `plt.show()`; only `main()` does.
 
@@ -160,4 +161,4 @@ to the committed deck. It was, for both decks.
 | Cooldown v1 and v3 vs Octave `ode45` | Cooling times within 1.5 s (output spacing about 3 s; Octave's ode45 is not MATLAB's); final wall T within 1e-4 K. |
 | Thermal v1 vs Octave (`pdepe` shim + `ode15s`) | h, T_rec, Re, Nu rel 1e-12; time-to-limit [0.04155, 0.14186, 0.98290] s vs [0.04155, 0.14184, 0.98268] s, rel 5e-4; T_inner within 0.5 C. |
 | `rdelib` helpers | Hand and table values (isentropic, Fanno, Moody), analytic ODE/PDE solutions, `ode45` failure paths, native-crash guards for CEA. |
-| Packaging (`test_packaging.py`) | `uv build` wheel built from a pristine temporary copy of the source (no `build/`, `*.egg-info`, `.venv` or `__pycache__`). The wheel must contain the sizing xlsx, the feed-sizing and data-analysis CSVs, the BOS assets and the MoC LICENSE, and must exclude every legacy path (`SIZING MODEL`/`FEED SIZING`/`DATA ANALYSIS`/`MODELING_size_*`, `*.m`, `*.exe`, `*.asv`); this is enforced by `namespaces = false` plus explicit excludes in `[tool.setuptools.packages.find]`. The wheel is then installed `--no-deps` into a fresh venv outside the checkout; `HADES_size_main` runs and reads the bundled xlsx (thrust and Pc rel 1e-12). `pyproject.toml` declares package data (xlsx/csv/json/svg/png/md/LICENSE, plus `HADES.data_analysis/bos_print_assets/*`) for all areas. |
+| Packaging (`test_packaging.py`) | `uv build` wheel built from a pristine temporary copy of the source (no `build/`, `*.egg-info`, `.venv` or `__pycache__`). The wheel must contain the sizing xlsx, the feed-sizing and data-analysis CSVs, the BOS assets and the MoC LICENSE, and must contain no legacy path (`SIZING MODEL`/`FEED SIZING`/`DATA ANALYSIS`/`MODELING_size_*`, `*.m`, `*.exe`, `*.asv`). The legacy folders are deleted from the tree, and `namespaces = false` in `[tool.setuptools.packages.find]` means only folders with an `__init__.py` become packages, so an extracted copy of the originals inside the checkout would not be packaged either; the test asserts both lists on the wheel contents. The wheel is then installed `--no-deps` into a fresh venv outside the checkout; `HADES_size_main` runs and reads the bundled xlsx (thrust and Pc rel 1e-12). `pyproject.toml` declares package data (xlsx/csv/json/svg/png/md/LICENSE, plus `HADES.data_analysis/bos_print_assets/*`) for all areas. |

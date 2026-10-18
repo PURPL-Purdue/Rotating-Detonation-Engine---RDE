@@ -47,17 +47,17 @@ __all__ = [
 ]
 
 # --- Factors used inline in the MATLAB sources (kept verbatim) -------------
-LBM_TO_KG = 0.453592  # kg per lbm (HADES_size_thrust/h2Inj/airInj)
+LBM_TO_KG = 0.453592  # kg per lbm (HADES_size_thrust/h2Inj/airInj, feed sizing)
 LBM_PER_KG = 2.205  # lbm per kg (HADES_size_convert 'lbms', main, sonic nozzle)
-PSI_TO_PA = 6894.76  # Pa per psi (CEA wrappers)
+PSI_TO_PA = 6894.76  # Pa per psi (CEA wrappers, feed sizing V1-V3; V5 and blowdown keep their own)
 PSI_TO_PA_ROUNDED = 6895.0  # Pa per psi (HADES_size_h2Inj)
-PA_PER_BAR = 1.0e5
+PA_PER_BAR = 1.0e5  # (DEIMOS)
 PSI_PER_BAR = 14.5038  # HADES_size_convert / HoopStressTemps
 MPA_TO_PSI = 145.03773773  # HoopStressTemps
 KSI_TO_MPA = 6.89476  # HoopStressTemps
 N_TO_LBF = 0.2248  # HADES_size_thrust
 MM_PER_IN = 25.4
-M_PER_IN = 0.0254
+M_PER_IN = 0.0254  # (feed sizing, DEIMOS CdCalc)
 FT_PER_M = 3.28084
 ATM_TO_PA = 101325.0
 MMHG_TO_PA = 133.322

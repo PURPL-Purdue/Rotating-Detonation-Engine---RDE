@@ -40,39 +40,48 @@ from typing import Sequence
 import numpy as np
 from scipy.optimize import brentq
 
+from rdelib import gasdynamics as _gd
+from rdelib.gasdynamics import (
+    colebrook_darcy,
+    critical_pressure_ratio,
+    fanno_fLD_max,
+    subcritical_orifice_mass_flow,
+)
+from rdelib.gasdynamics import fanno_T_over_Tstar as fanno_T_Tstar  # noqa: F401 (public DEIMOS name)
+from rdelib.units import PA_PER_BAR
+
 _EPS = np.finfo(float).eps
 _BRENT_XTOL = 1e-12
 _BRENT_RTOL = 4 * _EPS  # brentq minimum; comparable to MATLAB fzero's TolX = eps
-PA_PER_BAR = 1e5
-PSI_PER_BAR = 14.504  # conversion used in the MATLAB printout
+PSI_PER_BAR = 14.504  # conversion used in the MATLAB printout (rdelib.units.PSI_PER_BAR is 14.5038)
 N_PROPELLANTS = 2  # [oxygen, methane]; the MATLAB loops `for i = 1:2`
 
 # ---------------------------------------------------------------------------
-# Flow-relation helpers (candidates for consolidation into rdelib)
+# Flow-relation helpers
+#
+# Shared with rdelib.gasdynamics (same operation order, so bit-identical):
+# sutherland_viscosity (a wrapper keeping the DEIMOS keyword S_ref),
+# colebrook_darcy (bracketed Colebrook), fanno_T_Tstar
+# (= fanno_T_over_Tstar), fanno_fLD_max, critical_pressure_ratio, and
+# orifice_mdot (a wrapper around subcritical_orifice_mass_flow).
+# fanno_fLD, fanno_P_Pstar and fanno_mach_from_fLD stay local: rdelib's
+# versions use a different operation order (np.log, another P/P* form) or a
+# different bracket, so they agree only to round-off.
 # ---------------------------------------------------------------------------
 
 
 def sutherland_viscosity(T, mu_ref, T_ref, S_ref):
-    """Sutherland's law: mu = mu_ref (T_ref + S)/(T + S) (T/T_ref)^(3/2)."""
-    return mu_ref * (T_ref + S_ref) / (T + S_ref) * (T / T_ref) ** (3 / 2)
+    """Sutherland's law: mu = mu_ref (T_ref + S)/(T + S) (T/T_ref)^(3/2).
+
+    DEIMOS signature (``S_ref``); the formula is
+    :func:`rdelib.gasdynamics.sutherland_viscosity`.
+    """
+    return _gd.sutherland_viscosity(T, mu_ref, T_ref, S_ref)
 
 
 def colebrook_residual(ff: float, Re: float, epsilon: float, D: float) -> float:
     """MATLAB ``colebrook`` handle: 1/sqrt(f) + 2 log10(eps/(3.7 D) + 2.51/(Re sqrt f))."""
     return 1 / math.sqrt(ff) + 2 * math.log10(epsilon / (3.7 * D) + 2.51 / (Re * math.sqrt(ff)))
-
-
-def colebrook_darcy(Re: float, epsilon: float, D: float) -> float:
-    """Darcy friction factor from the Colebrook-White equation.
-
-    ``epsilon`` and ``D`` must share units. Solved in x = 1/sqrt(f), where the
-    residual x + 2 log10(eps/(3.7 D) + 2.51 x/Re) is strictly increasing, so the
-    root is unique and bracketed by [1e-6, 1e3] for any eps/D < 3.7.
-    """
-    a = epsilon / (3.7 * D)
-    b = 2.51 / Re
-    x = brentq(lambda x: x + 2 * math.log10(a + b * x), 1e-6, 1e3, xtol=1e-15, rtol=_BRENT_RTOL, maxiter=500)
-    return 1 / x**2
 
 
 def fanno_fLD(M: float, gamma: float) -> float:
@@ -82,19 +91,9 @@ def fanno_fLD(M: float, gamma: float) -> float:
     )
 
 
-def fanno_fLD_max(gamma: float) -> float:
-    """Limit of f L*/D as M -> infinity (largest value on the supersonic branch)."""
-    return ((gamma + 1) / (2 * gamma)) * math.log((gamma + 1) / (gamma - 1)) - 1 / gamma
-
-
 def fanno_P_Pstar(M, gamma):
     """Fanno static-pressure ratio P/P* = (1/M) / sqrt(2/(gamma+1) (1 + (gamma-1)/2 M^2))."""
     return (1 / M) * (1 / np.sqrt((2 / (gamma + 1)) * (1 + ((gamma - 1) / 2) * M**2)))
-
-
-def fanno_T_Tstar(M, gamma):
-    """Fanno static-temperature ratio T/T* = (gamma+1) / (2 + (gamma-1) M^2)."""
-    return (gamma + 1) / (2 + (gamma - 1) * M**2)
 
 
 def fanno_mach_from_fLD(fLD: float, gamma: float, M_guess: float) -> float:
@@ -130,22 +129,10 @@ def orifice_mdot(P0, P, Cd, A, gamma, R, T0):
 
     mdot = Cd A P0 sqrt( 2 gamma / (R T0 (gamma-1)) (P/P0)^(2/gamma) (1 - (P/P0)^((gamma-1)/gamma)) )
     Valid for P/P0 >= critical ratio (2/(gamma+1))^(gamma/(gamma-1)).
+    Argument order of the MATLAB handle; the formula is
+    :func:`rdelib.gasdynamics.subcritical_orifice_mass_flow`.
     """
-    return (
-        Cd
-        * A
-        * P0
-        * np.sqrt(
-            (2 * gamma / (R * T0 * (gamma - 1)))
-            * (P / P0) ** (2 / gamma)
-            * (1 - (P / P0) ** ((gamma - 1) / gamma))
-        )
-    )
-
-
-def critical_pressure_ratio(gamma):
-    """Isentropic critical (choking) pressure ratio P*/P0 = (2/(gamma+1))^(gamma/(gamma-1))."""
-    return (2 / (gamma + 1)) ** (gamma / (gamma - 1))
+    return subcritical_orifice_mass_flow(Cd, A, P0, P, T0, gamma, R)
 
 
 def solve_P01(m_dot: float, P2: float, Cd: float, A: float, gamma: float, R: float, T: float) -> float:

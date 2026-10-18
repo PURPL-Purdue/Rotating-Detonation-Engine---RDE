@@ -12,7 +12,6 @@ import scipy.io as sio
 from MODELING.moc.structs import Geom, Params
 
 DATA = Path(__file__).parent / "data"
-REPO = Path(__file__).resolve().parents[2]
 
 NOZZLE_CASES = [
     "moc_team",

@@ -202,30 +202,33 @@ The degree trigonometry is MATLAB-accurate (exact argument reduction).
 Octave's `sind` reduces with `mod(x-180,360)-180`, and that is one source of
 the remaining ulp-level differences.
 
-## Regenerating the Octave references (after the MATLAB originals are deleted)
+## Regenerating the Octave references (the MATLAB originals are deleted)
 
-The `.mat` fixtures in `tests/modeling/data/` are committed, so the tests do
-not need Octave or the MATLAB sources. To regenerate the fixtures, or to run
-the live Octave test (`test_live_octave_team_case`), recover the originals
-from git history. Commit `2a30c95` was `main` HEAD before the deletion.
+The original `MODELING_size_*` folders were removed from the working tree
+after the port. The `.mat` fixtures in `tests/modeling/data/` are committed, so
+the tests do not need Octave or the MATLAB sources. To regenerate the
+fixtures, or to run the live Octave test (`test_live_octave_team_case`),
+recover the originals from git history. Commit `2a30c95` was `main` HEAD
+before the deletion.
 
 ```bash
-mkdir -p /tmp/moc_src
-git archive 2a30c95 MODELING | tar -x -C /tmp/moc_src
-export RDE_MATLAB_SOURCE_ROOT=/tmp/moc_src/MODELING     # folder holding MODELING_size_*
-(cd "$RDE_MATLAB_SOURCE_ROOT" && shasum -a 256 -c checksums.txt)   # optional: save the list below as checksums.txt
+mkdir -p /tmp/rde_src
+git archive 2a30c95 | tar -x -C /tmp/rde_src
+export RDE_MATLAB_SOURCE_ROOT=/tmp/rde_src          # same variable for every area's live tests
+(cd "$RDE_MATLAB_SOURCE_ROOT/MODELING" && shasum -a 256 -c checksums.txt)   # optional: save the list below as checksums.txt
 octave --no-gui --norc --eval "addpath([pwd '/tests/modeling/octave']); generate_references(pwd, 'tests/modeling/data')"
 uv run pytest tests/modeling -q          # the live Octave test now runs instead of skipping
 ```
 
-`generate_references.m` and the live test read `RDE_MATLAB_SOURCE_ROOT` and
-fall back to `<repo>/MODELING`. If the sources are missing, the generator
-stops with these instructions and the live test's skip reason repeats them.
-Verified on 2026-10-18: regenerating from the `git archive` tree reproduced
-all 12 fixture files exactly.
+`generate_references.m` and the live test look for the sources in
+`$RDE_MATLAB_SOURCE_ROOT/MODELING` (a root that already is the `MODELING`
+folder is accepted too) and fall back to `<repo>/MODELING`. If the sources are
+missing, the generator stops with these instructions and the live test's skip
+reason repeats them. Verified on 2026-10-18: regenerating from the
+`git archive` tree reproduced all 12 fixture files exactly.
 
 SHA-256 of the key original files at `2a30c95`, with paths relative to
-`$RDE_MATLAB_SOURCE_ROOT`:
+`$RDE_MATLAB_SOURCE_ROOT/MODELING`:
 
 ```text
 84625f1f9a60cbb574a2d597dc0ea8a3b3761b6c7d817f9f1419f69abf0dce88  MODELING_size_Nozzle_MOC_supersonic-master/MOC_2D_steady_irrotational_main.m

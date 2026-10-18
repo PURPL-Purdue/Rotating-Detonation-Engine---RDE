@@ -2,7 +2,9 @@
 
 Reference data: tests/modeling/data/*.mat, produced by
 ``tests/modeling/octave/generate_references.m`` (Octave 11.3.0) from the
-unmodified sources in MODELING/MODELING_size_*.  Tolerances are explicit below.
+unmodified sources in MODELING/MODELING_size_* (removed from the working tree
+after the port; recover them from commit 2a30c95, see
+``tests/matlab_sources.py``).  Tolerances are explicit below.
 
 Complex values: in some axisymmetric cases the original free-pressure point
 has no real solution in the far plume and MATLAB/Octave carry complex numbers.
@@ -15,15 +17,14 @@ compared on every column before the first complex one.
 from __future__ import annotations
 
 import dataclasses
-import os
-import shutil
 import subprocess
 import warnings
 from pathlib import Path
 
 import numpy as np
 import pytest
-from _moc_ref import DATA, NOZZLE_CASES, REPO, inputs_from_reference, load, quiet, rel_err
+from _moc_ref import DATA, NOZZLE_CASES, inputs_from_reference, load, quiet, rel_err
+from matlab_sources import OCTAVE, source_root, skip_reason
 
 from MODELING.moc._errors import MocConvergenceError
 from MODELING.moc._matlab import complex_ordering
@@ -232,21 +233,20 @@ def test_rde_domain_size_matches_octave():
     assert yMax == float(ref["yMax"])
 
 
-OCTAVE = shutil.which("octave") or (
-    "/opt/homebrew/bin/octave" if shutil.which("/opt/homebrew/bin/octave") else None
-)
-# Folder containing MODELING_size_Nozzle_MOC_supersonic-master (the original MATLAB).
-SOURCE_ROOT = Path(os.environ.get("RDE_MATLAB_SOURCE_ROOT") or (REPO / "MODELING"))
-ORIGINAL = SOURCE_ROOT / "MODELING_size_Nozzle_MOC_supersonic-master"
-LIVE_SKIP_REASON = (
-    "live Octave check needs GNU Octave on PATH and the original MATLAB sources. Recover them with "
-    "`git archive 2a30c95 MODELING | tar -x -C /tmp/moc_src` and set "
-    "RDE_MATLAB_SOURCE_ROOT=/tmp/moc_src/MODELING "
-    f"(octave found: {OCTAVE is not None}; sources found at {ORIGINAL}: {ORIGINAL.exists()})"
-)
+TEAM_DIR = "MODELING_size_Nozzle_MOC_supersonic-master"
 
 
-@pytest.mark.skipif(OCTAVE is None or not ORIGINAL.exists(), reason=LIVE_SKIP_REASON)
+def _modeling_sources() -> Path:
+    """``<root>/MODELING`` of the extracted tree; a root that already is that folder is accepted too."""
+    root = source_root()
+    return root if (root / TEAM_DIR).exists() and not (root / "MODELING" / TEAM_DIR).exists() else root / "MODELING"
+
+
+ORIGINAL = _modeling_sources() / TEAM_DIR
+LIVE_SKIP_REASON = skip_reason([ORIGINAL / "MOC_2D_steady_irrotational_main.m", ORIGINAL / "src2"])
+
+
+@pytest.mark.skipif(LIVE_SKIP_REASON is not None, reason=LIVE_SKIP_REASON or "")
 def test_live_octave_team_case(tmp_path):
     """Re-run the original team driver in Octave now and compare with Python."""
     script = (

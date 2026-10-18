@@ -19,7 +19,7 @@ from HADES.data_analysis.choked_flow import (
 )
 from HADES.data_analysis.purpl_fake_data import PURPL_Fake_Plenum_pressure
 
-from ._octave_harness import ReplayRNG, make_streams, octave_available, run_octave
+from ._octave_harness import ReplayRNG, make_streams, requires_originals, run_octave
 
 
 # ---------------------------------------------------------------- choked_flow
@@ -73,8 +73,7 @@ def test_mass_flow_main_smoke(no_show):
     mf.main()
 
 
-@pytest.mark.skipif(not octave_available("PURPLE_MassFlow_from_PlenumPressure.m", "PURPL_Fake_Plenum_pressure.m"),
-                    reason="Octave or original .m not available")  # fmt: skip
+@requires_originals("PURPLE_MassFlow_from_PlenumPressure.m", "PURPL_Fake_Plenum_pressure.m")
 def test_live_octave_mass_flow(tmp_path):
     streams = make_streams(29)
     out = run_octave(tmp_path, "PURPLE_MassFlow_from_PlenumPressure;",
@@ -138,7 +137,7 @@ def test_nozzle_main_smoke(no_show):
     cna.main([])
 
 
-@pytest.mark.skipif(not octave_available("cD_analysis.m", "temp_analysis.m"), reason="Octave or original .m not available")
+@requires_originals("cD_analysis.m", "temp_analysis.m")
 @pytest.mark.parametrize("script", ["cD_analysis", "temp_analysis"])
 def test_live_octave_nozzle(tmp_path, script):
     out = run_octave(tmp_path, f"{script};", [f"plot{k}y" for k in range(1, 7)] + ["plot1x"])

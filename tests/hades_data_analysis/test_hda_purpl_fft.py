@@ -9,7 +9,7 @@ streams through ``ReplayRNG``.
 import numpy as np
 import pytest
 
-from HADES.data_analysis._matlab_compat import matlab_rng
+from rdelib.matlab_compat import matlab_rng
 from HADES.data_analysis.purpl_fake_data import (
     PURPL_Fake_ITP_Pressure_Data,
     PURPL_test_fake_ITP_data_v2,
@@ -22,7 +22,7 @@ from HADES.data_analysis.purpl_fft import (
     single_sided_amplitude_spectrum,
 )
 
-from ._octave_harness import ReplayRNG, make_streams, octave_available, run_octave
+from ._octave_harness import ReplayRNG, make_streams, requires_originals, run_octave
 
 
 def test_single_sided_amplitude_convention():
@@ -153,8 +153,7 @@ def test_default_pipelines_and_main_smoke(no_show, tmp_path, monkeypatch):
     main(["--raw"])
 
 
-@pytest.mark.skipif(not octave_available("PURPL_test_FFT_v2.m", "PURPL_test_fake_ITP_data_v2.m"),
-                    reason="Octave or original .m not available")  # fmt: skip
+@requires_originals("PURPL_test_FFT_v2.m", "PURPL_test_fake_ITP_data_v2.m")
 def test_live_octave_v2(tmp_path):
     streams = make_streams(5)
     out = run_octave(tmp_path, "PURPL_test_FFT_v2();", ["plot1x", "plot1y", "plot2y", "plot3x", "plot3y"], streams=streams)
@@ -170,8 +169,7 @@ def test_live_octave_v2(tmp_path):
     np.testing.assert_allclose(csv, data, rtol=1e-14)
 
 
-@pytest.mark.skipif(not octave_available("ITP_FFT_for_PURPL_FakeData.m", "PURPL_Fake_ITP_Pressure_Data.m"),
-                    reason="Octave or original .m not available")  # fmt: skip
+@requires_originals("ITP_FFT_for_PURPL_FakeData.m", "PURPL_Fake_ITP_Pressure_Data.m")
 def test_live_octave_v1(tmp_path):
     streams = make_streams(9)
     out = run_octave(tmp_path, "ITP_FFT_for_PURPL_FakeData();", ["plot1y", "plot2y", "plot3x", "plot3y"], streams=streams)

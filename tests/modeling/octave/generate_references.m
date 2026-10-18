@@ -7,28 +7,32 @@ function generate_references(repo_root, outdir)
 % except for input-section overrides applied to a temporary copy of the driver
 % script (see run_original.m).  Results are saved as .mat (v7).
 %
-% Source location: the folder containing MODELING_size_Nozzle_MOC_supersonic-master
-% and MODELING_size_MoC_unchanged_backup is taken from the environment variable
-% RDE_MATLAB_SOURCE_ROOT, falling back to <repo_root>/MODELING.  Once the
-% originals are removed from the working tree, recover them from git history
-% (see MODELING/moc/PORTING_NOTES.md, "Regenerating the Octave references"):
-%   git archive 2a30c95 MODELING | tar -x -C /tmp/moc_src
-%   export RDE_MATLAB_SOURCE_ROOT=/tmp/moc_src/MODELING
+% Source location: the originals were removed from the working tree after the
+% port.  Recover them from git history (see MODELING/moc/PORTING_NOTES.md,
+% "Regenerating the Octave references"):
+%   mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src
+%   export RDE_MATLAB_SOURCE_ROOT=/tmp/rde_src
+% The folder holding MODELING_size_Nozzle_MOC_supersonic-master and
+% MODELING_size_MoC_unchanged_backup is $RDE_MATLAB_SOURCE_ROOT/MODELING (a root
+% that already is that folder is accepted too), falling back to <repo_root>/MODELING.
   addpath(fileparts(mfilename('fullpath')));  % absolute: run() changes directory
   if ~exist(outdir, 'dir'), mkdir(outdir); end
   outdir = make_absolute_filename(outdir);
   repo_root = make_absolute_filename(repo_root);
   src_root = getenv('RDE_MATLAB_SOURCE_ROOT');
   if isempty(src_root)
-    src_root = fullfile(repo_root, 'MODELING');
+    src_root = repo_root;
   end
   src_root = make_absolute_filename(src_root);
+  if exist(fullfile(src_root, 'MODELING'), 'dir') || ~exist(fullfile(src_root, 'MODELING_size_Nozzle_MOC_supersonic-master'), 'dir')
+    src_root = fullfile(src_root, 'MODELING');
+  end
   team = fullfile(src_root, 'MODELING_size_Nozzle_MOC_supersonic-master');
   upstream = fullfile(src_root, 'MODELING_size_MoC_unchanged_backup');
   if ~exist(team, 'dir') || ~exist(upstream, 'dir')
     error(['generate_references: original MATLAB sources not found under %s. Recover them with\n' ...
-           '  git archive 2a30c95 MODELING | tar -x -C /tmp/moc_src\n' ...
-           'and set RDE_MATLAB_SOURCE_ROOT=/tmp/moc_src/MODELING'], src_root);
+           '  mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src\n' ...
+           'and set RDE_MATLAB_SOURCE_ROOT=/tmp/rde_src'], src_root);
   end
   printf('original sources: %s\n', src_root);
   rde = fullfile(team, 'RDE_Toolbox_2');

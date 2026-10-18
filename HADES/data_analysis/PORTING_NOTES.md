@@ -1,6 +1,6 @@
 # HADES data analysis: MATLAB to Python porting notes
 
-Source: `HADES/DATA ANALYSIS/`. Target: this package (`HADES.data_analysis`).
+Source: `HADES/DATA ANALYSIS/` (removed from the working tree after the port; `mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src` restores it). Target: this package (`HADES.data_analysis`).
 Tests: `tests/hades_data_analysis/`, run with `uv run pytest tests/hades_data_analysis`.
 
 ## File map
@@ -27,7 +27,7 @@ Tests: `tests/hades_data_analysis/`, run with `uv run pytest tests/hades_data_an
 | `scfm.py` | `scfm.py` | Wrapped in functions. Output unchanged |
 | `test.m` | dropped | Contains only `% whaddup`. It also shadows Octave's built-in `test` |
 | (new) | `choked_flow.py` | Choked-flow equation shared by the scripts above |
-| (new) | `_matlab_compat.py` | `matlab_round`, MATLAB-compatible random streams |
+| (new) | `rdelib.matlab_compat` | `matlab_round`, MATLAB-compatible random streams (`matlab_rng`, `as_rng`, `rand`, `randn`, `randi`); first written here as `_matlab_compat.py`, moved verbatim |
 | (new) | `purpl_fft.single_sided_amplitude_spectrum`, `dominant_frequencies` | Reusable spectrum and peak picking for real ITP data |
 
 Every module has a `main()` and runs with `uv run python -m HADES.data_analysis.<module>`.
@@ -60,7 +60,9 @@ stream, or pass a numpy Generator.
     within 4e-12 K. Eq. 3/4, fed MATLAB's derivative, match within 1e-14 relative.
 
   Golden values from these runs are hard-coded in the tests. The live Octave tests
-  skip when Octave or the original `.m` files are missing.
+  read the originals from `$RDE_MATLAB_SOURCE_ROOT/HADES/DATA ANALYSIS` and skip,
+  with the recovery command, when Octave or the original `.m` files are missing:
+  `RDE_MATLAB_SOURCE_ROOT=/tmp/rde_src uv run pytest tests/hades_data_analysis`.
 * **MATLAB output.** The committed BOS SVG is byte-identical and the PNG
   (11811 x 8268) is pixel-identical. The oracles are read-only fixtures in
   `tests/hades_data_analysis/reference/bos/` plus SHA-256 hashes of the original
@@ -191,19 +193,24 @@ stream, or pass a numpy Generator.
    through one 2 mm hydraulic diameter (Re = 3.2e7). The Fanno friction factor and
    pressures depend on this. It may need the per-passage flow and area.
 
-## Candidates for consolidation into `rdelib`
+## Shared helpers (`rdelib`)
 
-* `choked_flow.py`: same as `rdelib.gasdynamics.choked_flow_factor` and
-  `choked_mass_flow`.
-* `cdr_conditions.fanno_pdrop`: its friction factor is the Tkachenko-Mileikovskyi
-  explicit Colebrook approximation (`rdelib.gasdynamics.tkachenko_friction_factor`?).
-  Its Mach solve overlaps `fanno_mach_from_fLD`.
-* `_matlab_compat.matlab_round`, `matlab_rng` and the `rand`/`randn`/`randi` adapters
-  could move to `rdelib.matlab_compat`.
-* Unit factors could move to `rdelib.units`: 2.20462 lb/kg, 0.453592 kg/lbm,
-  6.4516e-4 m^2/in^2, 2118.88 cfm per m^3/s, 0.000145038 psi/Pa, 25.4 mm/in.
+* Done: `matlab_round`, `matlab_rng`, `as_rng` and the `rand`/`randn`/`randi`
+  adapters moved verbatim to `rdelib.matlab_compat` (fake data and BOS outputs
+  bit-identical; the BOS SVG/PNG are still pinned by SHA-256).
+* Done: the friction factor in `cdr_conditions.fanno_pdrop` is
+  `rdelib.gasdynamics.tkachenko_friction_factor` (the same expression, so the
+  CDR results and printout are bit-identical).
+* Not done: `choked_flow.py`. Its three forms are algebraically equal to
+  `rdelib.gasdynamics.choked_flow_factor` / `choked_mass_flow` but use a different
+  operation order, and the scripts are pinned to Octave at 5e-16 / bit-identical.
+* Not done: the Mach solve in `cdr_conditions.fanno_pdrop` (it squares a Python
+  float, `rdelib.gasdynamics.fanno_fLD` a numpy one, which is not guaranteed to
+  round identically) and the inline unit factors (2.20462 lb/kg,
+  0.453592 kg/lbm, 6.4516e-4 m^2/in^2, 2118.88 cfm per m^3/s, 0.000145038 psi/Pa,
+  25.4 mm/in), which are kept as written in each script.
 
 ## Dependencies
 
-PNG writing uses Pillow (`PIL`). Pillow is already installed as a matplotlib
-dependency, but it is not listed in `pyproject.toml`.
+PNG writing uses Pillow (`PIL`), declared in `pyproject.toml`. The SVG is written
+with LF line endings on every OS, so it stays byte-identical on Windows.
