@@ -1,0 +1,20 @@
+Octave 11.3.0 harness used to run the ORIGINAL MATLAB (HADES/SIZING MODEL) on macOS.
+Produced: ../octave_main.json, ../octave_units.json, ../octave_cool.json, ../octave_main_v1_stdout.txt
+
+Setup (all in /tmp, originals never edited):
+ 1. cp -R "HADES/SIZING MODEL/." /tmp/hades_octave/run/
+    (the originals were removed from the working tree after the port; recover them first with
+    mkdir -p /tmp/rde_src && git archive 2a30c95 | tar -x -C /tmp/rde_src, then copy from
+    "/tmp/rde_src/HADES/SIZING MODEL/.")
+ 2. CEA/FCEA2.exe replaced by FCEA2_replay_shim.sh: it copies the committed CEA2 .out file only if the
+    deck the MATLAB just wrote is byte-identical to the committed deck (it was, for cea_det and cea_run).
+ 3. shims/ on the path for functions Octave lacks: readmatrix (reads a CSV export of the xlsx),
+    contains, splitlines, optimoptions (-> optimset), fittype/fit (one-coefficient a./x least squares,
+    plot-only), pdepe (Skeel-Berzins + ode15s, RelTol 1e-3 / AbsTol 1e-6).
+ 4. Minimal patches to the /tmp COPIES for Octave incompatibilities:
+    - HADES_size_ceaDet.m / HADES_size_ceaRocket.m: p.PartialMatching = false (Octave's inputParser
+      partially matches 'P0' to 'P0Units'; MATLAB matches exact names first).
+    - HADES_size_h2Inj.m: "txt" + number string concatenation -> ["txt" num2str(x)].
+    - Script-local functions (cooldown v1/v2/v3, thermal_v1) split into separate files, because Octave
+      cannot call local functions defined at the end of a script.
+ 5. octave-cli --no-gui drive_main.m / drive_units.m / drive_cool.m  (figures invisible, fltk)

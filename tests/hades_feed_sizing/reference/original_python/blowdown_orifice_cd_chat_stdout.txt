@@ -1,0 +1,4 @@
+Calibrated Cd: 0.6403
+Integrated Cd: 0.5642
+Actual Mass Loss: 0.400234 kg
+Ideal Mass Loss (Cd = 1): 0.709428 kg

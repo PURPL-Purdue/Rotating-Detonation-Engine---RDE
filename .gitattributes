@@ -1,0 +1,5 @@
+# Byte-exact files: the tests compare these byte for byte or by SHA-256, so git
+# must not convert their line endings (e.g. core.autocrlf on Windows checkouts).
+*.svg -text
+*.csv -text
+tests/**/reference/** -text

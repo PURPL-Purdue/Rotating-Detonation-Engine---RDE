@@ -1,0 +1,13 @@
+set(0, 'defaultfigurevisible', 'off');
+addpath('/tmp/hades_octave/shims');
+HADES_size_main_v1;
+fprintf('\n');
+R = struct();
+R.cellWidth = cellWidth; R.annulus_gap = annulus_gap; R.chosen_fillHeight = chosen_fillHeight;
+R.det_wave_path_length = det_wave_path_length; R.avg_chamber_p = avg_chamber_p;
+R.thrust = thrust; R.Failure_temps = Failure_temps; R.P_0 = P_0; R.h2_area = h2_area;
+R.air_area = air_area; R.area_annulus = area_annulus; R.max_flux = max_flux;
+R.P_plenum_req = P_plenum_req; R.fuel_mdot = fuel_mdot; R.total_mdot = total_mdot;
+R.ceaDet = rmfield(ceaDet_results, {'P0Units','T0Units'});
+R.ceaRock = rmfield(ceaRock_results, {'PcUnits','PeUnits','Pe'});
+fid = fopen('/tmp/hades_octave/octave_main.json', 'w'); fprintf(fid, '%s', jsonencode(R, 'PrettyPrint', true)); fclose(fid);

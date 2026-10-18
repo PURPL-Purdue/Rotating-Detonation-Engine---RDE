@@ -1,0 +1,28 @@
+
+============================================================
+              RDE MANIFOLD PRESSURE MODEL
+============================================================
+
+Chamber Pressure: 10.00 bar absolute
+
+Minimum manifold pressures for ideal choking:
+H2  : 18.959 bar
+Air : 18.929 bar
+CH4 : 18.385 bar
+GOx : 18.929 bar
+
+Injector areas:
+H2  : 25.13 mm^2
+Air : 304.77 mm^2
+CH4 : 56.55 mm^2
+GOx : 86.59 mm^2
+
+Effective injector Cd values:
+H2  : 0.710
+Air : 0.620
+CH4 : 0.600
+GOx : 0.600
+
+Results written to:
+manifold_pressure_results.csv
+============================================================
