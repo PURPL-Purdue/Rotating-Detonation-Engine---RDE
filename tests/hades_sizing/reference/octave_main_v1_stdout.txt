@@ -1,0 +1,45 @@
+Inputs: 
+Equivalence Ratio = 0.9
+Initial Pressure: 26.000 psia 
+Initial Temp: 283.15 K 
+
+Outputs: 
+Calculated Cell Width: 6.369 mm 
+Calculated Annulus Gap: 8.917 mm 
+Fill Height: 0.020 m (20.491 mm). 
+
+Geometry:
+Outer Radius: 2.000 in.
+Wall Thickness: 0.625 in.
+Annulus Gap: 9.525 mm (0.375 in). 
+Inner Radius: 1.625 in.
+Annulus Radius: 1.812 in.
+Detonation Wave Path Length: 11.388 in.
+
+Average Chamber Pressure: 142.75 psia (9.842 bar). 
+Thrust: 863.770 N (194.176 lbf) 
+The R squared value is 0.992
+Failure Temperature occurs at 902.91 C
+Failure Temperature occurs at 1657.24 F
+Initial Chamber Pressure 1.94 bar
+Given: 
+gamma (specific heat ratio) = 1.4 
+R (specific gas constant for hydrogen in J/(kg*K) = 4124
+
+Hydrogen Area = 25.4075 mm^2 
+Orifice count: 32.3499
+Total Area Air: 304.76717 mm^2
+
+Area Annulus: 2755.22192 mm^2
+
+Air Injector Width: 0.96397 mm
+Max Flux Range: 0.00074 kg/(s*mm^2)
+
+HADES P_PLENUM FANNO - H2 RESULTS
+Darcy friction factor: 0.0263
+Orifice Inlet Mach Number : 0.7398
+Orifice Inlet Static Pressure : 14.0586 bar
+Required Plenum Pressure (P01) : 19.5443 bar
+Required Plenum Pressure (P01) : 283.4709 psi
+Pressure Drop (P01 - Pc) : 9.5443 bar
+

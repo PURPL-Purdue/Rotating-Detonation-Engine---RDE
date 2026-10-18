@@ -10,6 +10,7 @@ dependencies = [
     "matplotlib>=3.8",
     "openpyxl>=3.1",
     "CoolProp>=6.6",
+    "cea>=3.3.4",
 ]
 
 [dependency-groups]
@@ -21,6 +22,21 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 include = ["rdelib*", "HADES*", "DEIMOS*", "MODELING*"]
+# Only real packages (with __init__.py); never pick up the legacy MATLAB folders
+# as namespace subpackages.
+namespaces = false
+exclude = [
+    "HADES.SIZING MODEL*",
+    "HADES.FEED SIZING*",
+    "HADES.DATA ANALYSIS*",
+    "MODELING.MODELING_size_*",
+    "DEIMOS.test*",
+]
+
+[tool.setuptools.package-data]
+# Data files read at run time (and docs/licences) must ship inside the wheel.
+"*" = ["*.xlsx", "*.csv", "*.json", "*.svg", "*.png", "*.md", "LICENSE", "LICENSE.*"]
+"HADES.data_analysis" = ["bos_print_assets/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
