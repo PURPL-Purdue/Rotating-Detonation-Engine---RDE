@@ -10,7 +10,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
 % run a single c+ from the topmost point.
 
     %% 1. Pre-allocate 1D arrays for better performance and set Piecewise Functions
-    MAX_PTS = 10000000;
+    MAX_PTS = 100000000;
     
     Field.X = nan(MAX_PTS, 1);
     Field.Y = nan(MAX_PTS, 1);
@@ -66,7 +66,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
 
     % Piecewise functions for the shock and slip lines (valid for x >= geom.xMax)
     shock_line = @(x) (y_inj + m_shock * (x - geom.xMax)) .* (x >= geom.xMax);
-    slip_line  = @(x) (y_inj + tand(geom.slip_angle + phi) * (x - geom.xMax)) .* (x >= geom.xMax);
+    slip_line  = @(x) (y_inj + tand(geom.slip_angle) * (x - geom.xMax)) .* (x >= geom.xMax);
 
     % Pre-allocate Shock Seeds struct for Region 2 evaluation
     MAX_SHOCK_SEEDS = 10000;
@@ -188,7 +188,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                 x_int = (m_minus_slope*x1 - y1 - m_jet*x_prev + y_prev) / (m_minus_slope - m_jet);
                 y_int = m_jet * (x_int - x_prev) + y_prev;
                 
-                if x_int >= x1 - 1e-5
+                if x_int >= x1 - 1e-5 && x_int >= geom.x_infill_start - 1e-4 && x_int <= geom.xMax + 1e-4
                     % Add to Field Struct
                     Field.X(idx) = x_int; 
                     Field.Y(idx) = y_int;
@@ -235,9 +235,13 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
             x_int = (m_plus*x1 - y1 - m_minus_slope*x2 + y2) / (m_plus - m_minus_slope);
             y_int = m_plus * (x_int - x1) + y1;
             
-            % SHOCK HANDLING: If resultant point is behind either of its parent points, then delete it because it is invalid
+            % CROSSING / SHOCK HANDLING:
+            % If ray is behind either parent point due to crossing / numerical curvature,
+            % project forward past both parents along the C+ ray so the characteristic continues uninterrupted.
+            % As shown in Grunenwald's thesis, characteristic waves pass through each other and continue forward.
             if x_int < x1 - 1e-5 || x_int < x2 - 1e-5
-                continue; % Skip adding this point to next_front!
+                x_int = max(x1, x2) + 1e-5;
+                y_int = m_plus * (x_int - x1) + y1;
             end
             
             % Calculate interior flow properties using invariants
@@ -274,7 +278,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                             % Rankine-Hugoniot jump across oblique shock
                             M_up = Field.M(p_up);
                             theta_up_val = Field.Theta(p_up);
-                            [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock + phi, gas.gamma);
+                            [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock, gas.gamma);
                             
                             % Store shock boundary point in Field
                             Field.X(idx) = x_s;
@@ -378,7 +382,7 @@ function [Field, ShockSeeds] = MoC_Solve_Field(seedPoints, geom, gas)
                     if x_s >= geom.xMax - 1e-4 && y_s >= y_inj - 1e-4 && y_s <= geom.y_engine_top
                         M_up = Field.M(p_top);
                         theta_up_val = Field.Theta(p_top);
-                        [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock + phi, gas.gamma);
+                        [M2, theta2, nu2, shockProps] = MoC_Oblique_Shock_Jump(M_up, theta_up_val, beta_shock, gas.gamma);
                         
                         Field.X(idx) = x_s;
                         Field.Y(idx) = y_s;

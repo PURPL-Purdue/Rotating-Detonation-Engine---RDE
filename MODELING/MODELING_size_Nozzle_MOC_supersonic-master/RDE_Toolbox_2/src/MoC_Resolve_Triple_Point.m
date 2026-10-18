@@ -34,7 +34,7 @@ theta_shock_guess = 45 * (pi/180); % Radians
 x0 = [M3_guess, theta_shock_guess];
 
 % fsolve options
-options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', .005, 'StepTolerance', 1e-6, 'MaxIterations', 1e10, 'MaxFunctionEvaluations', 1e10);
+options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', .005, 'StepTolerance', 1e-6, 'MaxIterations', 1000, 'MaxFunctionEvaluations', 2000);
 
 % Solve the system
 [sol, fval, exitflag] = fsolve(@(x) triple_point_residuals(x, P1, P2, gamma2, M1_prime), x0, options);
@@ -94,7 +94,7 @@ num = M1_prime^2 * sin(theta)^2 - 1;
 den = M1_prime^2 * (gamma2 + cos(2 * theta)) + 2;
 delta_2_prime = atan(2 * cot(theta) * (num / den));
 
-% Residuals to drive to zero[cite: 2]
+% Residuals to drive to zero
 res(1) = P3 - P2_prime;
 res(2) = delta_3 - delta_2_prime;
 end

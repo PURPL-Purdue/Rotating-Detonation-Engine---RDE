@@ -39,6 +39,32 @@ ChamberDim.chamber_length = 29.21;           % [mm], injector face to exit
 InjV.injector_area = 3.7138;  % [mm^2] summed area of one injector port set
 InjV.N_holes = 36;           % number of port sets; one for a single opening
 
+%% Plot Selection
+% Select which output graphs to display by providing a vector of numbers:
+%   1 = Method of Characteristics Net
+%   2 = Static Temperature Field [K]
+%   3 = Static Pressure Field [bar]
+%   4 = Mach Number Field
+%   5 = Flow Angle (Theta) Field [deg]
+%   6 = Density Field [kg/m^3]
+%   7 = Velocity Magnitude Field [m/s]
+% Examples:
+%   plots_requested = [1, 2];       % MoC Net and Temperature
+%   plots_requested = [3];          % Only Pressure
+%   plots_requested = [2, 3, 5];    % Temperature, Pressure, and Flow Angle
+
+plots_requested = [1, 2, 3, 4, 5, 6, 7];
+
+%% Plot Options
+% Select which plot options to use by providing a vector of numbers:
+%   1 = Show Slip Line 
+%   2 = Show Shock Line
+%   3 = Show Borders
+%   4 = Show Infill Region
+%   5 = Show Detonation Triangle
+
+plot_options = [3, 4, 5];
+
 %% Injection inputs 
 
 InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
@@ -47,9 +73,10 @@ InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
 
 % Set the max and min number of points along the various lines, if you want to use the non-optimized version, toggle is below.
 num_det_points = 200; % Max number of points along the detonation line (from triple point to floor)
-min_det_points = 50;  % Minimum number of points along the detonation line (from triple point to floor)
-num_fan_points = 200; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
-min_fan_points = 50;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+min_det_points = 100;  % Minimum number of points along the detonation line (from triple point to floor)
+num_fan_points = 300; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+min_fan_points = 100;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+slipShockOptions.maxSteps = 100000;
 
 % delta_h optimization toggle: If off, the solver will use the max number of points for every iteration.
 delta_h_opt_toggle = 1; % 1 = on, 0 = off
@@ -63,9 +90,10 @@ elseif delta_h_opt_toggle == 1
     fprintf('Delta_h optimization is ON. Using min points for first iteration, then scaling to max points as convergence is approached.\n');
 end 
 
+
 tol = 1e-4; % Tolerance for the y_inj iteration convergence
 max_iter = 50; % Maximum number of iterations for the y_inj convergence loop
-y_inj_update_method = 1; % Method for updating y_inj: 1 = simple update, 2 = weighted average
+y_inj_update_method = 2; % Method for updating y_inj: 1 = simple update, 2 = weighted average
 
 
 
@@ -129,7 +157,7 @@ M_target = sqrt((2 / gm1) * ((P0_mesh / P_target)^(gm1 / gamma) - 1));
 nu_target = (sqrt(gp1/gm1)*atan(sqrt((gm1/gp1)*(M_target^2 - 1))) - atan(sqrt(M_target^2 - 1))) * 180/pi;
 
 % Initial Nu based on post-detonation Mach M3
-M2_m1 = M3^2 - 1; % Used to clean up the code a bit, just means M^2 - 1
+M2_m1 = (1.001)^2 - 1; % Used to clean up the code a bit, just means M^2 - 1
 if M2_m1 < 0 % Checks for mach numbers below 0 and sets them to 0 to avoid complex numbers in the atan function
               % This could happen due to rounding errors in the MOC solver, but it should not happen in a real flow.
     M2_m1 = 0; 
@@ -152,7 +180,7 @@ for iter = 1:max_iter
         cur_fan_points = min_fan_points;
     else
         % Scale points based on |delta_h|: as error drops toward tol, points increase to max
-        delta_h_scale = 0.5; % [mm] threshold below which mesh progressively refines
+        delta_h_scale = 0.05; % [mm] threshold below which mesh progressively refines
         refine_factor = min(1.0, max(0.0, 1.0 - abs(delta_h) / delta_h_scale));
         
         cur_det_points = round(min_det_points + refine_factor * (num_det_points - min_det_points));
@@ -183,7 +211,7 @@ for iter = 1:max_iter
     seedPoints.X = [X_det, X_fan]; % Combine detonation line and fan x-coordinates
     seedPoints.Y = [Y_det, Y_fan]; % Combine detonation line and fan y-coordinates
     seedPoints.M = zeros(1, cur_det_points + length(Theta_fan)); % Pre-allocate Mach numbers
-    seedPoints.M(1:cur_det_points) = M3; % Set Mach numbers for detonation line points
+    seedPoints.M(1:cur_det_points) = 1.001; % Set Mach numbers for detonation line points
     seedPoints.Theta = [Theta_det, Theta_fan]; % Combine detonation line and fan angle flow angle (theta) vectors
     seedPoints.Nu = [Nu_det, Nu_fan]; % Combine detonation line and fan Prandtl-Meyer angle (Nu) vectors
     
@@ -193,7 +221,7 @@ for iter = 1:max_iter
     
     % 3. Set up geometry struct to test expansion along a solid floor
     geometry.xMax = xMax;
-    geometry.y_engine_top = 100; % Calculate higher for a fuller mesh (prevents mesh from being too sparse near the top and cutting off)
+    geometry.y_engine_top = 160; % Calculate higher for a fuller mesh (prevents mesh from being too sparse near the top and cutting off)
     geometry.x_infill_start = xMax * 10; % Push infill way out so floor is entirely solid 
                                          % for the first run to get a good initial mesh without considering infill
     geometry.infill_nu = nu_target; 
@@ -204,6 +232,8 @@ for iter = 1:max_iter
     geometry.y_slip0 = y_inj;
     geometry.y_inj = y_inj;
     geometry.yMax = ChamberDim.chamber_length; % Set the maximum y-coordinate for the geometry to the chamber length
+    geometry.beta = beta; % Set the shock angle for the geometry to the calculated beta
+    geometry.delta = delta; % Set the slip angle for the geometry to the calculated delta
     
     gas.gamma = gamma;
     
@@ -265,7 +295,7 @@ Y_fan = linspace(y_inj - 0.8e-4, y_inj, length(Theta_fan));
 seedPoints.X = [X_det, X_fan];
 seedPoints.Y = [Y_det, Y_fan];
 seedPoints.M = zeros(1, num_det_points + length(Theta_fan));
-seedPoints.M(1:num_det_points) = M3;
+seedPoints.M(1:num_det_points) = 1.001;
 seedPoints.Theta = [Theta_det, Theta_fan];
 seedPoints.Nu = [Nu_det, Nu_fan];
 
@@ -300,46 +330,73 @@ field.V   = field.M .* field.a;                 % Total velocity magnitude [m/s]
 field.v_x = field.V .* cosd(field.Theta);       % Horizontal / circumferential velocity [m/s]
 field.v_y = field.V .* sind(field.Theta);       % Vertical / axial velocity [m/s]
 
+%% 5.2 Irrotational MoC in Shock Slip Region
+% Shock seeds already contain the jump in Mach, angle, and total-pressure ratio.
+% Solve Mach/angle with MoC; map P0/T0 along straight lines parallel to the slip.
+gas.R = R_gas;
+gas.P0 = P0_mesh;
+gas.T0 = T0_mesh;
+shockSlipField = MoC_Solve_Slip_Shock(shockSeeds, geometry, field, gas, slipShockOptions);
+fprintf('Shock-slip region: %s (%d points).\n', ...
+    shockSlipField.Diagnostics.status, numel(shockSlipField.X));
+
+% Append solved region points to the same field used by the existing plot.
+% Shock seeds already exist in field: update their thermodynamics, do not
+% duplicate them. Convert the new solver's local parent indices to field IDs.
+old_count = numel(field.X);
+new_points = find(shockSlipField.Type ~= 5);
+seed_points = find(shockSlipField.Type == 5);
+existing_shock = find(field.Type == 5);
+point_map = nan(numel(shockSlipField.X),1);
+point_map(new_points) = old_count + (1:numel(new_points));
+point_map(seed_points) = existing_shock(shockSlipField.ShockSeed(seed_points));
+
+field.P0 = repmat(P0_mesh,old_count,1);
+field.T0 = repmat(T0_mesh,old_count,1);
+field.ShockSeed = nan(old_count,1);
+point_names = {'X','Y','M','Theta','Nu','P','T','rho','P0','T0', ...
+    'a','V','v_x','v_y','Type','Region','ShockSeed'};
+for k = 1:numel(point_names)
+    name = point_names{k};
+    field.(name)(point_map(seed_points)) = shockSlipField.(name)(seed_points);
+    field.(name) = [field.(name); shockSlipField.(name)(new_points)];
+end
+for name = {'Parent_C_Minus','Parent_C_Plus'}
+    parents = shockSlipField.(name{1})(new_points);
+    valid_parent = ~isnan(parents);
+    parents(valid_parent) = point_map(parents(valid_parent));
+    field.(name{1}) = [field.(name{1}); parents];
+end
+field.SlipShockDiagnostics = shockSlipField.Diagnostics;
+
 %% 6. Plotting - Method of Characteristics Net and RDE Flow Field
 geometry.y_inj = y_inj;
 geometry.x_inj = x_inj;
 geometry.phi = phi;
+geometry.beta = beta;
+geometry.delta = delta;
 geometry.shock_angle = beta;
+geometry.slip_angle = delta;
+geometry.xMax = xMax;
+geometry.yMax = ChamberDim.chamber_length;
 geometry.chamber_length = ChamberDim.chamber_length;
+geometry.x_infill_start = xMax - x_inj;
 
-% [fieldFigure, netFigure] = MoC_Plot_Field(field, geometry, xMax, yMax); % AI SLOP OLD PLOTTING, TO BE REPLACED BY THE FOLLOWING SECTION
-
-% TODO: add the infill area, slip, and shock lines to this plot
+% Moves the x-coordinates of the field points to be within the unwrapped chamber circumference
 
 for i = 1:length(field.X)
     if field.X(i) >= geometry.xMax 
         field.X(i) = field.X(i) - geometry.xMax;
     end
+
+    if field.Y(i) > geometry.yMax
+        field.Region(i) = 3; % Mark points above the chamber length as Region 3 (outside the chamber)
+    end
 end
 
-base = figure('Name', 'Method of Characteristics Net', 'NumberTitle', 'off', ...
-        'Position', [100, 200, 1200, 320]);
-ax = axes('Parent', base);
-hold(ax, 'on');
-plot(field.X(field.Y <= geometry.yMax), field.Y(field.Y <= geometry.yMax), 'k.', 'MarkerSize', 5);
-plot(field.X(field.Region == 2), field.Y(field.Region == 2), 'b.', 'MarkerSize', 10);
-%yline(ChamberDim.chamber_length, 'b', 'LineWidth', 2);
+field.plot_logic = (field.Region ~= 3) & ~isnan(field.Region); % Logical index for plotting only points within the chamber (Region 1 and 2)
+field.datapoint_indices = (1:length(field.X))'; % Index numbers for all points in the field
 
-plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-patch([geometry.x_infill_start, xMax, xMax, geometry.x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-patch([0, geometry.y_inj*tand(phi), 0, 0], [geometry.y_inj, 0, 0, geometry.y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
-
-xlim(ax, [0, xMax]);
-ylim(ax, [0, ChamberDim.chamber_length]);
-yticks(ax, 0:10:30);
-pbaspect(ax, [xMax, ChamberDim.chamber_length + 10, 1]);
-    
-grid(ax, 'on');
-box(ax, 'on');
-    
-xlabel(ax, 'Axial Distance - mm (Unwrapped)');
-ylabel(ax, 'Height - mm');
-title(ax, ['Method of Characteristics Net - ' num2str(length(field.X)) ' Points'], 'FontWeight', 'bold');
+MoC_Plot_Field(field, geometry, plots_requested, plot_options);
 
 toc;
