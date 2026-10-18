@@ -29,12 +29,12 @@ M1_prime = Vcj / a1_prime;
 % Flow direction and static pressures must be equal on both sides of the slip line
 
 % Initial guesses
-M3_guess = 1.1; 
-theta_shock_guess = 15 * (pi/180); % Radians
+M3_guess = 1.5; 
+theta_shock_guess = 45 * (pi/180); % Radians
 x0 = [M3_guess, theta_shock_guess];
 
 % fsolve options
-options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', .005, 'StepTolerance', 1e-6, 'MaxIterations', 1e10, 'MaxFunctionEvaluations', 1e10);
+options = optimoptions('fsolve', 'Display', 'none', 'FunctionTolerance', .005, 'StepTolerance', 1e-6, 'MaxIterations', 1000, 'MaxFunctionEvaluations', 2000);
 
 % Solve the system
 [sol, fval, exitflag] = fsolve(@(x) triple_point_residuals(x, P1, P2, gamma2, M1_prime), x0, options);
