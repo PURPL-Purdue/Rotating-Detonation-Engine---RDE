@@ -1,0 +1,32 @@
+
+=============================================
+       SONIC NOZZLE SIZING RESULTS
+=============================================
+
+--- DESIGN REQUIREMENTS ---
+Required Mass Flow          : 2.000 lb/s
+Design Mass Flow            : 2.300 lb/s
+Design Mass Flow            : 1.043 kg/s
+Downstream Pressure         : 310.08 psi
+Downstream Pressure         : 21.38 bar
+Upstream Total Temperature  : 283.00 K
+
+--- CHOKING CONDITION ---
+Critical Pressure Ratio     : 0.5283
+Minimum Upstream Total P    : 586.95 psi
+Minimum Upstream Total P    : 40.47 bar
+
+--- THROAT ---
+Throat Diameter             : 460.19 thou
+Throat Diameter             : 0.4602 in
+Throat Diameter             : 11.689 mm
+
+--- THROAT STATIC CONDITIONS ---
+Throat Pressure (M=1)       : 310.08 psi
+Throat Pressure (M=1)       : 21.38 bar
+Throat Temperature (M=1)    : 235.83 K
+
+--- FEED LINE ---
+Feed OD                     : 1.000 in
+Feed ID                     : 0.902 in
+=============================================

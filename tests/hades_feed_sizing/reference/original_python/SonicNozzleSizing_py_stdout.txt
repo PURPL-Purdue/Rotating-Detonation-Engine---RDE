@@ -1,0 +1,9 @@
+
+M_2 = 0.41900419107080666
+A_2 = 0.00033245077703586835 m^2
+A_t = 0.0001507175408488772 m^2
+Throat Diameter: 13.852780698979815 mm
+Upstream Pressure: 38.23231440974535 bar
+Required Upstream Pressure: 37.85858317475708 bar
+Flow is choked!
+

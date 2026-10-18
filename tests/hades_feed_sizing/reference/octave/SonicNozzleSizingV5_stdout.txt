@@ -1,0 +1,40 @@
+
+========================================================================================
+             RDE INJECTOR + FIXED SONIC ORIFICE SIZING SUMMARY
+========================================================================================
+
+Chamber Pressure             : 10.000 bar absolute
+Sonic Orifice Pressure Margin: 1.150
+
+Gas      Cd_inj   Cd_SO    Min Flow     Pman@Min    SO D [mm]   SO D [in]   P0@Min [bar]
+                           [kg/s]        [bar abs]                            [bar abs]
+----------------------------------------------------------------------------------------
+H2        0.710    0.850      0.0212       18.723        3.501      0.1378       40.823
+Air       0.620    0.850      0.9072       19.984       11.403      0.4489       43.503
+CH4       0.600    0.850      0.0657       11.084        4.903      0.1930       23.434
+GOx       0.600    0.850      0.3928       29.942        5.979      0.2354       65.179
+========================================================================================
+
+H2:
+  Injector choked at 4 of 5 valid points
+  Sonic orifice choked at 5 of 5 valid points
+  Full simplified model valid at 4 of 5 valid points
+
+Air:
+  Injector choked at 5 of 5 valid points
+  Sonic orifice choked at 5 of 5 valid points
+  Full simplified model valid at 5 of 5 valid points
+
+CH4:
+  Injector choked at 11 of 16 valid points
+  Sonic orifice choked at 16 of 16 valid points
+  Full simplified model valid at 11 of 16 valid points
+
+GOx:
+  Injector choked at 16 of 16 valid points
+  Sonic orifice choked at 16 of 16 valid points
+  Full simplified model valid at 16 of 16 valid points
+
+Results written to:
+<OUTPUT_DIR>/flow_requirements_manifold_input_combined_results.csv
+
