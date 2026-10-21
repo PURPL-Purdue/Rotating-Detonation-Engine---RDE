@@ -37,11 +37,11 @@ clear;
 %  USER INPUTS
 % ======================================================
 
-input_file = 'flow_requirements_manifold_input.csv';
+input_file = 'flow_requirements_manifold_input_2.csv';
 
 % Mean chamber pressure [bar absolute]
 
-P_chamber_bar = 10.0;
+P_chamber_bar = 10;
 
 % Atmospheric pressure used only for converting
 % absolute supply pressure -> gauge pressure
@@ -103,7 +103,7 @@ Cd_inj_GOx = 0.60;
 % These are separate from the injector Cd values.
 %
 % Replace with experimentally determined sonic-orifice
-% discharge coefficients when available.
+% disch arge coefficients when available.
 
 Cd_so_H2  = 0.85;
 Cd_so_Air = 0.85;
