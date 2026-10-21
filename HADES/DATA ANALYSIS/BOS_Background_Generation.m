@@ -26,7 +26,7 @@ close all;
 % Camera frame used during BOS testing
 % ------------------------------------------------------
 
-camera_width_px  = 256;
+camera_width_px  = 640;
 camera_height_px = 256;
 
 % ------------------------------------------------------
@@ -51,7 +51,7 @@ FOV_height_mm = 300;
 %
 % approximately 2 - 3 pixels
 
-target_dot_pixels = 2.5;
+target_dot_pixels = 3;
 
 % ------------------------------------------------------
 % Physical printed background size
