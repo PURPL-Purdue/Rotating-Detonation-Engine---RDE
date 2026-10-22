@@ -59,11 +59,10 @@ plots_requested = [1, 2, 3, 4, 5, 6, 7];
 % Select which plot options to use by providing a vector of numbers:
 %   1 = Show Slip Line 
 %   2 = Show Shock Line
-%   3 = Show Borders
-%   4 = Show Infill Region
-%   5 = Show Detonation Triangle
+%   3 = Show Infill Region
+%   4 = Show Detonation Triangle
 
-plot_options = [3, 4, 5];
+plot_options = [1, 2];
 
 %% Injection inputs 
 
@@ -367,7 +366,54 @@ for name = {'Parent_C_Minus','Parent_C_Plus'}
     parents(valid_parent) = point_map(parents(valid_parent));
     field.(name{1}) = [field.(name{1}); parents];
 end
+
 field.SlipShockDiagnostics = shockSlipField.Diagnostics;
+
+%% 5.1.1 Infill Region Point Creation
+
+num_infill_points = round(0.11 * (length(field.X))); % Number of points to create inside the infill region
+point_spacing = sqrt((xMax - geometry.x_infill_start) * y_inj / (2 * num_infill_points)); % Spacing between points in the infill region [mm]
+
+% Define horizontal velocity component v_cj 
+v_cj = iTripleParam.Vcj;
+
+% Infill static pressure in Pascals [Pa] 
+P_infill = P0 * 1e5;
+
+% Generate evenly spaced 2D grid of dots inside the infill triangle
+dx = point_spacing;
+dy = point_spacing;
+x_infill_vals = (geometry.x_infill_start + dx/2) : dx : xMax;
+y_infill_vals = (dy/2) : dy : y_inj;
+[X_grid, Y_grid] = meshgrid(x_infill_vals, y_infill_vals);
+
+% Hypotenuse boundary from (geometry.x_infill_start, 0) to (xMax, y_inj)
+slope_infill = y_inj / (xMax - geometry.x_infill_start);
+inside_infill = (Y_grid <= slope_infill * (X_grid - geometry.x_infill_start)) & ...
+                (X_grid <= xMax) & (Y_grid >= 0);
+
+infill_X = X_grid(inside_infill);
+infill_Y = Y_grid(inside_infill);
+N_infill = numel(infill_X);
+
+% Append infill points to field struct with specified properties
+field.X      = [field.X; infill_X];
+field.Y      = [field.Y; infill_Y];
+field.Region = [field.Region; ones(N_infill, 1)];
+field.T      = [field.T; repmat(T0, N_infill, 1)];
+field.P      = [field.P; repmat(P_infill, N_infill, 1)];
+field.Theta  = [field.Theta; repmat(phi, N_infill, 1)];
+field.v_x    = [field.v_x; repmat(v_cj, N_infill, 1)];
+field.v_y    = [field.v_y; repmat(v_inj, N_infill, 1)];
+
+% Mark any unspecified point-data properties as NaN
+unspecified_fields = {'M', 'Nu', 'rho', 'a', 'V', 'Type', 'Parent_C_Minus', 'Parent_C_Plus'};
+for k_fn = 1:numel(unspecified_fields)
+    fn_name = unspecified_fields{k_fn};
+    if isfield(field, fn_name)
+        field.(fn_name) = [field.(fn_name); nan(N_infill, 1)];
+    end
+end
 
 %% 6. Plotting - Method of Characteristics Net and RDE Flow Field
 geometry.y_inj = y_inj;
@@ -390,11 +436,11 @@ for i = 1:length(field.X)
     end
 
     if field.Y(i) > geometry.yMax
-        field.Region(i) = 3; % Mark points above the chamber length as Region 3 (outside the chamber)
+        field.Region(i) = 4; % Mark points above the chamber length as Region 4 (outside the chamber)
     end
 end
 
-field.plot_logic = (field.Region ~= 3) & ~isnan(field.Region); % Logical index for plotting only points within the chamber (Region 1 and 2)
+field.plot_logic = (field.Region ~= 4) & ~isnan(field.Region); % Logical index for plotting only points within the chamber (Region 1, 2, and 3)
 field.datapoint_indices = (1:length(field.X))'; % Index numbers for all points in the field
 
 MoC_Plot_Field(field, geometry, plots_requested, plot_options);

@@ -16,16 +16,14 @@ function [] = MoC_Plot_Field(field, geometry, plots_requested, plot_options)
 %   plot_options: Vector of numbers specifying which plot options to include
 %       1 = Show Slip Line
 %       2 = Show Shock Line
-%       3 = Show Borders
-%       4 = Show Infill Region
-%       5 = Show Detonation Triangle
+%       3 = Show Infill Region
+%       4 = Show Detonation Triangle
 
 %% Extract parameters
 
 Y = field.Y;
 X = field.X;
-Region = field.Region;
-plot_logic = field.plot_logic; % Logical index for points within the chamber (Region 1 and 2)
+plot_logic = field.plot_logic; % Logical index for points within the chamber (Region 1, 2, and 3)
 datapoint_indices = field.datapoint_indices; % Index numbers for all points in the field
 y_inj = geometry.y_inj;
 phi = geometry.phi;
@@ -35,6 +33,11 @@ yMax = geometry.yMax;
 xMax = geometry.xMax;
 chamber_length = geometry.chamber_length;
 x_infill_start = geometry.x_infill_start;
+
+slipline = any(plot_options == 1);
+shockline = any(plot_options == 2);
+infillregion = any(plot_options == 3);
+detonationtriangle = any(plot_options == 4);
 
 %% Plot 
 
@@ -49,10 +52,6 @@ for i = 1:length(plots_requested)
 
             idx = find(plot_logic);
             h_pts = plot(ax, X(idx), Y(idx), 'k.', 'MarkerSize', 5);
-            if ~isempty(Region)
-                idx_reg2 = idx(Region(idx) == 2);
-                plot(ax, X(idx_reg2), Y(idx_reg2), 'b.', 'MarkerSize', 10);
-            end
 
             % Label points with their index number (for coarse/medium meshes <= 3000 pts)
             if length(idx) <= 3000
@@ -98,10 +97,18 @@ for i = 1:length(plots_requested)
             c.Label.String = 'Temperature (K)'; % Labels the color key axis
             colormap('turbo'); 
 
-            plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-            plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-            patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-            patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            if shockline
+                plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+            end
+            if slipline
+                plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+            end
+            if infillregion
+                patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+            end
+            if detonationtriangle
+                patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            end
 
             xlim(ax, [0, xMax]);
             ylim(ax, [0, chamber_length]);
@@ -128,10 +135,18 @@ for i = 1:length(plots_requested)
             c.Label.String = 'Pressure (bar)'; % Labels the color key axis
             colormap('turbo'); 
 
-            plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-            plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-            patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-            patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            if shockline
+                plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+            end
+            if slipline
+                plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+            end
+            if infillregion
+                patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+            end
+            if detonationtriangle
+                patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            end
 
             xlim(ax, [0, xMax]);
             ylim(ax, [0, chamber_length]);
@@ -159,10 +174,18 @@ for i = 1:length(plots_requested)
             c.Label.String = 'Mach Number'; % Labels the color key axis
             colormap('turbo'); 
 
-            plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-            plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-            patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-            patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+             if shockline
+                plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+            end
+            if slipline
+                plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+            end
+            if infillregion
+                patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+            end
+            if detonationtriangle
+                patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            end
 
             xlim(ax, [0, xMax]);
             ylim(ax, [0, chamber_length]);
@@ -190,10 +213,18 @@ for i = 1:length(plots_requested)
             c.Label.String = 'Flow Angle'; % Labels the color key axis
             colormap('turbo'); 
 
-            plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-            plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-            patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-            patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+             if shockline
+                plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+            end
+            if slipline
+                plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+            end
+            if infillregion
+                patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+            end
+            if detonationtriangle
+                patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            end
 
             xlim(ax, [0, xMax]);
             ylim(ax, [0, chamber_length]);
@@ -221,10 +252,18 @@ for i = 1:length(plots_requested)
             c.Label.String = 'Density'; % Labels the color key axis
             colormap('turbo'); 
 
-            plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-            plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-            patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-            patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+             if shockline
+                plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+            end
+            if slipline
+                plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+            end
+            if infillregion
+                patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+            end
+            if detonationtriangle
+                patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            end
 
             xlim(ax, [0, xMax]);
             ylim(ax, [0, chamber_length]);
@@ -252,10 +291,18 @@ for i = 1:length(plots_requested)
             c.Label.String = 'Velocity Magnitude'; % Labels the color key axis
             colormap('turbo'); 
 
-            plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
-            plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
-            patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
-            patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+             if shockline
+                plot([0, (yMax - y_inj)/tand(beta + phi)], [y_inj, yMax], 'r--', 'LineWidth', 2); % Shock line
+            end
+            if slipline
+                plot([0, (yMax - y_inj)/tand(delta + phi)], [y_inj, yMax], 'g--', 'LineWidth', 2); % Slip line
+            end
+            if infillregion
+                patch([x_infill_start, xMax, xMax, x_infill_start], [0, 0, y_inj, 0], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Infill triangle
+            end
+            if detonationtriangle
+                patch([0, y_inj*tand(phi), 0, 0], [y_inj, 0, 0, y_inj], 'c', 'FaceAlpha', 0.8, 'EdgeColor', 'none'); % Detonation triangle
+            end
 
             xlim(ax, [0, xMax]);
             ylim(ax, [0, chamber_length]);
