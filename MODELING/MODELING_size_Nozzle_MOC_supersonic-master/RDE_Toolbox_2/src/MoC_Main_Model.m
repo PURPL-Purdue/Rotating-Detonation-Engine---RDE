@@ -2,6 +2,18 @@
 % This is a script: inputs and ceaOut remain visible in the MATLAB workspace.
 % CEA results are passed to the triple-point resolver below.
 
+
+%% TODO: FIGURE OUT WHAT IS GOING ON WITH THE SLIP
+%% SHOCK REGION HAVING CHAR LIES BE SO STRAIGHT AND REFLECTING AT 90 DEGREES.
+% POSSIBLE IMMEDIATE IDEAS FOR CAUSES
+% 1. Coordinate system adjustment making it look like the char lines
+%  reflecting at 90 degrees. 
+% 2. PM angle calc could be wrong. 
+% 3. The lines coming from the points themselves are very straight as well
+% so it's prob some bs to do with the existing calcs for angles.  
+% 90 degree angle lines means that region is likely slow. 
+% WRite the oblique shock jump conditions part of the paper. 
+% Work on delta_h calc. 
 clear
 clc
 close all
@@ -48,12 +60,14 @@ InjV.N_holes = 36;           % number of port sets; one for a single opening
 %   5 = Flow Angle (Theta) Field [deg]
 %   6 = Density Field [kg/m^3]
 %   7 = Velocity Magnitude Field [m/s]
+%   8 = Characteristic Lines (products: C+ red, C- blue; slip-shock: green)
 % Examples:
 %   plots_requested = [1, 2];       % MoC Net and Temperature
 %   plots_requested = [3];          % Only Pressure
 %   plots_requested = [2, 3, 5];    % Temperature, Pressure, and Flow Angle
+%   plots_requested = [8];          % Characteristic lines instead of points
 
-plots_requested = [1, 2, 3, 4, 5, 6, 7];
+plots_requested = [2, 4, 5, 3, 8];
 
 %% Plot Options
 % Select which plot options to use by providing a vector of numbers:
@@ -72,10 +86,10 @@ InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
 %% Solver inputs
 
 % Set the max and min number of points along the various lines, if you want to use the non-optimized version, toggle is below.
-num_det_points = 200; % Max number of points along the detonation line (from triple point to floor)
-min_det_points = 100;  % Minimum number of points along the detonation line (from triple point to floor)
+num_det_points = 250; % Max number of points along the detonation line (from triple point to floor)
+min_det_points = 50;  % Minimum number of points along the detonation line (from triple point to floor)
 num_fan_points = 300; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
-min_fan_points = 100;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
+min_fan_points = 50;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
 slipShockOptions.maxSteps = 100000;
 
 % delta_h optimization toggle: If off, the solver will use the max number of points for every iteration.
@@ -147,7 +161,7 @@ gp1 = gamma + 1;
 gm1 = gamma - 1;
 
 % Stagnation pressure of the characteristic field (constant for this MOC)
-P0_mesh = P_match * (1 + (gm1 / 2) * M3^2)^(gamma / gm1);
+P0_mesh = P_match * (1 + (gm1 / 2) * M3.^2)^(gamma / gm1);
 P_target = InjV.Pa;
 
 % Target Mach number
@@ -375,14 +389,16 @@ geometry.x_inj = x_inj;
 geometry.phi = phi;
 geometry.beta = beta;
 geometry.delta = delta;
-geometry.shock_angle = beta;
-geometry.slip_angle = delta;
+geometry.shock_angle = beta + phi;
+geometry.slip_angle = delta + phi;
 geometry.xMax = xMax;
 geometry.yMax = ChamberDim.chamber_length;
 geometry.chamber_length = ChamberDim.chamber_length;
 geometry.x_infill_start = xMax - x_inj;
 
 % Moves the x-coordinates of the field points to be within the unwrapped chamber circumference
+% Retain marching coordinates so characteristic segments wrap at the seam.
+field.X_unwrapped = field.X;
 
 for i = 1:length(field.X)
     if field.X(i) >= geometry.xMax 

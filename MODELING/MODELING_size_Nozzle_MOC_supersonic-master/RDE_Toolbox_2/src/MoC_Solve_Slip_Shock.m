@@ -24,7 +24,8 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
 % options.maxSteps limits the number of shock-seeded characteristic rows.
 % There is no fixed stepSize: intersections determine the point spacing.
 
-    %% 1. Solver Settings and Point Storage
+    %% 1. Solver Settings and Point Storage 
+    % This initializes all the limits, geometry, output arrays and diagnostics. 
     if nargin < 5
         options = struct();
     end
@@ -36,8 +37,8 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
             'stepSize is unused: characteristic intersections now set the spacing.');
     end
 
-    max_steps = options.maxSteps;
-    MAX_POINTS = 1000000;
+    max_steps = options.maxSteps; % limits the number of shock seeds
+    MAX_POINTS = 1000000;         % limits the number of points in the shock slip region
 
     validateattributes(max_steps, {'numeric'}, {'scalar', 'integer', 'positive'});
     validateattributes(gas.gamma, {'numeric'}, {'scalar', 'finite', '>', 1});
@@ -52,12 +53,18 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
         'MoC:SlipShockInput', 'Require 0 < slip angle < shock angle < 90 degrees.');
     assert(geom.yMax > geom.y_inj, 'MoC:SlipShockInput', 'Exit must be above the triple point.');
 
-    % Rotate coordinates only, so the straight slip becomes march_y = 0.
+    % COORDINATE SHIFTING: 
+
+    % Rotate coordinates so that they align with the slip line,
+    %  so the straight slip becomes march_y = 0.
     % This is not a change of reference frame or an additional flow rotation.
+    % This transformation is applied later around lines 90-100
+    % This makes the slip boundary essentially act as an y axis
+    % creates new x', y', and theta' coordinates
     slip_cos = cosd(slip_angle);
     slip_sin = sind(slip_angle);
     shock_slope = tand(shock_angle - slip_angle);
-    end_x = (geom.yMax - geom.y_inj) / slip_sin;
+    end_x = (geom.yMax - geom.y_inj) / slip_sin; 
     position_tolerance = 1e-10 * max(1, end_x);
 
     point_names = {'X','Y','M','Theta','Nu','P','T','rho','P0','T0', ...
@@ -85,34 +92,51 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
     diagnostics.totalConditionExtrapolationCount = 0;
 
     %% 2. Load the Supplied Shock Seeds
+
     seed_count = numel(ShockSeeds.X);
+
     assert(seed_count <= MAX_POINTS, 'MoC:SlipShockInput', 'Too many shock seeds.');
     for name = {'X','Y','M','Theta','P0_Ratio'}
+
         values = ShockSeeds.(name{1});
-        assert(numel(values) == seed_count && isreal(values) && all(isfinite(values(:))), ...
-            'MoC:SlipShockInput', 'Shock seed arrays must be finite, real, and equal length.');
+
+            assert(numel(values) == seed_count && isreal(values) && all(isfinite(values(:))), ...
+                'MoC:SlipShockInput', 'Shock seed arrays must be finite, real, and equal length.');
     end
 
+    % Transforming the shock seeds to match the local coordinate system created above.
     seed_x = (ShockSeeds.X(:) - geom.xMax)*slip_cos + ...
              (ShockSeeds.Y(:) - geom.y_inj)*slip_sin;
+
     seed_y = -(ShockSeeds.X(:) - geom.xMax)*slip_sin + ...
               (ShockSeeds.Y(:) - geom.y_inj)*slip_cos;
-    assert(all(seed_x >= -position_tolerance) && ...
-        all(abs(seed_y - shock_slope*seed_x) < 1e-6*max(1,end_x)), ...
-        'MoC:SlipShockInput', 'Seeds must lie on the unwrapped straight shock.');
 
+
+            assert(all(seed_x >= -position_tolerance) && ...
+                all(abs(seed_y - shock_slope*seed_x) < 1e-6*max(1,end_x)), ...
+                'MoC:SlipShockInput', 'Seeds must lie on the unwrapped straight shock.');
+
+    
+    % Adding the supplied shock seeds from the MoC_Solve_Field function
+
+    % sorting the seeds by x'
     [seed_x, order] = sort(seed_x);
     seed_y = seed_y(order);
     seed_mach = ShockSeeds.M(order);
     seed_mach = seed_mach(:);
 
+    % Transforming flow angle where theta' = theta - slip angle
     seed_state.Theta = ShockSeeds.Theta(order);
     seed_state.Theta = seed_state.Theta(:) - slip_angle;
     seed_state.M = seed_mach;
     seed_state.Nu = pmAngle(max(seed_mach,1),gamma);
+
+    % Importing and computing shock thermodynamics for the seed points.
+    % Rankine-Hugionot relation has already been computed in MoC_Oblique_Shock_Jump.m
     seed_state.P0 = gas.P0 * ShockSeeds.P0_Ratio(order);
     seed_state.P0 = seed_state.P0(:);
     seed_state.T0 = repmat(gas.T0, seed_count, 1);
+
     if isfield(ShockSeeds, 'P0')
         seed_state.P0 = ShockSeeds.P0(order);
         seed_state.P0 = seed_state.P0(:);
@@ -323,14 +347,19 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
 
     %% 5. Compare Pressure Across the Prescribed Slip
     if isfield(field,'Type') && isfield(field,'P') && isfield(geom,'x_slip0')
+
         product_slip = find(field.Type==2 & isfinite(field.P) & field.P>0);
+
         [product_x,unique_ids] = unique(field.X(product_slip));
+
         if numel(product_x) >= 2
             product_pressure = field.P(product_slip(unique_ids));
             slip_ids = find(ShockSlipField.Type==2 & ShockSlipField.InChamber);
             sample_x = ShockSlipField.X(slip_ids)-geom.xMax+geom.x_slip0;
             matched_pressure = interp1(product_x,product_pressure,sample_x,'linear',NaN);
             valid = isfinite(matched_pressure);
+
+
             diagnostics.slipComparisonCount = nnz(valid);
             if any(valid)
                 diagnostics.maxSlipPressureRelativeMismatch = max(abs( ...
@@ -353,10 +382,14 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
         % Local coordinates are parallel/normal to the straight slip.
         point.x = (ShockSlipField.X(id)-geom.xMax)*slip_cos + ...
                   (ShockSlipField.Y(id)-geom.y_inj)*slip_sin;
+
         point.y = -(ShockSlipField.X(id)-geom.xMax)*slip_sin + ...
                    (ShockSlipField.Y(id)-geom.y_inj)*slip_cos;
+
         point.Theta = ShockSlipField.Theta(id)-slip_angle;
+
         point.M = ShockSlipField.M(id);
+        
         point.Nu = ShockSlipField.Nu(id);
     end
 
