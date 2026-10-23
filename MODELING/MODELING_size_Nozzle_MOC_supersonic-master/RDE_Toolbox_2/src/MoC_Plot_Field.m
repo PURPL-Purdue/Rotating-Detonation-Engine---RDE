@@ -92,7 +92,7 @@ for i = 1:length(plots_requested)
             xlim(ax, [0, xMax]/length_scale);
             ylim(ax, [0, chamber_length]/length_scale);
             daspect(ax, [1 1 1]);
-            box(ax, 'on');
+            box(ax, 'off');
             if plots_requested(i) == 8
                 grid(ax, 'off');
                 xlabel(ax, 'x/L (L = chamber circumference)');
@@ -371,7 +371,7 @@ for family = 1:2
     children = children(keep);
     % An incident product ray ending at a shock seed is still a product ray.
     % Rays emitted by the shock seeds and the slip-shock net are green.
-    slip_shock = region(parents) == 2;
+    slip_shock = region(parents) == 3;
     for in_slip_shock = 0:1
         select = slip_shock == in_slip_shock;
         color_index = family;
