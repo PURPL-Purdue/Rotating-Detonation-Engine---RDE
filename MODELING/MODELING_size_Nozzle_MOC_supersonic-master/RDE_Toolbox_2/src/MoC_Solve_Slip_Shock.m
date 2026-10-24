@@ -348,7 +348,7 @@ function ShockSlipField = MoC_Solve_Slip_Shock(ShockSeeds, geom, field, gas, opt
     %% 5. Compare Pressure Across the Prescribed Slip
     if isfield(field,'Type') && isfield(field,'P') && isfield(geom,'x_slip0')
 
-        product_slip = find(field.Type==2 & isfinite(field.P) & field.P>0);
+        product_slip = find(field.Type(:)==2 & isfinite(field.P(:)) & field.P(:)>0);
 
         [product_x,unique_ids] = unique(field.X(product_slip));
 

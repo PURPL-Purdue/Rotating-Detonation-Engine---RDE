@@ -26,6 +26,7 @@ function [] = MoC_Plot_Field(field, geometry, plots_requested, plot_options)
 
 Y = field.Y;
 X = field.X;
+Region = field.Region;
 plot_logic = field.plot_logic; % Logical index for points within the chamber (Region 1, 2, and 3)
 datapoint_indices = field.datapoint_indices; % Index numbers for all points in the field
 y_inj = geometry.y_inj;

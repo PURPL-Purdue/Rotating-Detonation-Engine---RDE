@@ -76,16 +76,16 @@ plots_requested = [2, 4, 5, 3, 8];
 %   3 = Show Infill Region
 %   4 = Show Detonation Triangle
 
-plot_options = [1, 2];
+plot_options = [];
 
 %% Injection inputs 
 
-InjV.Pa = 1e6;       % [Pa] chamber-side pressure input
+InjV.Pa = 250000;       % [Pa] chamber-side pressure input
 
 %% Solver inputs
 
 % Set the max and min number of points along the various lines, if you want to use the non-optimized version, toggle is below.
-num_det_points = 250; % Max number of points along the detonation line (from triple point to floor)
+num_det_points = 200; % Max number of points along the detonation line (from triple point to floor)
 min_det_points = 50;  % Minimum number of points along the detonation line (from triple point to floor)
 num_fan_points = 300; % Max number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
 min_fan_points = 50;  % Minimum number of points along the Prandtl-Meyer expansion fan (from triple point to floor)
@@ -104,9 +104,9 @@ elseif delta_h_opt_toggle == 1
 end 
 
 
-tol = 1e-4; % Tolerance for the y_inj iteration convergence
+tol = 1e-3; % Tolerance for the y_inj iteration convergence
 max_iter = 50; % Maximum number of iterations for the y_inj convergence loop
-y_inj_update_method = 2; % Method for updating y_inj: 1 = simple update, 2 = weighted average
+y_inj_update_method = 1; % Method for updating y_inj: 1 = simple update, 2 = weighted average
 
 
 
@@ -186,14 +186,32 @@ y_inj = .3 * ChamberDim.chamber_length; % Initial guess for injection triangle h
 delta_h = Inf; % Initialize delta_h for mesh scaling on iteration 1
 
 fprintf('--- Starting y_inj iteration ---\n');
+
 for iter = 1:max_iter
+
+    if iter ~= 1
+        clear field
+
+        [beta, delta, P_match, M3, M1_p] = MoC_Resolve_Triple_Point(iTripleParam);
+        fprintf('Beta Shock: %.2f degrees | Slip Angle: %.2f degrees | P Matched: %.2f Pa | M3: %.2f | M1'': %.2f\n\n', beta, delta, P_match, M3, M1_p);
+
+        P0_mesh = P_match * (1 + (gm1 / 2) * M3^2)^(gamma / gm1);
+        P_target = InjV.Pa;
+
+        % Target Mach number
+        M_target = sqrt((2 / gm1) * ((P0_mesh / P_target)^(gm1 / gamma) - 1));
+
+        % Target Nu
+        nu_target = (sqrt(gp1/gm1)*atan(sqrt((gm1/gp1)*(M_target^2 - 1))) - atan(sqrt(M_target^2 - 1))) * 180/pi;
+
+    end
     % Determine mesh resolution as a function of delta_h
     if iter == 1 || isinf(delta_h)
         cur_det_points = min_det_points;
         cur_fan_points = min_fan_points;
     else
         % Scale points based on |delta_h|: as error drops toward tol, points increase to max
-        delta_h_scale = 0.05; % [mm] threshold below which mesh progressively refines
+        delta_h_scale = 0.1; % [mm] threshold below which mesh progressively refines
         refine_factor = min(1.0, max(0.0, 1.0 - abs(delta_h) / delta_h_scale));
         
         cur_det_points = round(min_det_points + refine_factor * (num_det_points - min_det_points));
@@ -288,6 +306,17 @@ for iter = 1:max_iter
     elseif y_inj_update_method == 2
         y_inj = 0.5 * y_inj + 0.5 * y_inj_new; % Weighted average update
     end
+
+    if isfield(field, 'ShockSeeds') && ~isempty(field.ShockSeeds.Y)
+        [~, TP_M_Index] = min(field.ShockSeeds.Y);
+        p_up = field.ShockSeeds.Parent_Ray(TP_M_Index);
+        if ~isnan(p_up) && p_up > 0
+            M_up = field.M(p_up);
+            P_up = P0_mesh / (1 + 0.5 * (gamma - 1) * M_up^2)^(gamma / (gamma - 1));
+            iTripleParam.M1_prime = M_up;
+            iTripleParam.P1 = P_up;
+        end
+    end
    
 end
 
@@ -320,6 +349,9 @@ end
 geometry.x_infill_start = xMax - x_inj;
 geometry.y_inj = y_inj;
 geometry.shock_angle = beta + phi;
+geometry.slip_angle = delta + phi;
+geometry.beta = beta;
+geometry.delta = delta;
 fprintf('Solving final characteristic field with infill boundary at max resolution (%d det, %d fan points)...\n', num_det_points, num_fan_points);
 [field, shockSeeds] = MoC_Solve_Field(seedPoints, geometry, gas);
 fprintf('Solved %d points.\n\n', length(field.X));

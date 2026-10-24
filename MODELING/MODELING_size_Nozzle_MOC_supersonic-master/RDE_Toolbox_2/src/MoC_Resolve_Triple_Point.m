@@ -15,14 +15,18 @@ Vcj = iTripleParam.Vcj;
 gamma2 = iTripleParam.gamma2;
 R1 = iTripleParam.R1;
 
-% 1. Calculate bounding gas properties 
-% The bounding gas consists of detonation products isentropically 
-% expanded to the initial reactant pressure. (Fievisohn eqn. 8)
-T1_prime = T2 * (P1 / P2)^((gamma2 - 1) / gamma2);
+% 1. Calculate bounding gas properties or skip if inputted directly
 
-% Calculate the acoustic speed and Mach number of the bounding gas
-a1_prime = sqrt(gamma2 * R1 * T1_prime);
-M1_prime = Vcj / a1_prime;
+if isfield(iTripleParam, 'M1_prime')
+    M1_prime = iTripleParam.M1_prime; % Use provided bounding gas mach number if specified
+else
+    % The bounding gas are assumed to consist of detonation products 
+    % isentropically expanded to the initial reactant pressure.
+    T1_prime = T2 * (P1 / P2)^((gamma2 - 1) / gamma2);
+    % Calculate the acoustic speed and Mach number of the bounding gas
+    a1_prime = sqrt(gamma2 * R1 * T1_prime);
+    M1_prime = Vcj / a1_prime;
+end
 
 % 2. Setup the nonlinear system for the triple point
 % We must find M3 and theta_shock such that P3 = P2_prime and delta_3 = delta_2_prime.
